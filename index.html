@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced ML Portfolio | Precision Engineering</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <nav class="glass-nav">
+        <div class="container">
+            <div class="logo">Neural<span>Obsidian</span></div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header id="home" class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-content">
+            <h1 class="fade-in">Advanced Machine Learning Portfolio</h1>
+            <p class="subtitle fade-in delay-1">Solving Complex Data Challenges with Custom Neural Architectures and Mathematical Precision.</p>
+            <div class="hero-cta fade-in delay-2">
+                <a href="#projects" class="btn btn-primary">Explore Research</a>
+                <a href="https://github.com/Kunsh162007" target="_blank" class="btn btn-secondary">GitHub Profile</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="projects" class="projects-section">
+        <div class="container">
+            <h2 class="section-title">Core Research <span>&</span> Implementations</h2>
+            <div class="projects-grid">
+                <!-- KNN Card -->
+                <div class="project-card" data-category="classification">
+                    <div class="card-image">
+                        <img src="assets/knn_dashboard.png" alt="KNN Forensic Dashboard">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag emerald">KNN</span>
+                            <span class="tag">Forensic</span>
+                        </div>
+                        <h3>Glass Identification</h3>
+                        <p>Forensic-grade classification with 81.48% accuracy using a custom K-Nearest Neighbors implementation.</p>
+                        <div class="card-footer">
+                            <button class="btn-text">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LDA Card -->
+                <div class="project-card" data-category="dimensionality">
+                    <div class="card-image">
+                        <img src="assets/lda_dashboard.png" alt="LDA Wine Quality Dashboard">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag electric">LDA</span>
+                            <span class="tag">Wine Quality</span>
+                        </div>
+                        <h3>Wine Feature Extraction</h3>
+                        <p>Linear Discriminant Analysis where LD1 explains 87% of class separability variance.</p>
+                        <div class="card-footer">
+                            <button class="btn-text">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LR Card -->
+                <div class="project-card" data-category="regression">
+                    <div class="card-image">
+                        <img src="assets/lr_stock_predictions.png" alt="Linear Regression Stock Predictions">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag purple">Regression</span>
+                            <span class="tag">Finance</span>
+                        </div>
+                        <h3>S&P 500 Forecasting</h3>
+                        <p>Predicting market trends using multi-variable Linear Regression and historical Yahoo Finance data.</p>
+                        <div class="card-footer">
+                            <button class="btn-text">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LogReg Card -->
+                <div class="project-card" data-category="classification">
+                    <div class="card-image">
+                        <img src="assets/logreg_heart_disease.png" alt="Logistic Regression Heart Disease">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag emerald">LogReg</span>
+                            <span class="tag">Medical</span>
+                        </div>
+                        <h3>Heart Disease Diagnosis</h3>
+                        <p>Custom mathematical implementation with Sigmoid and Log-loss achieving 85% accuracy on clinical data.</p>
+                        <div class="card-footer">
+                            <button class="btn-text">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PCA Card -->
+                <div class="project-card" data-category="dimensionality">
+                    <div class="card-image">
+                        <img src="assets/pca_har_2d.png" alt="PCA Human Activity Recognition">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag electric">PCA</span>
+                            <span class="tag">SVD</span>
+                        </div>
+                        <h3>Activity Recognition</h3>
+                        <p>91% compression of sensor signals using SVD-based Principal Component Analysis.</p>
+                        <div class="card-footer">
+                            <button class="btn-text">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Perceptron Card -->
+                <div class="project-card" data-category="neural">
+                    <div class="card-image">
+                        <img src="assets/perceptron_accuracy.png" alt="Perceptron Forest Covertype">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag purple">NN</span>
+                            <span class="tag">From Scratch</span>
+                        </div>
+                        <h3>Forest Covertype MLP</h3>
+                        <p>Deep Learning showcase featuring ReLU, Mini-batch GD, and L2 Regularization in pure NumPy.</p>
+                        <div class="card-footer">
+                            <button class="btn-text">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RF Card -->
+                <div class="project-card" data-category="ensemble">
+                    <div class="card-image">
+                        <img src="assets/rf_fraud_roc.png" alt="Random Forest Fraud Detection">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag emerald">Random Forest</span>
+                            <span class="tag">Security</span>
+                        </div>
+                        <h3>Fraud Detection Engine</h3>
+                        <p>Processing 6.3M records with a 0.9994 ROC-AUC using optimized ensemble methods.</p>
+                        <div class="card-footer">
+                            <button class="btn-text">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SVM Card -->
+                <div class="project-card" data-category="classification">
+                    <div class="card-image">
+                        <img src="assets/svm_mushroom_summary.png" alt="SVM Mushroom Classification">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag electric">SVM</span>
+                            <span class="tag">RBF Kernel</span>
+                        </div>
+                        <h3>Mushroom Safety Analysis</h3>
+                        <p>Robust SVM model with noise-injection verification for extreme environmental stability.</p>
+                        <div class="card-footer">
+                            <button class="btn-text">View Details</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">Neural<span>Obsidian</span></div>
+                <p>Advanced Machine Learning Showcase &copy; 2026</p>
+                <div class="social-links">
+                    <a href="https://github.com/Kunsh162007" target="_blank">GitHub</a>
+                    <a href="#">LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
