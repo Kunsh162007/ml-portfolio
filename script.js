@@ -31,12 +31,50 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add "View Details" click handler (mockup logic)
+    // Modal Elements
+    const modal = document.getElementById('readme-modal');
+    const modalContent = document.getElementById('markdown-container');
+    const closeBtn = document.querySelector('.close-btn');
+    const githubLink = document.getElementById('modal-github-link');
+
+    // Add "View Details" click handler
     document.querySelectorAll('.btn-text').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const projectTitle = e.target.closest('.card-content').querySelector('h3').innerText;
-            console.log(`Navigating to research details for: ${projectTitle}`);
-            alert(`Feature Coming Soon: In-depth research analysis for ${projectTitle}.\n\nThis will include detailed metrics, code walkthroughs, and interactive visualizations.`);
+        btn.addEventListener('click', async (e) => {
+            const readmePath = e.target.getAttribute('data-readme');
+            const githubUrl = e.target.getAttribute('data-github');
+            
+            // Set github link
+            githubLink.href = githubUrl || '#';
+            
+            // Show loading state
+            modalContent.innerHTML = '<p>Loading project details...</p>';
+            modal.classList.add('show');
+            modal.style.display = 'block';
+
+            try {
+                const response = await fetch(readmePath);
+                if (!response.ok) throw new Error('Failed to load README');
+                
+                const markdownText = await response.text();
+                // Parse markdown to HTML using marked.js
+                modalContent.innerHTML = marked.parse(markdownText);
+            } catch (err) {
+                console.error(err);
+                modalContent.innerHTML = '<p>Error loading project details. Please try the GitHub link above.</p>';
+            }
         });
+    });
+
+    // Close Modal Event Listeners
+    closeBtn.addEventListener('click', () => {
+        modal.classList.remove('show');
+        setTimeout(() => modal.style.display = 'none', 300);
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
     });
 });

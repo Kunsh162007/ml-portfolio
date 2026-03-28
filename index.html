@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced ML Portfolio | Precision Engineering</title>
+    <title>Kunsh Agrawal | Advanced Machine Learning Portfolio</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 <body class="dark-theme">
     <nav class="glass-nav">
         <div class="container">
-            <div class="logo">Neural<span>Obsidian</span></div>
+            <div class="logo">Kunsh<span>Agrawal</span></div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#projects">Projects</a></li>
@@ -50,7 +50,7 @@
                         <h3>Alzheimer's MRI Diagnosis</h3>
                         <p>Ensemble of advanced CNN architectures achieving 95.4% accuracy, rigorously validated with Grad-CAM and SHAP.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/CNN.md" data-github="https://github.com/Kunsh162007/CNN">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                         <h3>Glass Identification</h3>
                         <p>Forensic-grade classification with 81.48% accuracy using a custom K-Nearest Neighbors implementation.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/KNN.md" data-github="https://github.com/Kunsh162007/KNN">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                         <h3>Wine Feature Extraction</h3>
                         <p>Linear Discriminant Analysis where LD1 explains 87% of class separability variance.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/LDA.md" data-github="https://github.com/Kunsh162007/LDA">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -104,7 +104,7 @@
                         <h3>S&P 500 Forecasting</h3>
                         <p>Predicting market trends using multi-variable Linear Regression and historical Yahoo Finance data.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/Linear_Regression.md" data-github="https://github.com/Kunsh162007/Linear_Regression">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -122,7 +122,7 @@
                         <h3>Heart Disease Diagnosis</h3>
                         <p>Custom mathematical implementation with Sigmoid and Log-loss achieving 85% accuracy on clinical data.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/Logistic_regression.md" data-github="https://github.com/Kunsh162007/Logistic_regression">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                         <h3>Activity Recognition</h3>
                         <p>91% compression of sensor signals using SVD-based Principal Component Analysis.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/PCA.md" data-github="https://github.com/Kunsh162007/PCA">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -158,7 +158,7 @@
                         <h3>Forest Covertype MLP</h3>
                         <p>Deep Learning showcase featuring ReLU, Mini-batch GD, and L2 Regularization in pure NumPy.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/Perceptron.md" data-github="https://github.com/Kunsh162007/Perceptron">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -176,7 +176,7 @@
                         <h3>Fraud Detection Engine</h3>
                         <p>Processing 6.3M records with a 0.9994 ROC-AUC using optimized ensemble methods.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/Random_forest.md" data-github="https://github.com/Kunsh162007/Random_forest">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -194,7 +194,7 @@
                         <h3>Mushroom Safety Analysis</h3>
                         <p>Robust SVM model with noise-injection verification for extreme environmental stability.</p>
                         <div class="card-footer">
-                            <button class="btn-text">View Details</button>
+                            <button class="btn-text" data-readme="assets/readmes/SVM.md" data-github="https://github.com/Kunsh162007/SVM">View Details</button>
                         </div>
                     </div>
                 </div>
@@ -205,16 +205,32 @@
     <footer id="contact">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-logo">Neural<span>Obsidian</span></div>
+                <div class="footer-logo">Kunsh<span>Agrawal</span></div>
                 <p>Advanced Machine Learning Showcase &copy; 2026</p>
                 <div class="social-links">
                     <a href="https://github.com/Kunsh162007" target="_blank">GitHub</a>
-                    <a href="#">LinkedIn</a>
+                    <a href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank">LinkedIn</a>
                 </div>
             </div>
         </div>
     </footer>
 
+
+    <!-- Project Details Modal -->
+    <div id="readme-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-header">
+                <a id="modal-github-link" href="#" target="_blank" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">View on GitHub</a>
+            </div>
+            <div id="markdown-container" class="markdown-body">
+                <!-- Markdown parsed content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
