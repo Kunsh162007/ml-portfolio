@@ -4,23 +4,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const projectCards = document.querySelectorAll('.project-card');
 
     const updateMosaic = () => {
+        const scrolled = window.scrollY;
         const viewportMiddle = window.innerHeight / 2;
         let activeId = null;
 
         projectCards.forEach(card => {
             const rect = card.getBoundingClientRect();
             if (rect.top < viewportMiddle && rect.bottom > viewportMiddle) {
-                // Map card ID to plot ID (e.g., project-cnn -> plot-cnn)
                 activeId = card.id.replace('project-', '').replace('-card', '');
             }
         });
 
-        mosaicPlots.forEach(plot => {
+        mosaicPlots.forEach((plot, index) => {
+            // Highlight active plot
             if (plot.id === `plot-${activeId}`) {
                 plot.classList.add('active');
             } else {
                 plot.classList.remove('active');
             }
+
+            // Subtle vertical parallax to fix the 'going upward' static feel
+            const speed = (index + 1) * 0.05;
+            const yOffset = scrolled * speed;
+            plot.style.marginTop = `${-yOffset}px`;
         });
     };
 
