@@ -1,20 +1,46 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Intersection Observer for Scroll Animations
+    // Intersection Observer for Staggered Reveal
     const observerOptions = {
-        threshold: 0.1
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+        entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in-visible');
+                // Add a small delay based on the element's position for organic feel
+                setTimeout(() => {
+                    entry.target.classList.add('fade-in-visible');
+                }, index * 100);
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
-    // Apply observer to all elements with fade-in class
     document.querySelectorAll('.fade-in').forEach(el => {
         observer.observe(el);
+    });
+
+    // Magnetic Card Effect
+    const cards = document.querySelectorAll('.project-card');
+    cards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-12px) scale(1.02)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1)`;
+        });
     });
 
     // Sticky Navigation

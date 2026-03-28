@@ -1,20 +1,24 @@
 :root {
-    --bg-primary: #010e24;
-    --bg-secondary: #02132b;
+    --bg-primary: #010c1d;
+    --bg-secondary: #020f26;
     --bg-container: #0b203d;
     --bg-bright: #152c4e;
     
-    --text-primary: #dbe6ff;
-    --text-secondary: #9eabc8;
+    --text-primary: #e6f1ff;
+    --text-secondary: #94a3b8;
     
-    --accent-emerald: #50FFB0;
-    --accent-electric: #00D1FF;
-    --accent-purple: #BD00FF;
+    --accent-emerald: #10b981;
+    --accent-electric: #00d1ff;
+    --accent-purple: #bd00ff;
     
-    --glass-bg: rgba(16, 38, 69, 0.4);
-    --glass-border: rgba(105, 218, 255, 0.15);
+    --glow-primary: rgba(0, 209, 255, 0.4);
+    --glow-secondary: rgba(16, 185, 129, 0.4);
     
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(0, 209, 255, 0.1);
+    --glass-border-bright: rgba(0, 209, 255, 0.3);
+    
+    --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 * {
@@ -34,6 +38,25 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-container);
+    border-radius: 10px;
+    border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-electric);
 }
 
 h1, h2, h3, .logo {
@@ -77,13 +100,40 @@ h1, h2, h3, .logo {
 }
 
 .logo {
-    font-size: 1.5rem;
-    letter-spacing: -1px;
+    font-size: 1.8rem;
+    letter-spacing: -2px;
+    font-weight: 800;
+    color: #fff;
+    text-transform: lowercase;
+    position: relative;
+    cursor: default;
+    transition: var(--transition);
 }
 
 .logo span {
     color: var(--accent-electric);
     font-weight: 300;
+    position: relative;
+}
+
+.logo::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 30px;
+    height: 3px;
+    background: var(--accent-electric);
+    box-shadow: 0 0 10px var(--glow-primary);
+    transition: var(--transition);
+}
+
+.logo:hover::after {
+    width: 100%;
+}
+
+.logo:hover {
+    text-shadow: 0 0 15px var(--glow-primary);
 }
 
 .nav-links {
@@ -121,25 +171,23 @@ h1, h2, h3, .logo {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 50% 50%, #061934 0%, #010e24 100%);
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(0, 209, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(189, 0, 255, 0.05) 0%, transparent 50%),
+        #010c1d;
     z-index: -1;
 }
 
 .hero-bg::after {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-    opacity: 0.05;
-    animation: rotate 60s linear infinite;
-}
-
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    opacity: 0.03;
+    pointer-events: none;
 }
 
 .hero-content {
@@ -148,13 +196,16 @@ h1, h2, h3, .logo {
 }
 
 .hero h1 {
-    font-size: 4.5rem;
-    line-height: 1.1;
-    margin-bottom: 1.5rem;
-    background: linear-gradient(to right, #fff, var(--accent-electric));
+    font-size: 5rem;
+    line-height: 1;
+    margin-bottom: 2rem;
+    font-weight: 800;
+    letter-spacing: -3px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent-electric) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(0, 209, 255, 0.2));
 }
 
 .hero .subtitle {
@@ -222,20 +273,44 @@ h1, h2, h3, .logo {
 }
 
 /* Project Card */
+/* Project Card - Glassmorphism 2.0 */
 .project-card {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    border-radius: 12px;
+    border-radius: 20px;
     overflow: hidden;
     transition: var(--transition);
     display: flex;
     flex-direction: column;
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.project-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent, rgba(0, 209, 255, 0.1));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    transition: var(--transition);
 }
 
 .project-card:hover {
-    transform: translateY(-10px);
-    border-color: rgba(105, 218, 255, 0.4);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    transform: translateY(-12px) scale(1.02);
+    border-color: var(--glass-border-bright);
+    box-shadow: 
+        0 30px 60px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(0, 209, 255, 0.1);
+}
+
+.project-card:hover::before {
+    background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent, var(--accent-electric));
 }
 
 .card-image {
