@@ -1,5 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Intersection Observer for Staggered Reveal
+    // Ghost Name Parallax Logic
+    const ghostTexts = document.querySelectorAll('.ghost-text');
+    window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        ghostTexts.forEach((text, index) => {
+            // Alternate direction and speed based on index
+            const speed = (index + 1) * 0.15;
+            const direction = index % 2 === 0 ? 1 : -1;
+            const xOffset = (scrolled * speed * direction);
+            text.style.transform = `translateX(${xOffset - 10}%)`;
+        });
+    });
+
+    // Intersection Observer for Staggered Reveal 2.0
     const observerOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -8,10 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                // Add a small delay based on the element's position for organic feel
                 setTimeout(() => {
                     entry.target.classList.add('fade-in-visible');
-                }, index * 100);
+                }, index * 150); // Increased delay for premium feel
                 observer.unobserve(entry.target);
             }
         });
@@ -21,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(el);
     });
 
-    // Magnetic Card Effect
+    // Magnetic Card Effect 2.0
     const cards = document.querySelectorAll('.project-card');
     cards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
@@ -32,14 +44,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
             
-            const rotateX = (y - centerY) / 20;
-            const rotateY = (centerX - x) / 20;
+            const rotateX = (y - centerY) / 15; // More pronounced tilt
+            const rotateY = (centerX - x) / 15;
             
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-12px) scale(1.02)`;
+            card.style.transform = `perspective(2000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-15px) scale(1.05)`;
+            
+            // Subtle glow follow
+            const glowX = (x / rect.width) * 100;
+            const glowY = (y / rect.height) * 100;
+            card.style.background = `radial-gradient(circle at ${glowX}% ${glowY}%, var(--glass-bg), transparent)`;
         });
         
         card.addEventListener('mouseleave', () => {
-            card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1)`;
+            card.style.transform = `perspective(2000px) rotateX(0deg) rotateY(0deg) translateY(0) scale(1)`;
+            card.style.background = `var(--glass-bg)`;
         });
     });
 
