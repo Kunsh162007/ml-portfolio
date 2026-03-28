@@ -12,10 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, observerOptions);
 
-    // Apply observer to project cards
-    document.querySelectorAll('.project-card').forEach(card => {
-        card.classList.add('fade-in');
-        observer.observe(card);
+    // Apply observer to all elements with fade-in class
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
     });
 
     // Sticky Navigation
@@ -35,17 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const githubLink = document.getElementById('modal-github-link');
 
     // Function to rewrite relative paths in Markdown
-    function rewriteMarkdownPaths(markdown, githubUrl) {
+    function rewriteMarkdownPaths(markdown, githubUrl, subfolder = '') {
         if (!githubUrl || !githubUrl.includes('github.com')) return markdown;
 
         // Extract repo parts (e.g., Kunsh162007/CNN)
         const repoPath = githubUrl.replace('https://github.com/', '').replace(/\/$/, '');
-        const rawBaseUrl = `https://raw.githubusercontent.com/${repoPath}/main/`;
+        const cleanSubfolder = subfolder ? (subfolder.endsWith('/') ? subfolder : subfolder + '/') : '';
+        const rawBaseUrl = `https://raw.githubusercontent.com/${repoPath}/main/${cleanSubfolder}`;
 
         // Replace relative image paths: ![alt](path/to/img)
-        // This regex looks for ][ (path) and ensures it doesn't start with http/https
         let updatedMarkdown = markdown.replace(/!\[([^\]]*)\]\((?!http|https)([^\)]+)\)/g, (match, alt, path) => {
-            // Handle cases where the path might start with ./ 
             const cleanPath = path.startsWith('./') ? path.substring(2) : path;
             return `![${alt}](${rawBaseUrl}${cleanPath})`;
         });
@@ -53,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Replace relative links: [text](path/to/file)
         updatedMarkdown = updatedMarkdown.replace(/\[([^\]]*)\]\((?!http|https|#)([^\)]+)\)/g, (match, text, path) => {
             const cleanPath = path.startsWith('./') ? path.substring(2) : path;
-            return `[${text}](${githubUrl}/blob/main/${cleanPath})`;
+            return `[${text}](${githubUrl}/blob/main/${cleanSubfolder}${cleanPath})`;
         });
 
         return updatedMarkdown;
@@ -87,7 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let markdownText = await response.text();
                 
                 // Rewrite relative paths
-                markdownText = rewriteMarkdownPaths(markdownText, githubUrl);
+                const subfolder = button.getAttribute('data-repo-subfolder') || '';
+                markdownText = rewriteMarkdownPaths(markdownText, githubUrl, subfolder);
                 
                 // Parse markdown to HTML using marked.js
                 // Configure marked for security and features if needed
