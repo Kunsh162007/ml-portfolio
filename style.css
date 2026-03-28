@@ -33,6 +33,7 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
 h1, h2, h3, .logo {
@@ -55,9 +56,17 @@ h1, h2, h3, .logo {
     display: flex;
     align-items: center;
     z-index: 1000;
+    background: transparent;
+    backdrop-filter: blur(0px);
+    border-bottom: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.glass-nav.scrolled {
     background: var(--glass-bg);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
     border-bottom: 1px solid var(--glass-border);
+    height: 60px;
 }
 
 .glass-nav .container {
@@ -144,6 +153,7 @@ h1, h2, h3, .logo {
     margin-bottom: 1.5rem;
     background: linear-gradient(to right, #fff, var(--accent-electric));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -299,10 +309,19 @@ h1, h2, h3, .logo {
     align-items: center;
     gap: 0.5rem;
     transition: var(--transition);
+    padding: 0.5rem 0;
+}
+
+.btn-text span {
+    transition: transform 0.3s ease;
 }
 
 .btn-text:hover {
-    gap: 1rem;
+    color: #fff;
+}
+
+.btn-text:hover span {
+    transform: translateX(5px);
 }
 
 /* Footer */
@@ -351,18 +370,13 @@ footer {
 /* Animations */
 .fade-in {
     opacity: 0;
-    transform: translateY(20px);
-    animation: fadeInUp 0.8s forwards;
+    transform: translateY(30px);
+    transition: opacity 1s ease-out, transform 1s ease-out;
 }
 
-.delay-1 { animation-delay: 0.2s; }
-.delay-2 { animation-delay: 0.4s; }
-
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.fade-in-visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* Responsive */
@@ -374,106 +388,205 @@ footer {
 }
 
 
-/* Modal Styling */
+/* Modal Base Styling */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85); /* Dark Glassmorphism */
-    backdrop-filter: blur(8px);
+    background-color: rgba(1, 14, 36, 0.4);
+    backdrop-filter: blur(10px);
     overflow-y: auto;
-    transition: all 0.3s ease;
     opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 }
 
 .modal.show {
     opacity: 1;
 }
 
+/* Modal Content Container */
 .modal-content {
-    background: #010e24;
-    border: 1px solid rgba(0, 240, 255, 0.2);
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.1);
-    margin: 5% auto;
-    padding: 40px;
-    width: 80%;
-    max-width: 900px;
-    border-radius: 12px;
+    background: #020c1d;
+    background-image: radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.05) 0%, transparent 40%);
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 240, 255, 0.05);
+    margin: 50px auto;
+    padding: 60px;
+    width: 90%;
+    max-width: 1000px;
+    border-radius: 20px;
     position: relative;
-    transform: translateY(-20px);
-    transition: transform 0.3s ease;
-    color: #e0e0e0;
+    transform: translateY(20px) scale(0.98);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--text-primary);
 }
 
 .modal.show .modal-content {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
 }
 
+/* Enhanced Close Button */
 .close-btn {
-    color: #00f0ff;
-    float: right;
-    font-size: 36px;
-    font-weight: 300;
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-electric);
+    font-size: 24px;
     cursor: pointer;
-    line-height: 1;
-    margin-top: -20px;
-    margin-right: -10px;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.close-btn:hover,
-.close-btn:focus {
-    color: #f0f0f0;
-    text-decoration: none;
+.close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: rotate(90deg);
 }
 
+/* Modal Sticky Header */
 .modal-header {
-    margin-bottom: 30px;
-    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+    margin-bottom: 40px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding-bottom: 20px;
     display: flex;
     justify-content: flex-end;
 }
 
-/* Markdown specific styling inside modal */
-.markdown-body {
-    font-family: 'Inter', sans-serif;
-    line-height: 1.6;
-    font-size: 1rem;
+/* Loading State Styling */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
 }
 
-.markdown-body h1, .markdown-body h2, .markdown-body h3 {
-    font-family: 'Space Grotesk', sans-serif;
-    color: #00f0ff;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    font-weight: 600;
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(0, 240, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--accent-electric);
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Premium Markdown Styling */
+.markdown-body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.8;
+    color: var(--text-primary);
 }
 
 .markdown-body h1 {
-    font-size: 2.2rem;
-    margin-bottom: 1.5rem;
+    font-size: 2.8rem;
+    font-family: 'Space Grotesk', sans-serif;
+    background: linear-gradient(to right, #fff, var(--accent-electric));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0.5rem;
+}
+
+.markdown-body h2 {
+    font-size: 1.8rem;
+    color: var(--accent-electric);
+    margin-top: 3.5rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.markdown-body h3 {
+    font-size: 1.4rem;
+    color: #fff;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
 }
 
 .markdown-body p {
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
 }
 
-.markdown-body a {
-    color: #00f0ff;
-    text-decoration: none;
-    border-bottom: 1px dashed rgba(0, 240, 255, 0.5);
+.markdown-body strong {
+    color: var(--accent-emerald);
 }
 
-.markdown-body a:hover {
-    color: #fff;
-    border-bottom-color: #fff;
+.markdown-body img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 2.5rem 0;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.markdown-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.markdown-body th, .markdown-body td {
+    padding: 1.2rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.markdown-body th {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--accent-electric);
+    font-family: 'Space Grotesk', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.markdown-body pre {
+    background: #010409;
+    padding: 1.5rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 2rem 0;
+}
+
+.markdown-body code {
+    font-family: 'Source Code Pro', monospace;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--accent-emerald);
+}
+
+.markdown-body blockquote {
+    padding: 1.5rem 2rem;
+    background: rgba(0, 209, 255, 0.05);
+    border-left: 4px solid var(--accent-electric);
+    border-radius: 0 12px 12px 0;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 2rem 0;
 }
 
 .markdown-body ul, .markdown-body ol {
@@ -482,38 +595,17 @@ footer {
 }
 
 .markdown-body li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-secondary);
 }
 
-.markdown-body pre {
-    background-color: rgba(255, 255, 255, 0.05);
-    padding: 1.2rem;
-    border-radius: 8px;
-    overflow-x: auto;
-    font-size: 0.9rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 1.5rem;
-}
-
-.markdown-body code {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
-    font-family: 'Courier New', Courier, monospace;
-    color: #e2e8f0;
-}
-
-.markdown-body img {
-    max-width: 100%;
-    border-radius: 8px;
-    margin: 1.5rem 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.markdown-body blockquote {
-    border-left: 4px solid #00f0ff;
-    padding-left: 1rem;
-    color: #a0aec0;
-    font-style: italic;
-    margin: 1.5rem 0;
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 30px;
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    .markdown-body h1 {
+        font-size: 1.8rem;
+    }
 }
