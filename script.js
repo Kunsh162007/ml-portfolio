@@ -1,4 +1,42 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Scroll-Linked Research Mosaic Logic
+    const mosaicPlots = document.querySelectorAll('.mosaic-plot');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    const updateMosaic = () => {
+        const viewportMiddle = window.innerHeight / 2;
+        let activeId = null;
+
+        projectCards.forEach(card => {
+            const rect = card.getBoundingClientRect();
+            if (rect.top < viewportMiddle && rect.bottom > viewportMiddle) {
+                // Map card ID to plot ID (e.g., project-cnn -> plot-cnn)
+                activeId = card.id.replace('project-', '').replace('-card', '');
+            }
+        });
+
+        mosaicPlots.forEach(plot => {
+            if (plot.id === `plot-${activeId}`) {
+                plot.classList.add('active');
+            } else {
+                plot.classList.remove('active');
+            }
+        });
+    };
+
+    window.addEventListener('scroll', updateMosaic);
+
+    // Research Pulse Effect
+    const liquidText = document.querySelector('.liquid-text');
+    liquidText.addEventListener('mouseenter', () => {
+        // Flash 2 random plots
+        const randomPlots = Array.from(mosaicPlots).sort(() => 0.5 - Math.random()).slice(0, 2);
+        randomPlots.forEach(plot => {
+            plot.classList.add('active');
+            setTimeout(() => plot.classList.remove('active'), 1000);
+        });
+    });
+
     // Ghost Name Parallax Logic
     const ghostTexts = document.querySelectorAll('.ghost-text');
     window.addEventListener('scroll', () => {

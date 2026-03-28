@@ -10,6 +10,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body class="dark-theme">
+    <!-- Research Mosaic Background Layer -->
+    <div class="research-mosaic" aria-hidden="true">
+        <img src="assets/cnn_alzheimer.png" class="mosaic-plot" id="plot-cnn" alt="">
+        <img src="assets/knn_dashboard.png" class="mosaic-plot" id="plot-knn" alt="">
+        <img src="assets/lda_dashboard.png" class="mosaic-plot" id="plot-lda" alt="">
+        <img src="assets/lr_stock_predictions.png" class="mosaic-plot" id="plot-lr" alt="">
+        <img src="assets/logreg_heart_disease.png" class="mosaic-plot" id="plot-logreg" alt="">
+        <img src="assets/pca_har_2d.png" class="mosaic-plot" id="plot-pca" alt="">
+        <img src="assets/rf_fraud_roc.png" class="mosaic-plot" id="plot-rf" alt="">
+        <img src="assets/svm_mushroom_summary.png" class="mosaic-plot" id="plot-svm" alt="">
+    </div>
+    
     <!-- Ghost Name Parallax Background Layer -->
     <div class="ghost-name-layer" aria-hidden="true">
         <div class="ghost-text">KUNSH AGRAWAL</div>
@@ -55,7 +67,7 @@
             <h2 class="section-title">Core Research <span>&</span> Implementations</h2>
             <div class="projects-grid">
                 <!-- CNN Card -->
-                <div class="project-card" data-category="neural">
+                <div class="project-card" id="project-cnn" data-category="neural">
                     <div class="card-image">
                         <img src="assets/cnn_alzheimer.png" alt="CNN Alzheimer's MRI Diagnosis">
                     </div>
@@ -73,7 +85,7 @@
                 </div>
 
                 <!-- KNN Card -->
-                <div class="project-card" data-category="classification">
+                <div class="project-card" id="project-knn-card" data-category="classification">
                     <div class="card-image">
                         <img src="assets/knn_dashboard.png" alt="KNN Forensic Dashboard">
                     </div>
@@ -91,7 +103,7 @@
                 </div>
 
                 <!-- LDA Card -->
-                <div class="project-card" data-category="dimensionality">
+                <div class="project-card" id="project-lda-card" data-category="dimensionality">
                     <div class="card-image">
                         <img src="assets/lda_dashboard.png" alt="LDA Wine Quality Dashboard">
                     </div>
@@ -109,7 +121,7 @@
                 </div>
 
                 <!-- LR Card -->
-                <div class="project-card" data-category="regression">
+                <div class="project-card" id="project-lr-card" data-category="regression">
                     <div class="card-image">
                         <img src="assets/lr_stock_predictions.png" alt="Linear Regression Stock Predictions">
                     </div>
@@ -127,7 +139,7 @@
                 </div>
 
                 <!-- LogReg Card -->
-                <div class="project-card" data-category="classification">
+                <div class="project-card" id="project-logreg-card" data-category="classification">
                     <div class="card-image">
                         <img src="assets/logreg_heart_disease.png" alt="Logistic Regression Heart Disease">
                     </div>
@@ -145,7 +157,7 @@
                 </div>
 
                 <!-- PCA Card -->
-                <div class="project-card" data-category="dimensionality">
+                <div class="project-card" id="project-pca-card" data-category="dimensionality">
                     <div class="card-image">
                         <img src="assets/pca_har_2d.png" alt="PCA Human Activity Recognition">
                     </div>
@@ -163,7 +175,7 @@
                 </div>
 
                 <!-- Perceptron Card -->
-                <div class="project-card" data-category="neural">
+                <div class="project-card" id="project-perceptron-card" data-category="neural">
                     <div class="card-image">
                         <img src="assets/perceptron_accuracy.png" alt="Perceptron Forest Covertype">
                     </div>
@@ -181,7 +193,7 @@
                 </div>
 
                 <!-- RF Card -->
-                <div class="project-card" data-category="ensemble">
+                <div class="project-card" id="project-rf-card" data-category="ensemble">
                     <div class="card-image">
                         <img src="assets/rf_fraud_roc.png" alt="Random Forest Fraud Detection">
                     </div>
@@ -199,7 +211,7 @@
                 </div>
 
                 <!-- SVM Card -->
-                <div class="project-card" data-category="classification">
+                <div class="project-card" id="project-svm-card" data-category="classification">
                     <div class="card-image">
                         <img src="assets/svm_mushroom_summary.png" alt="SVM Mushroom Classification">
                     </div>

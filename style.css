@@ -30,6 +30,45 @@ html {
     scroll-behavior: smooth;
 }
 
+/* Research Mosaic Background */
+.research-mosaic {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -3;
+    overflow: hidden;
+    opacity: 0.4;
+}
+
+.mosaic-plot {
+    position: absolute;
+    width: 40%;
+    max-width: 600px;
+    filter: grayscale(100%) brightness(50%) contrast(120%) blur(5px);
+    opacity: 0;
+    transition: opacity 1s ease-in-out, transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    mix-blend-mode: color-dodge;
+}
+
+/* Positioning plots roughly in corners/edges for a scattered look */
+#plot-cnn { top: 10%; left: 5%; transform: rotate(-10deg) scale(0.8); }
+#plot-knn { top: 60%; right: 10%; transform: rotate(15deg) scale(0.9); }
+#plot-lda { top: 40%; left: -10%; transform: rotate(-5deg) scale(1.1); }
+#plot-lr  { bottom: 5%; left: 30%; transform: rotate(5deg) scale(0.8); }
+#plot-logreg { top: 5%; right: 5%; transform: rotate(-12deg) scale(0.7); }
+#plot-pca { top: 80%; left: 0%; transform: rotate(8deg) scale(1); }
+#plot-rf  { top: 30%; right: -5%; transform: rotate(-15deg) scale(1.2); }
+#plot-svm { bottom: 20%; right: 20%; transform: rotate(10deg) scale(0.9); }
+
+.mosaic-plot.active {
+    opacity: 0.15;
+    filter: grayscale(0%) brightness(70%) contrast(100%) blur(2px);
+    transform: scale(1) translate(0, 0) !important;
+}
+
 /* Ghost Name Parallax Background */
 .ghost-name-layer {
     position: fixed;
@@ -43,7 +82,7 @@ html {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    opacity: 0.1; /* More subtle */
+    opacity: 0.05;
 }
 
 .ghost-text {
@@ -362,7 +401,7 @@ h1, h2, h3, .logo {
 }
 
 /* Project Card */
-/* Project Card - Glassmorphism 2.0 */
+/* Project Card - Scientific Blueprint (Glass 3.0) */
 .project-card {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -372,7 +411,28 @@ h1, h2, h3, .logo {
     display: flex;
     flex-direction: column;
     position: relative;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(15px);
+}
+
+/* Blueprint Grid Texture Overlay */
+.project-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+}
+
+.project-card .card-content,
+.project-card .card-image,
+.project-card .card-footer {
+    position: relative;
+    z-index: 1;
 }
 
 .project-card::before {
@@ -381,21 +441,27 @@ h1, h2, h3, .logo {
     inset: 0;
     border-radius: 20px;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent, rgba(0, 209, 255, 0.1));
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent, rgba(0, 209, 255, 0.2));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
     transition: var(--transition);
+    z-index: 2;
 }
 
 .project-card:hover {
     transform: translateY(-12px) scale(1.02);
-    border-color: var(--glass-border-bright);
+    border-color: rgba(0, 209, 255, 0.3);
     box-shadow: 
-        0 30px 60px rgba(0, 0, 0, 0.6),
-        0 0 20px rgba(0, 209, 255, 0.1);
+        0 40px 80px rgba(0, 0, 0, 0.7),
+        0 0 30px rgba(0, 209, 255, 0.1);
+}
+
+.project-card:hover::after {
+    background-size: 15px 15px;
+    opacity: 1;
 }
 
 .project-card:hover::before {
