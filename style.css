@@ -30,43 +30,45 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Research Mosaic Background */
-.research-mosaic {
+/* Synthetic Void Background */
+.void-bg {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: -3;
     pointer-events: none;
-    z-index: -1; /* Moved up to be visible above hero-bg but below content */
-    overflow: hidden;
-    opacity: 0.8; /* Higher container opacity, controlled by children */
+    background-color: #000205;
 }
 
-.mosaic-plot {
+.glow-field {
     position: absolute;
-    width: 45%;
-    max-width: 700px;
-    filter: grayscale(100%) brightness(30%) contrast(150%) blur(10px);
-    opacity: 0.03; /* Very subtle base presence */
-    transition: opacity 1.5s ease, filter 1.5s ease, transform 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-    mix-blend-mode: screen; /* Better translucent blending */
+    width: 80vw;
+    height: 80vw;
+    border-radius: 50%;
+    filter: blur(150px);
 }
 
-/* Positioning plots roughly in corners/edges for a scattered look */
-#plot-cnn { top: 10%; left: 5%; transform: rotate(-10deg) scale(0.8); }
-#plot-knn { top: 60%; right: 10%; transform: rotate(15deg) scale(0.9); }
-#plot-lda { top: 40%; left: -10%; transform: rotate(-5deg) scale(1.1); }
-#plot-lr  { bottom: 5%; left: 30%; transform: rotate(5deg) scale(0.8); }
-#plot-logreg { top: 5%; right: 5%; transform: rotate(-12deg) scale(0.7); }
-#plot-pca { top: 80%; left: 0%; transform: rotate(8deg) scale(1); }
-#plot-rf  { top: 30%; right: -5%; transform: rotate(-15deg) scale(1.2); }
-#plot-svm { bottom: 20%; right: 20%; transform: rotate(10deg) scale(0.9); }
+#ambient-glow {
+    top: -20%;
+    right: -20%;
+    background: radial-gradient(circle, rgba(0, 209, 255, 0.05) 0%, transparent 70%);
+    animation: pulseGlow 15s ease-in-out infinite alternate;
+}
 
-.mosaic-plot.active {
-    opacity: 0.12;
-    filter: grayscale(0%) brightness(60%) contrast(110%) blur(0px);
-    transform: scale(1.05) rotate(0deg) !important;
+#mouse-glow {
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 1s ease;
+    mix-blend-mode: plus-lighter;
+}
+
+@keyframes pulseGlow {
+    from { transform: scale(1); opacity: 0.5; }
+    to { transform: scale(1.2); opacity: 0.8; }
 }
 
 /* Ghost Name Parallax Background */
@@ -82,7 +84,7 @@ html {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    opacity: 0.05;
+    opacity: 0.03;
 }
 
 .ghost-text {
@@ -399,32 +401,17 @@ h1, h2, h3, .logo {
     gap: 2.5rem;
 }
 
-/* Project Card */
-/* Project Card - Scientific Blueprint (Glass 3.0) */
+/* Project Card - Neon Wireframe (Glass 4.0) */
 .project-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
+    background: rgba(0, 8, 20, 0.4);
+    border: 0.5px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
     overflow: hidden;
     transition: var(--transition);
     display: flex;
     flex-direction: column;
     position: relative;
-    backdrop-filter: blur(15px);
-}
-
-/* Blueprint Grid Texture Overlay */
-.project-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: 
-        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 20px 20px;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
+    backdrop-filter: blur(20px);
 }
 
 .project-card .card-content,
@@ -438,9 +425,9 @@ h1, h2, h3, .logo {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: 20px;
+    border-radius: 12px;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent, rgba(0, 209, 255, 0.2));
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent, var(--accent-electric));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -448,23 +435,19 @@ h1, h2, h3, .logo {
     pointer-events: none;
     transition: var(--transition);
     z-index: 2;
+    opacity: 0.3;
 }
 
 .project-card:hover {
-    transform: translateY(-12px) scale(1.02);
-    border-color: rgba(0, 209, 255, 0.3);
+    transform: translateY(-8px);
+    border-color: rgba(0, 209, 255, 0.4);
     box-shadow: 
-        0 40px 80px rgba(0, 0, 0, 0.7),
-        0 0 30px rgba(0, 209, 255, 0.1);
-}
-
-.project-card:hover::after {
-    background-size: 15px 15px;
-    opacity: 1;
+        0 30px 60px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(0, 209, 255, 0.05);
 }
 
 .project-card:hover::before {
-    background: linear-gradient(135deg, rgba(255,255,255,0.3), transparent, var(--accent-electric));
+    opacity: 1;
 }
 
 .card-image {

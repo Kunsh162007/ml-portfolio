@@ -1,46 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Scroll-Linked Research Mosaic Logic
-    const mosaicPlots = document.querySelectorAll('.mosaic-plot');
-    const projectCards = document.querySelectorAll('.project-card');
-
-    const updateMosaic = () => {
-        const scrolled = window.scrollY;
-        const viewportMiddle = window.innerHeight / 2;
-        let activeId = null;
-
-        projectCards.forEach(card => {
-            const rect = card.getBoundingClientRect();
-            if (rect.top < viewportMiddle && rect.bottom > viewportMiddle) {
-                activeId = card.id.replace('project-', '').replace('-card', '');
-            }
-        });
-
-        mosaicPlots.forEach((plot, index) => {
-            // Highlight active plot
-            if (plot.id === `plot-${activeId}`) {
-                plot.classList.add('active');
-            } else {
-                plot.classList.remove('active');
-            }
-
-            // Subtle vertical parallax to fix the 'going upward' static feel
-            const speed = (index + 1) * 0.05;
-            const yOffset = scrolled * speed;
-            plot.style.marginTop = `${-yOffset}px`;
-        });
-    };
-
-    window.addEventListener('scroll', updateMosaic);
-
-    // Research Pulse Effect
-    const liquidText = document.querySelector('.liquid-text');
-    liquidText.addEventListener('mouseenter', () => {
-        // Flash 2 random plots
-        const randomPlots = Array.from(mosaicPlots).sort(() => 0.5 - Math.random()).slice(0, 2);
-        randomPlots.forEach(plot => {
-            plot.classList.add('active');
-            setTimeout(() => plot.classList.remove('active'), 1000);
-        });
+    // Synthetic Void: Mouse-Follow Glow
+    const mouseGlow = document.getElementById('mouse-glow');
+    window.addEventListener('mousemove', (e) => {
+        const x = e.clientX;
+        const y = e.clientY;
+        
+        mouseGlow.style.opacity = '1';
+        mouseGlow.style.left = `${x - window.innerWidth * 0.25}px`;
+        mouseGlow.style.top = `${y - window.innerWidth * 0.25}px`;
     });
 
     // Ghost Name Parallax Logic
