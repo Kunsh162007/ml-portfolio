@@ -103,6 +103,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return `![${alt}](${rawBaseUrl}${cleanPath})`;
         });
 
+        // Replace HTML img tags: <img src="path/to/img" ... />
+        updatedMarkdown = updatedMarkdown.replace(/<img[^>]+src=["'](?!http|https)([^"']+)["'][^>]*>/g, (match, path) => {
+            const cleanPath = path.startsWith('./') ? path.substring(2) : path;
+            return match.replace(path, `${rawBaseUrl}${cleanPath}`);
+        });
+
         // Replace relative links: [text](path/to/file)
         updatedMarkdown = updatedMarkdown.replace(/\[([^\]]*)\]\((?!http|https|#)([^\)]+)\)/g, (match, text, path) => {
             const cleanPath = path.startsWith('./') ? path.substring(2) : path;
