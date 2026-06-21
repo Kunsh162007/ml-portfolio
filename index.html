@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kunsh Agrawal | Advanced Machine Learning Portfolio</title>
+    <meta name="description" content="Kunsh Agrawal — Portfolio of autonomous multi-agent systems, deep learning models, and AI-powered applications built through hackathons and research.">
+    <title>Kunsh Agrawal | Projects Portfolio</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
 <body class="dark-theme">
     <!-- Synthetic Void Background Layer -->
@@ -19,13 +20,19 @@
     <!-- Ghost Name Parallax Background Layer -->
     <div class="ghost-name-layer" aria-hidden="true">
         <div class="ghost-text">KUNSH AGRAWAL</div>
-        <div class="ghost-text">NEURAL ARCHITECT</div>
+        <div class="ghost-text">CODE &amp; SYSTEMS</div>
         <div class="ghost-text">KUNSH AGRAWAL</div>
     </div>
+
     <nav class="glass-nav">
         <div class="container">
             <a href="#" class="logo">kunsh<span>agrawal</span></a>
-            <ul class="nav-links">
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#contact">Contact</a></li>
@@ -36,14 +43,13 @@
     <header id="home" class="hero">
         <div class="hero-bg"></div>
         <div class="container hero-content">
-            <div class="name-badge fade-in">Leading Machine Learning Researcher</div>
             <h1 class="mega-name fade-in">
                 <span class="liquid-text">KUNSH AGRAWAL</span>
             </h1>
-            <p class="subtitle fade-in delay-1">Architecting Neural Frontiers with Mathematical Precision.</p>
+            <p class="subtitle fade-in delay-1">Curated collection of autonomous agentic networks and deep learning systems.</p>
             <div class="hero-cta fade-in delay-2">
-                <a href="#projects" class="btn btn-primary">Research Nexus</a>
-                <a href="https://github.com/Kunsh162007" target="_blank" class="btn btn-secondary-glass">Data Trace</a>
+                <a href="#projects" class="btn btn-primary">Projects Ledger</a>
+                <a href="https://github.com/Kunsh162007" target="_blank" class="btn btn-secondary-glass">GitHub Profile</a>
             </div>
         </div>
         
@@ -54,42 +60,191 @@
                 <path d="M0,40 Q25,60 50,40 T100,40" stroke="rgba(16, 185, 129, 0.05)" fill="none" stroke-width="0.1" />
             </svg>
         </div>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator" aria-hidden="true">
+            <div class="scroll-mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+            <span>Scroll</span>
+        </div>
     </header>
 
     <section id="projects" class="projects-section">
         <div class="container">
-            <h2 class="section-title">Core Research <span>&</span> Implementations</h2>
-            <div class="projects-grid">
-                <!-- RNN Forecasting Card (FEATURED) -->
-                <div class="project-card featured" id="project-rnn-forecasting-card" data-category="neural">
+            <h2 class="section-title">Systems <span>&amp;</span> Models</h2>
+
+            <!-- Category Filter Bar -->
+            <div class="filter-bar" role="tablist" aria-label="Project categories">
+                <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All Projects</button>
+                <button class="filter-btn" data-filter="agentic" role="tab" aria-selected="false">Agentic &amp; Hackathons</button>
+                <button class="filter-btn" data-filter="deeplearning" role="tab" aria-selected="false">Deep Learning &amp; Vision</button>
+            </div>
+
+            <div class="projects-grid" id="projects-grid">
+                
+                <!-- ===== AGENTIC / HACKATHON PROJECTS ===== -->
+
+                <!-- AEGIS Card (FEATURED) -->
+                <div class="project-card featured" id="project-aegis" data-category="agentic">
+                    <div class="card-image">
+                        <img src="assets/aegis_cover.jpg" alt="AEGIS Financial Crime Mesh">
+                        <div class="hackathon-badge">
+                            <span class="hb-trophy">🏆</span>
+                            <div class="hb-text">
+                                <span class="hb-event">Band of Agents Hackathon</span>
+                                <span class="hb-track">Governed Multi-Agent AML Track</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag electric">Multi-Agent Mesh</span>
+                            <span class="tag emerald">Band Protocol</span>
+                            <span class="tag purple">Featured</span>
+                        </div>
+                        <h3>AEGIS</h3>
+                        <p class="project-desc">A self-verifying, autonomous financial-crime investigation mesh. Uses an adversarial team of specialists (Intake, Challenger, Verifier, Adjudicator) to investigate AML alerts, cutting false positives while maintaining high recall on the IBM AML benchmark.</p>
+                        <div class="project-learning">
+                            <h4>Vibecoding &amp; AI Learnings</h4>
+                            <p>Learned to run multi-agent adversarial networks, integrate real graph processing (NetworkX), and manage SQLite transaction states concurrently. AI agents helped resolve state synchronization and race conditions during parallel agent execution.</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-text" data-readme="assets/readmes/AEGIS.md" data-github="https://github.com/Kunsh162007/AEGIS">View Details <span>&rarr;</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEXUS Card -->
+                <div class="project-card" id="project-nexus" data-category="agentic">
+                    <div class="card-image">
+                        <img src="assets/nexus_cover.png" alt="NEXUS Enterprise Command Center">
+                        <div class="hackathon-badge">
+                            <span class="hb-trophy">🏆</span>
+                            <div class="hb-text">
+                                <span class="hb-event">Transforming Enterprise through AI</span>
+                                <span class="hb-track">Parallel Executive Agent Synthesis</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag electric">FastAPI</span>
+                            <span class="tag purple">React</span>
+                            <span class="tag">WebSockets</span>
+                        </div>
+                        <h3>Nexus Enterprise AI</h3>
+                        <p class="project-desc">Collaborative multi-agent decision hub. Five specialized minds (Scout, Analyst, Strategist, Communicator, Orchestrator) run in parallel to generate strategic crisis responses in under 60 seconds via real-time WebSocket streams.</p>
+                        <div class="project-learning">
+                            <h4>Vibecoding &amp; AI Learnings</h4>
+                            <p>Integrated WebSockets for real-time streaming of agent thoughts. Deployed on Render and orchestrated multi-model setups (Gemini &amp; Featherless). AI was instrumental in configuring Docker containers and troubleshooting WebSocket disconnection events.</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-text" data-readme="assets/readmes/Nexus.md" data-github="https://github.com/Kunsh162007/nexus-enterprise-ai">View Details <span>&rarr;</span></button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- NexusIntel AI Card -->
+                <div class="project-card" id="project-nexusintel" data-category="agentic">
+                    <div class="card-image">
+                        <img src="assets/nexusintel_cover.jpg" alt="NexusIntel AI">
+                        <div class="hackathon-badge">
+                            <span class="hb-trophy">🏆</span>
+                            <div class="hb-text">
+                                <span class="hb-event">Web Data UNLOCKED Hackathon</span>
+                                <span class="hb-track">Bright Data · Cognee · TriggerWare</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag electric">Bright Data</span>
+                            <span class="tag emerald">Cognee Graph</span>
+                        </div>
+                        <h3>NexusIntel AI</h3>
+                        <p class="project-desc">Autonomous deep-web intelligence matrix that continuously monitors live web sources, detects semantic anomalies via embedding comparison, and autonomously dispatches investigative agents across GTM, Finance, and Security tracks.</p>
+                        <div class="project-learning">
+                            <h4>Vibecoding &amp; AI Learnings</h4>
+                            <p>Used Speechmatics voice interfaces and Cognee knowledge graphs. Learned to configure autonomous monitoring engines and structured graph insertions. AI helped format prompt templates and handle API authentication fallbacks.</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-text" data-readme="assets/readmes/NexusIntel.md" data-github="https://github.com/Kunsh162007/NexusIntel">View Details <span>&rarr;</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DRISHTI Card -->
+                <div class="project-card" id="project-drishti" data-category="agentic">
+                    <div class="card-image">
+                        <img src="assets/drishti_cover.png" alt="Drishti Analytics">
+                        <div class="hackathon-badge">
+                            <span class="hb-trophy">🏆</span>
+                            <div class="hb-text">
+                                <span class="hb-event">Datathon KSP</span>
+                                <span class="hb-track">Sovereign Police Intelligence Platform</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag electric">PostGIS</span>
+                            <span class="tag purple">Neo4j</span>
+                            <span class="tag">Qdrant RAG</span>
+                        </div>
+                        <h3>Drishti</h3>
+                        <p class="project-desc">Sovereign law enforcement intelligence platform connecting PostgreSQL/PostGIS relational data with Neo4j network graphs and Qdrant semantic search — tracing criminal linkage, geo-spatial hotspots, and missing persons without citizen data leaving the jurisdiction.</p>
+                        <div class="project-learning">
+                            <h4>Vibecoding &amp; AI Learnings</h4>
+                            <p>Scaled an in-process prototype to PostgreSQL and Neo4j. AI assisted in writing raw PostGIS queries and setting up Dockerized deployment with Caddy reverse proxy and auto-TLS. Debugged package conflicts with AI assistance.</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-text" data-readme="assets/readmes/Drishti.md" data-github="https://github.com/Kunsh162007/Drishti">View Details <span>&rarr;</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EcoStyle AI Card -->
+                <div class="project-card" id="project-ecostyle" data-category="agentic">
+                    <div class="card-image">
+                        <img src="assets/ecostyle_cover.png" alt="EcoStyle AI Closet">
+                    </div>
+                    <div class="card-content">
+                        <div class="card-tags">
+                            <span class="tag emerald">PyTorch ResNet50</span>
+                            <span class="tag">ChromaDB</span>
+                        </div>
+                        <h3>EcoStyle AI</h3>
+                        <p class="project-desc">Sustainable closet manager that digitizes clothing via Gemini Vision, extracts 2048-dim ResNet50 embeddings for similarity search, and packs travel capsule wardrobes using live Open-Meteo weather data.</p>
+                        <div class="project-learning">
+                            <h4>Vibecoding &amp; AI Learnings</h4>
+                            <p>Extracted 2048-dim features using ResNet50 in PyTorch and loaded them into ChromaDB for cosine similarity matching. Vibecoded the Streamlit frontend. AI helped profile PyTorch model execution bottlenecks.</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-text" data-readme="assets/readmes/EcoStyle.md" data-github="https://github.com/Kunsh162007/WARDROBE-AI">View Details <span>&rarr;</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== DEEP LEARNING PROJECTS ===== -->
+
+                <!-- RNN Forecasting Card -->
+                <div class="project-card" id="project-rnn-forecasting" data-category="deeplearning">
                     <div class="card-image">
                         <img src="assets/rnn_forecasting_preview.png" alt="RNN Temperature Forecasting">
                     </div>
                     <div class="card-content">
                         <div class="card-tags">
+                            <span class="tag electric">Seq2Seq</span>
+                            <span class="tag">PyTorch</span>
                             <span class="tag emerald">Time Series</span>
-                            <span class="tag">Seq2Seq</span>
-                            <span class="tag purple">Featured</span>
                         </div>
                         <h3>Temporal Neural Architects</h3>
-                        <p>A rigorous, end-to-end comparison of 7 recurrent neural network architectures—from Vanilla RNNs to Attention-based LSTMs and Seq2Seq—on real-world temperature forecasting tasks.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">MAE</span>
-                                <span class="stat-value">1.73</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">RMSE</span>
-                                <span class="stat-value">2.23</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Architectures</span>
-                                <span class="stat-value">7 Models</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Window</span>
-                                <span class="stat-value">30 Day</span>
-                            </div>
+                        <p class="project-desc">Comparative evaluation of 7 recurrent architectures — Vanilla RNNs, LSTMs, GRUs, Attention-based LSTMs, and Seq2Seq encoders — trained on real-world temperature datasets for multi-step forecasting. Best model: MAE 1.73, RMSE 2.23.</p>
+                        <div class="project-learning">
+                            <h4>Vibecoding &amp; AI Learnings</h4>
+                            <p>Hand-coded the encoder-decoder models in PyTorch. Learned how sequence lengths and attention layers influence prediction stability. AI guided learning rate scheduler tuning and gradient clipping to prevent explosion.</p>
                         </div>
                         <div class="card-footer">
                             <button class="btn-text" data-readme="assets/readmes/RNN_Forecasting.md" data-github="https://github.com/Kunsh162007/RNN-Seq2Seq-Temperature-Forecasting">View Details <span>&rarr;</span></button>
@@ -97,366 +252,29 @@
                     </div>
                 </div>
 
-                <!-- NLP Card -->
-                <div class="project-card" id="project-nlp-card" data-category="neural">
-                    <div class="card-image">
-                        <img src="assets/nlp_preview.png" alt="NLP Intelligence">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag purple">NLP</span>
-                            <span class="tag">Bi-LSTM</span>
-                        </div>
-                        <h3>NLP Intelligence</h3>
-                        <p>Comparative study of classical vs. deep sequential word representations for sentiment and topic classification.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">IMDB Acc</span>
-                                <span class="stat-value">84.8%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">AG News Acc</span>
-                                <span class="stat-value">87.2%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Models</span>
-                                <span class="stat-value">BoW vs RNN</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Context</span>
-                                <span class="stat-value">Sequential</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/NLP.md" data-github="https://github.com/Kunsh162007/NLP_TextClassification_Embeddings-RNN">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- CNN Card -->
-                <div class="project-card" id="project-cnn" data-category="neural">
+                <div class="project-card" id="project-cnn" data-category="deeplearning">
                     <div class="card-image">
-                        <img src="assets/cnn_alzheimer.png" alt="CNN Alzheimer Analysis">
+                        <img src="assets/cnn_alzheimer.png" alt="CNN Alzheimer stages">
                     </div>
                     <div class="card-content">
                         <div class="card-tags">
-                            <span class="tag purple">CNN</span>
-                            <span class="tag">Healthcare</span>
+                            <span class="tag electric">Computer Vision</span>
+                            <span class="tag emerald">Explainable AI</span>
                         </div>
                         <h3>Visualizing Cognitive Decline</h3>
-                        <p>Ensemble of advanced CNN architectures achieving 95.4% accuracy, rigorously validated with Grad-CAM and SHAP.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Accuracy</span>
-                                <span class="stat-value">95.4%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">F1 Score</span>
-                                <span class="stat-value">0.94</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">ROC-AUC</span>
-                                <span class="stat-value">0.97</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Training Data</span>
-                                <span class="stat-value">6,400 MRI</span>
-                            </div>
+                        <p class="project-desc">CNN ensemble classifier for Alzheimer's staging on 6,400 brain MRI scans — achieving 95.4% accuracy, F1 0.94, ROC-AUC 0.97. Integrates Grad-CAM and SHAP attribution maps to visually explain every clinical decision.</p>
+                        <div class="project-learning">
+                            <h4>Vibecoding &amp; AI Learnings</h4>
+                            <p>Trained medical image classification models and wired explainability hooks. Learned to interpret feature map overlays. Vibecoded visualization code with AI helping resolve memory leaks during large-batch image validations.</p>
                         </div>
                         <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/CNN.md" data-github="https://github.com/Kunsh162007/CNN" data-repo-subfolder="alzheimer-dl-showcase">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/CNN.md" data-github="https://github.com/Kunsh162007/medical-imaging-cnn-xai" data-repo-subfolder="alzheimer-dl-showcase">View Details <span>&rarr;</span></button>
                         </div>
                     </div>
                 </div>
 
-                <!-- KNN Card -->
-                <div class="project-card" id="project-knn-card" data-category="classification">
-                    <div class="card-image">
-                        <img src="assets/knn_dashboard.png" alt="KNN Forensic Intelligence">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag emerald">KNN</span>
-                            <span class="tag">Forensic</span>
-                        </div>
-                        <h3>Forensic Intelligence</h3>
-                        <p>A ground-up implementation of K-Nearest Neighbors for high-precision glass classification in forensic science.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Accuracy</span>
-                                <span class="stat-value">78.4%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">K-Value</span>
-                                <span class="stat-value">5 (Optimal)</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Classes</span>
-                                <span class="stat-value">6 Types</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Instances</span>
-                                <span class="stat-value">214</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/KNN.md" data-github="https://github.com/Kunsh162007/KNN">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LDA Card -->
-                <div class="project-card" id="project-lda-card" data-category="dimensionality">
-                    <div class="card-image">
-                        <img src="assets/lda_dashboard.png" alt="LDA Wine Quality Geometry">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">LDA</span>
-                            <span class="tag">Wine Quality</span>
-                        </div>
-                        <h3>The Geometry of Taste</h3>
-                        <p>Applying Linear Discriminant Analysis to derive the mathematical latent space of wine quality features.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Accuracy</span>
-                                <span class="stat-value">100%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Components</span>
-                                <span class="stat-value">2</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Classes</span>
-                                <span class="stat-value">3 Cultivars</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Samples</span>
-                                <span class="stat-value">178</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/LDA.md" data-github="https://github.com/Kunsh162007/LDA">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LR Card -->
-                <div class="project-card" id="project-lr-card" data-category="regression">
-                    <div class="card-image">
-                        <img src="assets/lr_stock_predictions.png" alt="Linear Regression Market Prediction">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag purple">Regression</span>
-                            <span class="tag">Finance</span>
-                        </div>
-                        <h3>Predicting Markets</h3>
-                        <p>Multivariate Linear Regression model analyzing S&P 500 trends using real-time Yahoo Finance historical data.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">R² Score</span>
-                                <span class="stat-value">0.89</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">RMSE</span>
-                                <span class="stat-value">12.4</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Indicators</span>
-                                <span class="stat-value">5 Tech</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Features</span>
-                                <span class="stat-value">12</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/Linear_Regression.md" data-github="https://github.com/Kunsh162007/Linear_Regression">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- LogReg Card -->
-                <div class="project-card" id="project-logreg-card" data-category="classification">
-                    <div class="card-image">
-                        <img src="assets/logreg_heart_disease.png" alt="Logistic Regression Heart Analytics">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag emerald">LogReg</span>
-                            <span class="tag">Medical</span>
-                        </div>
-                        <h3>Heartbeat Analytics</h3>
-                        <p>Custom mathematical Logistic Inference engine for predicting cardiovascular risk with high interpretability.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Accuracy</span>
-                                <span class="stat-value">85.2%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Sensitivity</span>
-                                <span class="stat-value">82%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Specificity</span>
-                                <span class="stat-value">88%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Records</span>
-                                <span class="stat-value">4,200</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/Logistic_regression.md" data-github="https://github.com/Kunsh162007/Logistic_regression">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PCA Card -->
-                <div class="project-card" id="project-pca-card" data-category="dimensionality">
-                    <div class="card-image">
-                        <img src="assets/pca_har_2d.png" alt="PCA Signal Compression">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">PCA</span>
-                            <span class="tag">SVD</span>
-                        </div>
-                        <h3>Signal Compression</h3>
-                        <p>Achieving 91% sensor signal reduction via Principal Component Analysis for real-time activity recognition.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Variance</span>
-                                <span class="stat-value">91%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Reduction</span>
-                                <span class="stat-value">85%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Components</span>
-                                <span class="stat-value">3</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Latency</span>
-                                <span class="stat-value">4ms</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/PCA.md" data-github="https://github.com/Kunsh162007/PCA">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Perceptron Card -->
-                <div class="project-card" id="project-perceptron-card" data-category="neural">
-                    <div class="card-image">
-                        <img src="assets/perceptron_accuracy.png" alt="Perceptron Deep Foundations">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag purple">NN</span>
-                            <span class="tag">From Scratch</span>
-                        </div>
-                        <h3>Deep Foundations</h3>
-                        <p>Building a multi-layer Perceptron from scratch using pure NumPy to classify complex forest cover-types.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Accuracy</span>
-                                <span class="stat-value">72.1%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Layers</span>
-                                <span class="stat-value">4 Neural</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Classes</span>
-                                <span class="stat-value">7 Types</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Instances</span>
-                                <span class="stat-value">15,000+</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/Perceptron.md" data-github="https://github.com/Kunsh162007/Perceptron">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- RF Card -->
-                <div class="project-card" id="project-rf-card" data-category="ensemble">
-                    <div class="card-image">
-                        <img src="assets/rf_fraud_roc.png" alt="Random Forest Secure Transactions">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag emerald">Random Forest</span>
-                            <span class="tag">Security</span>
-                        </div>
-                        <h3>Secure Transactions</h3>
-                        <p>A robust Fraud Detection Engine leveraging Random Forest ensembles to reach 0.9994 ROC-AUC performance.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">ROC-AUC</span>
-                                <span class="stat-value">0.9994</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">F1 Score</span>
-                                <span class="stat-value">0.98</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Precision</span>
-                                <span class="stat-value">0.99</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Estimators</span>
-                                <span class="stat-value">100 Trees</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/Random_forest.md" data-github="https://github.com/Kunsh162007/Random_forest">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SVM Card -->
-                <div class="project-card" id="project-svm-card" data-category="classification">
-                    <div class="card-image">
-                        <img src="assets/svm_mushroom_summary.png" alt="SVM Extreme Stability">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">SVM</span>
-                            <span class="tag">RBF Kernel</span>
-                        </div>
-                        <h3>Extreme Stability</h3>
-                        <p>Leveraging RBF-Kernel Support Vector Machines for the high-stakes classification of mushroom toxicity.</p>
-                        <div class="project-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Accuracy</span>
-                                <span class="stat-value">99.2%</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Kernel</span>
-                                <span class="stat-value">RBF</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Classes</span>
-                                <span class="stat-value">2 Types</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Dataset</span>
-                                <span class="stat-value">8,124</span>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/SVM.md" data-github="https://github.com/Kunsh162007/SVM">View Details <span>&rarr;</span></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div><!-- end projects-grid -->
         </div>
     </section>
 
@@ -464,22 +282,20 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-logo">Kunsh<span>Agrawal</span></div>
-                <p>Advanced Machine Learning Showcase &copy; 2026</p>
                 <div class="social-links">
-                    <a href="https://github.com/Kunsh162007" target="_blank">GitHub</a>
-                    <a href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank">LinkedIn</a>
+                    <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener">GitHub</a>
+                    <a href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank" rel="noopener">LinkedIn</a>
                 </div>
             </div>
         </div>
     </footer>
 
-
     <!-- Project Details Modal -->
-    <div id="readme-modal" class="modal">
+    <div id="readme-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-github-link">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
+            <button class="close-btn" aria-label="Close modal">&times;</button>
             <div class="modal-header">
-                <a id="modal-github-link" href="#" target="_blank" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">View on GitHub</a>
+                <a id="modal-github-link" href="#" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">View on GitHub</a>
             </div>
             <div id="markdown-container" class="markdown-body">
                 <!-- Markdown parsed content will be injected here -->
@@ -490,5 +306,4 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="script.js"></script>
 </body>
-
 </html>

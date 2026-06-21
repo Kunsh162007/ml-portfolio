@@ -82,6 +82,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Mobile Navigation Menu Toggle
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinksList = document.getElementById('nav-links');
+    
+    if (navToggle && navLinksList) {
+        navToggle.addEventListener('click', () => {
+            navToggle.classList.toggle('active');
+            navLinksList.classList.toggle('active');
+        });
+        
+        // Close menu when a link is clicked
+        navLinksList.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navToggle.classList.remove('active');
+                navLinksList.classList.remove('active');
+            });
+        });
+    }
+
+    // ===== Category Filter Bar =====
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active tab
+            filterBtns.forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+
+            const filter = btn.getAttribute('data-filter');
+
+            projectCards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const matches = filter === 'all' || category === filter;
+
+                if (matches) {
+                    card.classList.remove('filter-hidden');
+                } else {
+                    card.classList.add('filter-hidden');
+                }
+            });
+        });
+    });
+
+    // ===== Scroll Indicator auto-hide =====
+    const scrollIndicator = document.querySelector('.scroll-indicator');
+    if (scrollIndicator) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 80) {
+                scrollIndicator.style.opacity = '0';
+                scrollIndicator.style.pointerEvents = 'none';
+            } else {
+                scrollIndicator.style.opacity = '';
+                scrollIndicator.style.pointerEvents = '';
+            }
+        }, { passive: true });
+    }
+
     // Modal Elements
     const modal = document.getElementById('readme-modal');
     const modalContent = document.getElementById('markdown-container');
