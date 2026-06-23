@@ -18,6 +18,11 @@ import * as THREE from './vendor/three.module.js';
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+// Overshoot ease: door swings slightly past full-open then settles, for a kicked-open feel.
+const easeOutBack = (x) => {
+    const c1 = 1.7, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+};
 
 /* =========================================================================
    PART 1 — Ported 2D site UI (nav, filters, fade-ins, README modal)
@@ -408,20 +413,134 @@ class CorridorEngine {
     }
 
     makeSlashTexture() {
-        const size = 128;
+        const size = 160;
+        const main = document.createElement('canvas');
+        main.width = main.height = size;
+        const mctx = main.getContext('2d');
+
+        const drawStreak = (angle, bandFrac, alpha) => {
+            const tmp = document.createElement('canvas');
+            tmp.width = tmp.height = size;
+            const tctx = tmp.getContext('2d');
+            const vGrad = tctx.createLinearGradient(0, size * (0.5 - bandFrac), 0, size * (0.5 + bandFrac));
+            vGrad.addColorStop(0, 'rgba(255,255,255,0)');
+            vGrad.addColorStop(0.5, `rgba(255,241,235,${alpha})`);
+            vGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            tctx.fillStyle = vGrad;
+            tctx.fillRect(0, 0, size, size);
+
+            const hGrad = tctx.createLinearGradient(0, 0, size, 0);
+            hGrad.addColorStop(0, 'rgba(255,255,255,0)');
+            hGrad.addColorStop(0.5, 'rgba(255,255,255,1)');
+            hGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            tctx.globalCompositeOperation = 'destination-in';
+            tctx.fillStyle = hGrad;
+            tctx.fillRect(0, 0, size, size);
+
+            mctx.save();
+            mctx.translate(size / 2, size / 2);
+            mctx.rotate(angle);
+            mctx.translate(-size / 2, -size / 2);
+            mctx.globalCompositeOperation = 'lighter';
+            mctx.drawImage(tmp, 0, 0);
+            mctx.restore();
+        };
+
+        drawStreak(-Math.PI / 5, 0.07, 1.0);
+        drawStreak(Math.PI / 9, 0.045, 0.55);
+
+        mctx.save();
+        mctx.translate(size / 2, size / 2);
+        mctx.rotate(-Math.PI / 5);
+        mctx.translate(-size / 2, -size / 2);
+        const coreGrad = mctx.createLinearGradient(0, size * 0.46, 0, size * 0.54);
+        coreGrad.addColorStop(0, 'rgba(220,38,38,0)');
+        coreGrad.addColorStop(0.5, 'rgba(220,38,38,0.85)');
+        coreGrad.addColorStop(1, 'rgba(220,38,38,0)');
+        mctx.globalCompositeOperation = 'source-over';
+        mctx.globalAlpha = 0.7;
+        mctx.fillStyle = coreGrad;
+        mctx.fillRect(size * 0.12, 0, size * 0.76, size);
+        mctx.restore();
+
+        const tex = new THREE.CanvasTexture(main);
+        tex.needsUpdate = true;
+        return tex;
+    }
+
+    makeSpeedLinesTexture() {
+        const size = 256;
         const cnv = document.createElement('canvas');
         cnv.width = cnv.height = size;
         const ctx = cnv.getContext('2d');
-        ctx.translate(size / 2, size / 2);
-        ctx.rotate(-Math.PI / 5);
-        ctx.translate(-size / 2, -size / 2);
-        const grad = ctx.createLinearGradient(0, size * 0.4, size, size * 0.6);
-        grad.addColorStop(0, 'rgba(239,68,68,0)');
-        grad.addColorStop(0.5, 'rgba(239,68,68,0.95)');
-        grad.addColorStop(1, 'rgba(239,68,68,0)');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, size * 0.32, size, size * 0.36);
+        const cx = size / 2, cy = size / 2;
+        const lines = 28;
+        for (let i = 0; i < lines; i++) {
+            const angle = (i / lines) * Math.PI * 2 + Math.random() * 0.08;
+            const innerR = size * (0.12 + Math.random() * 0.06);
+            const outerR = size * (0.46 + Math.random() * 0.06);
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+            const grad = ctx.createLinearGradient(innerR, 0, outerR, 0);
+            grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+            grad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = size * (0.012 + Math.random() * 0.01);
+            ctx.beginPath();
+            ctx.moveTo(innerR, 0);
+            ctx.lineTo(outerR, 0);
+            ctx.stroke();
+            ctx.restore();
+        }
         const tex = new THREE.CanvasTexture(cnv);
+        tex.needsUpdate = true;
+        return tex;
+    }
+
+    makeHamonTexture() {
+        const w = 256, h = 32;
+        const cnv = document.createElement('canvas');
+        cnv.width = w; cnv.height = h;
+        const ctx = cnv.getContext('2d');
+        ctx.fillStyle = '#e9e6df';
+        ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(20,20,24,0.5)';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(0, h * 0.62);
+        for (let x = 0; x <= w; x += 6) {
+            const y = h * 0.62 + Math.sin(x * 0.18) * 2.4 + Math.sin(x * 0.05) * 1.6;
+            ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+        const tex = new THREE.CanvasTexture(cnv);
+        tex.wrapS = THREE.RepeatWrapping;
+        tex.needsUpdate = true;
+        return tex;
+    }
+
+    makeLatticeTexture() {
+        const size = 256;
+        const cnv = document.createElement('canvas');
+        cnv.width = cnv.height = size;
+        const ctx = cnv.getContext('2d');
+        ctx.fillStyle = 'rgba(233,230,223,0.92)';
+        ctx.fillRect(0, 0, size, size);
+        ctx.strokeStyle = 'rgba(21,21,26,0.85)';
+        ctx.lineWidth = 5;
+        const cells = 4;
+        for (let i = 0; i <= cells; i++) {
+            const p = (i / cells) * size;
+            ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, size); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(size, p); ctx.stroke();
+        }
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(122,20,20,0.55)';
+        ctx.strokeRect(4, 4, size - 8, size - 8);
+        const tex = new THREE.CanvasTexture(cnv);
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(2, 1);
         tex.needsUpdate = true;
         return tex;
     }
@@ -430,7 +549,12 @@ class CorridorEngine {
         const doorMat = this.toonMat(PALETTE.door);
         const trimMat = new THREE.MeshBasicMaterial({ color: PALETTE.edge });
         const emberTex = this.makeRadialTexture('rgba(239,68,68,0.95)');
+        const dustTex = this.makeRadialTexture('rgba(207,202,191,0.65)');
+        const flashTex = this.makeRadialTexture('rgba(255,241,235,0.95)');
         const slashTex = this.makeSlashTexture();
+        const speedTex = this.makeSpeedLinesTexture();
+        const latticeTex = this.makeLatticeTexture();
+        const panelMat = new THREE.MeshBasicMaterial({ map: latticeTex });
 
         const halfW = 4.2;
         const panelH = 3.1;
@@ -456,9 +580,10 @@ class CorridorEngine {
             trim.position.set(0, panelH + 0.38, z);
             group.add(trim);
 
+            // wood-lattice sliding panels (shoji-style), hinged at the outer posts
             const leftPivot = new THREE.Group();
             leftPivot.position.set(-halfW, panelH / 2, z);
-            const leftPanel = new THREE.Mesh(new THREE.BoxGeometry(halfW, panelH, 0.12), doorMat);
+            const leftPanel = new THREE.Mesh(new THREE.BoxGeometry(halfW, panelH, 0.1), panelMat);
             leftPanel.position.set(halfW / 2, 0, 0);
             leftPivot.add(leftPanel);
             this.addOutline(leftPanel, 1.03);
@@ -466,7 +591,7 @@ class CorridorEngine {
 
             const rightPivot = new THREE.Group();
             rightPivot.position.set(halfW, panelH / 2, z);
-            const rightPanel = new THREE.Mesh(new THREE.BoxGeometry(halfW, panelH, 0.12), doorMat);
+            const rightPanel = new THREE.Mesh(new THREE.BoxGeometry(halfW, panelH, 0.1), panelMat);
             rightPanel.position.set(-halfW / 2, 0, 0);
             rightPivot.add(rightPanel);
             this.addOutline(rightPanel, 1.03);
@@ -474,6 +599,7 @@ class CorridorEngine {
 
             this.scene.add(group);
 
+            // ember burst (mid-air, around door height)
             const count = 60;
             const positions = new Float32Array(count * 3);
             for (let i = 0; i < count; i++) {
@@ -487,46 +613,110 @@ class CorridorEngine {
             const burst = new THREE.Points(geo, burstMat);
             this.scene.add(burst);
 
-            const slashMat = new THREE.SpriteMaterial({ map: slashTex, transparent: true, depthWrite: false, opacity: 0 });
+            // ground-level dust kicked up by the swing
+            const dustCount = 40;
+            const dustPositions = new Float32Array(dustCount * 3);
+            for (let i = 0; i < dustCount; i++) {
+                dustPositions[i * 3] = (Math.random() - 0.5) * (halfW * 2.4);
+                dustPositions[i * 3 + 1] = Math.random() * 0.5;
+                dustPositions[i * 3 + 2] = z + (Math.random() - 0.5) * 1.2;
+            }
+            const dustGeo = new THREE.BufferGeometry();
+            dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+            const dustMat = new THREE.PointsMaterial({ map: dustTex, size: 0.3, transparent: true, depthWrite: false, opacity: 0 });
+            const dust = new THREE.Points(dustGeo, dustMat);
+            this.scene.add(dust);
+
+            // crimson slash after-image
+            const slashMat = new THREE.SpriteMaterial({ map: slashTex, transparent: true, depthWrite: false, opacity: 0, blending: THREE.AdditiveBlending });
             const slash = new THREE.Sprite(slashMat);
             slash.scale.set(halfW * 2.2, panelH * 1.1, 1);
             slash.position.set(0, panelH / 2, z + 0.05);
             this.scene.add(slash);
 
+            // anime-style impact flash
+            const flashMat = new THREE.SpriteMaterial({ map: flashTex, transparent: true, depthWrite: false, opacity: 0, blending: THREE.AdditiveBlending });
+            const flash = new THREE.Sprite(flashMat);
+            flash.scale.set(halfW * 2.6, panelH * 1.9, 1);
+            flash.position.set(0, panelH / 2, z + 0.08);
+            this.scene.add(flash);
+
+            // radiating speed-line burst
+            const speedMat = new THREE.SpriteMaterial({ map: speedTex, transparent: true, depthWrite: false, opacity: 0, blending: THREE.AdditiveBlending });
+            const speedSprite = new THREE.Sprite(speedMat);
+            const speedBaseScale = panelH * 1.4;
+            speedSprite.scale.set(speedBaseScale, speedBaseScale, 1);
+            speedSprite.position.set(0, panelH / 2, z + 0.06);
+            this.scene.add(speedSprite);
+
             this.interactive.push({ mesh: lintel, target: def.target });
             this.hoverables.push(lintel);
 
-            this.doors.push({ z, leftPivot, rightPivot, burst, burstMat, slash, slashMat });
+            this.doors.push({
+                z, leftPivot, rightPivot,
+                burst, burstMat, dust, dustMat, slash, slashMat,
+                flash, flashMat, speedSprite, speedMat, speedBaseScale,
+            });
         });
     }
 
     _buildSwordRack() {
-        const bladeMat = this.toonMat(PALETTE.blade);
-        const edgeMat = new THREE.MeshBasicMaterial({ color: PALETTE.edge });
+        // generic nichirin-style blade: tapered body + hamon temper-line + glowing core + tsuba/handle
+        const hamonTex = this.makeHamonTexture();
+        const bladeMat = new THREE.MeshStandardMaterial({ map: hamonTex, roughness: 0.4, metalness: 0.2 });
+        const coreMat = new THREE.MeshStandardMaterial({ color: PALETTE.edge, emissive: PALETTE.edge, emissiveIntensity: 0.85 });
+        const fittingMat = this.toonMat(PALETTE.gate);
         const positions = [
             { y: 1.3, z: 4 }, { y: 1.7, z: 2 }, { y: 2.1, z: 0 }, { y: 2.5, z: -2 }, { y: 2.9, z: -4 },
         ];
         positions.forEach((p, i) => {
             const group = new THREE.Group();
-            const blade = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, 2.0), bladeMat);
-            const edge = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.03, 2.0), edgeMat);
-            edge.position.y = 0.07;
-            group.add(blade, edge);
+            const bladeLen = 1.5;
+
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.12, bladeLen), bladeMat);
+            const tip = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.22, 4), bladeMat);
+            tip.rotation.x = Math.PI / 2;
+            tip.rotation.y = Math.PI / 4;
+            tip.position.z = -bladeLen / 2 - 0.09;
+
+            const core = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.045, bladeLen * 0.9), coreMat);
+            core.position.y = 0.025;
+
+            const tsuba = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.025, 10), fittingMat);
+            tsuba.rotation.x = Math.PI / 2;
+            tsuba.position.z = bladeLen / 2 + 0.02;
+
+            const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 0.4, 8), fittingMat);
+            handle.rotation.x = Math.PI / 2;
+            handle.position.z = bladeLen / 2 + 0.02 + 0.21;
+
+            group.add(body, tip, core, tsuba, handle);
             group.position.set(-4.82, p.y, p.z);
             group.rotation.z = (i % 2 === 0 ? 1 : -1) * 0.04;
             this.scene.add(group);
-            this.addOutline(blade, 1.15);
+            this.addOutline(body, 1.18);
         });
     }
 
     _buildSkyline() {
+        // machiya-style silhouettes: square body + pyramidal hip roof, generic traditional-town look
         const buildingMat = this.toonMat(PALETTE.building);
+        const roofMat = this.toonMat(PALETTE.door);
         for (let i = 0; i < 10; i++) {
             const h = 2.5 + Math.random() * 6;
             const w = 1.2 + Math.random() * 1.6;
+            const x = (Math.random() - 0.5) * 18;
+            const z = -49 - Math.random() * 8;
+
             const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), buildingMat);
-            b.position.set((Math.random() - 0.5) * 18, h / 2, -49 - Math.random() * 8);
+            b.position.set(x, h / 2, z);
             this.scene.add(b);
+
+            const roofH = h * 0.22;
+            const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.78, roofH, 4), roofMat);
+            roof.rotation.y = Math.PI / 4;
+            roof.position.set(x, h + roofH / 2, z);
+            this.scene.add(roof);
         }
     }
 
@@ -904,32 +1094,54 @@ class CorridorEngine {
     /* ---------------- door swing + ember/slash burst, driven by scroll ---------------- */
 
     _updateDoors() {
+        this.doorShake = 0;
         if (!this.doors || !this.doorThresholds || !this.doorThresholds.length) return;
         const t = this.scrollT || 0;
         const halfWidth = 0.05;
-        const maxAngle = (Math.PI / 2) * 0.82;
+        const maxAngle = (Math.PI / 2) * 0.86;
 
-        this.doors.forEach((door, i) => {
-            const dt = this.doorThresholds[i];
+        this.doors.forEach((door) => {
+            const idx = this.doors.indexOf(door);
+            const dt = this.doorThresholds[idx];
             if (dt === undefined) return;
             const edge0 = dt - halfWidth;
             const edge1 = dt + halfWidth;
 
             const windowT = clamp((t - edge0) / (edge1 - edge0), 0, 1);
-            const openAmt = windowT * windowT * (3 - 2 * windowT);
+            // Overshoot ease: panels swing slightly past full-open then settle, like they were kicked open.
+            const openAmt = clamp(easeOutBack(windowT), -0.18, 1.18);
             door.leftPivot.rotation.y = maxAngle * openAmt;
             door.rightPivot.rotation.y = -maxAngle * openAmt;
 
-            const burstOpacity = Math.sin(windowT * Math.PI);
-            door.burstMat.opacity = Math.max(0, burstOpacity) * 0.9;
-            door.slashMat.opacity = Math.max(0, burstOpacity) * 0.85;
+            const burstShape = Math.pow(Math.sin(windowT * Math.PI), 1.6);
+            door.burstMat.opacity = Math.max(0, burstShape) * 0.9;
+            door.slashMat.opacity = Math.max(0, burstShape) * 0.9;
+            if (door.dustMat) door.dustMat.opacity = Math.max(0, burstShape) * 0.5;
 
-            if (burstOpacity > 0.02) {
+            // Impact flash + speed-line burst: a sharp spike right at the threshold, not a slow fade.
+            const flashShape = Math.pow(Math.max(0, 1 - Math.abs(windowT - 0.5) * 2.6), 5);
+            if (door.flashMat) door.flashMat.opacity = flashShape * 0.85;
+            if (door.speedSprite) {
+                const speedScale = 1 + flashShape * 2.6 + burstShape * 0.6;
+                door.speedSprite.scale.set(door.speedBaseScale * speedScale, door.speedBaseScale * speedScale, 1);
+                door.speedMat.opacity = flashShape * 0.9;
+            }
+            this.doorShake = Math.max(this.doorShake, flashShape);
+
+            if (burstShape > 0.02) {
                 const posAttr = door.burst.geometry.attributes.position;
                 for (let p = 0; p < posAttr.count; p++) {
                     posAttr.setY(p, posAttr.getY(p) + 0.012);
                 }
                 posAttr.needsUpdate = true;
+            }
+            if (door.dust && burstShape > 0.02) {
+                const dustAttr = door.dust.geometry.attributes.position;
+                for (let p = 0; p < dustAttr.count; p++) {
+                    dustAttr.setX(p, dustAttr.getX(p) + (Math.random() - 0.5) * 0.025);
+                    dustAttr.setY(p, Math.max(0, dustAttr.getY(p) + (Math.random() - 0.3) * 0.01));
+                }
+                dustAttr.needsUpdate = true;
             }
         });
     }
@@ -952,6 +1164,16 @@ class CorridorEngine {
 
         this.updateCamera();
         this._updateDoors();
+        if (this.doorShake > 0.015) {
+            const shakeAmt = this.doorShake * 0.16;
+            this.camera.position.x += (Math.random() - 0.5) * shakeAmt;
+            this.camera.position.y += (Math.random() - 0.5) * shakeAmt * 0.6;
+            this.camera.fov = 55 + this.doorShake * 2.5;
+            this.camera.updateProjectionMatrix();
+        } else if (this.camera.fov !== 55) {
+            this.camera.fov = 55;
+            this.camera.updateProjectionMatrix();
+        }
         this._updateParticles(dt, time);
 
         if (this.heroSprite) {
