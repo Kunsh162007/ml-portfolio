@@ -3,436 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Kunsh Agrawal — AI / ML Engineer. Autonomous multi-agent systems, retrieval-augmented pipelines, and deep-learning models, built from mathematical first principles to production.">
-<title>Kunsh Agrawal — AI / ML Engineer</title>
+<meta name="description" content="The Kunsh System — an explorable star map of Kunsh Agrawal's work. Each project is a world; the home star holds the bio and contact. AI / ML Engineer.">
+<title>Kunsh Agrawal — The Kunsh System</title>
 <link rel="stylesheet" href="style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
+<!-- file:// warning -->
+<div id="protocol-warning" hidden>
+    <p><strong>This star map needs a local server</strong> — opening the file directly blocks the WebGL engine.<br>
+    From the <code>portfolio-website</code> folder run <code>python -m http.server</code>, then open <code>http://localhost:8000</code>.</p>
+    <button id="protocol-warning-dismiss" aria-label="Dismiss">&times;</button>
+</div>
+
 <!-- Loading screen -->
 <div id="loading-screen">
-    <div class="loading-emblem"><span class="emblem-glyph">刃</span></div>
-    <p class="loading-text">Drawing the blade<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+    <div class="loader-ring"></div>
+    <p class="loading-text">Charting the system<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
     <div class="loading-bar"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
 </div>
 <noscript><style>#loading-screen{display:none!important}</style></noscript>
 
-<!-- Atmospheric background stack -->
-<canvas id="atmosphere" aria-hidden="true"></canvas>
-<div class="bg-glow" aria-hidden="true"></div>
-<div class="grain" aria-hidden="true"></div>
-<div class="vignette" aria-hidden="true"></div>
+<!-- WebGL canvas -->
+<canvas id="galaxy"></canvas>
 
-<!-- Navigation -->
-<header class="nav" id="nav">
-    <div class="container nav-inner">
-        <a href="#hero" class="logo" data-scroll>
-            <span class="logo-mark">刃</span>
-            <span class="logo-text">Kunsh<span>Agrawal</span></span>
-        </a>
-        <nav class="nav-links" id="nav-links" aria-label="Primary">
-            <a href="#about" data-scroll>About</a>
-            <a href="#skills" data-scroll>Arsenal</a>
-            <a href="#work" data-scroll>Work</a>
-            <a href="#contact" data-scroll>Contact</a>
-            <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a>
-        </nav>
-        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
-            <span></span><span></span><span></span>
-        </button>
+<!-- DOM labels for each body are injected here, positioned over the canvas -->
+<div id="labels" aria-hidden="true"></div>
+
+<!-- HUD -->
+<header class="hud-top">
+    <div class="hud-brand">
+        <span class="hud-mark">✦</span>
+        <span class="hud-title">THE KUNSH SYSTEM</span>
     </div>
+    <button class="hud-btn" id="btn-star">◉ Home Star</button>
 </header>
 
-<!-- Scroll progress rail -->
-<div class="scroll-rail" aria-hidden="true"><div class="scroll-rail-fill" id="scroll-rail-fill"></div></div>
+<nav class="hud-worlds" id="hud-worlds" aria-label="Jump to a world">
+    <span class="hud-worlds-label">Worlds</span>
+    <!-- world chips injected by JS -->
+</nav>
 
-<main>
+<div class="hud-bottom">
+    <p class="hud-hint" id="hud-hint">Drag to roam · Scroll to zoom · Click a world</p>
+    <button class="hud-btn ghost" id="btn-reset">⤢ Reset view</button>
+</div>
 
-    <!-- ===== HERO ===== -->
-    <section id="hero" class="hero">
-        <span class="hero-kanji" aria-hidden="true">滅</span>
-        <div class="container hero-inner">
-            <p class="hero-eyebrow reveal"><span class="status-dot"></span> AI / ML Engineer · MANIT Bhopal</p>
-            <h1 class="hero-name reveal" data-reveal-delay="1">
-                <span class="line">Kunsh</span>
-                <span class="line accent">Agrawal</span>
-            </h1>
-            <p class="hero-lead reveal" data-reveal-delay="2">
-                I build autonomous multi-agent systems, retrieval-augmented pipelines, and deep-learning
-                models — from mathematical first principles to production deployments.
-            </p>
-            <p class="hero-quote reveal" data-reveal-delay="3">&ldquo;Every model is a blade — useless until it&rsquo;s tested against something real.&rdquo;</p>
-            <div class="hero-cta reveal" data-reveal-delay="4">
-                <a href="#work" class="btn btn-primary" data-scroll>View Work</a>
-                <a href="#contact" class="btn btn-ghost" data-scroll>Get in Touch</a>
-            </div>
-        </div>
-        <a href="#about" class="scroll-cue" data-scroll aria-label="Scroll down">
-            <span class="scroll-cue-line"></span>
-            <span class="scroll-cue-text">Scroll</span>
-        </a>
-    </section>
+<!-- Body info pop-up -->
+<div id="popup" class="popup" role="dialog" aria-modal="true">
+    <div class="popup-card">
+        <button class="popup-close" id="popup-close" aria-label="Close">&times;</button>
+        <div class="popup-body" id="popup-body"><!-- filled by JS --></div>
+    </div>
+</div>
 
-    <!-- ===== ABOUT ===== -->
-    <section id="about" class="section section-about">
-        <div class="container">
-            <div class="section-head reveal">
-                <span class="section-index">01</span>
-                <h2 class="section-title">The Craft</h2>
-            </div>
-            <div class="about-grid">
-                <div class="about-copy reveal">
-                    <p class="about-lead">First-year B.Tech ECE student at MANIT Bhopal, building across the full AI stack.</p>
-                    <p>I work end-to-end — implementing ML/DL algorithms from mathematical first principles
-                    (backpropagation, SVD-PCA, LDA, KNN), then scaling them into production-grade multi-agent
-                    and retrieval-augmented systems. I'm equally comfortable in PyTorch and TensorFlow and in
-                    shipping FastAPI / React services, with hackathon projects spanning agentic AI, medical
-                    imaging, and financial intelligence.</p>
-                    <a href="#contact" class="link-arrow" data-scroll>Get in touch <span>→</span></a>
-                </div>
-                <div class="about-stats reveal" data-reveal-delay="1">
-                    <div class="stat">
-                        <span class="stat-num" data-count="15" data-suffix="+">0</span>
-                        <span class="stat-cap">Projects shipped</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-num" data-count="6">0</span>
-                        <span class="stat-cap">Hackathons</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-num" data-count="5">0</span>
-                        <span class="stat-cap">Agentic systems</span>
-                    </div>
-                    <div class="stat stat-wide">
-                        <span class="stat-text">PyTorch · TensorFlow</span>
-                        <span class="stat-cap">Dual-framework — scratch to deployment</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== SKILLS ===== -->
-    <section id="skills" class="section section-skills">
-        <div class="container">
-            <div class="section-head reveal">
-                <span class="section-index">02</span>
-                <h2 class="section-title">The Arsenal</h2>
-            </div>
-            <div class="skills-grid">
-                <div class="skill-group reveal">
-                    <h3>Languages</h3>
-                    <div class="pills"><span>Python</span><span>C</span><span>SQL</span></div>
-                </div>
-                <div class="skill-group reveal" data-reveal-delay="1">
-                    <h3>Machine Learning</h3>
-                    <div class="pills">
-                        <span>Regression</span><span>Random Forest</span><span>SVM</span><span>KNN</span>
-                        <span>LDA</span><span>PCA (SVD)</span><span>Ensembles</span><span>Feature Engineering</span>
-                        <span>XAI · Grad-CAM / SHAP / LIME</span>
-                    </div>
-                </div>
-                <div class="skill-group reveal" data-reveal-delay="2">
-                    <h3>Deep Learning</h3>
-                    <div class="pills">
-                        <span>CNN (ResNet / VGG / GoogLeNet)</span><span>RNN / LSTM / GRU</span>
-                        <span>Seq2Seq</span><span>Bahdanau Attention</span><span>Transfer Learning</span>
-                    </div>
-                </div>
-                <div class="skill-group reveal" data-reveal-delay="1">
-                    <h3>Agentic AI / LLMs</h3>
-                    <div class="pills">
-                        <span>Multi-Agent Systems</span><span>LangGraph</span><span>LangChain</span>
-                        <span>RAG &amp; Self-RAG</span><span>Knowledge Graphs (Neo4j / Cognee)</span>
-                        <span>Vector DBs (Qdrant / ChromaDB)</span><span>Gemini / Claude APIs</span>
-                    </div>
-                </div>
-                <div class="skill-group reveal" data-reveal-delay="2">
-                    <h3>Frameworks &amp; Tools</h3>
-                    <div class="pills">
-                        <span>PyTorch</span><span>TensorFlow</span><span>Scikit-Learn</span><span>NumPy / Pandas</span>
-                        <span>FastAPI</span><span>WebSockets</span><span>Docker</span><span>PostgreSQL / PostGIS</span>
-                        <span>React</span><span>Git</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== WORK ===== -->
-    <section id="work" class="section section-work">
-        <div class="container">
-            <div class="section-head reveal">
-                <span class="section-index">03</span>
-                <h2 class="section-title">Selected Work</h2>
-            </div>
-
-            <div class="filter-bar reveal" role="tablist" aria-label="Project categories">
-                <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All</button>
-                <button class="filter-btn" data-filter="agentic" role="tab" aria-selected="false">Agentic &amp; Hackathons</button>
-                <button class="filter-btn" data-filter="deeplearning" role="tab" aria-selected="false">Deep Learning &amp; Vision</button>
-            </div>
-
-            <div class="projects-grid" id="projects-grid">
-
-                <!-- AEGIS (FEATURED) -->
-                <article class="project-card featured reveal" id="project-aegis" data-category="agentic">
-                    <div class="card-image">
-                        <img src="assets/aegis_cover.jpg" alt="AEGIS Financial Crime Mesh" loading="lazy">
-                        <div class="hackathon-badge">
-                            <span class="hb-trophy">🏆</span>
-                            <div class="hb-text">
-                                <span class="hb-event">Band of Agents Hackathon</span>
-                                <span class="hb-track">Governed Multi-Agent AML Track</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">Multi-Agent Mesh</span>
-                            <span class="tag emerald">Band Protocol</span>
-                            <span class="tag purple">Featured</span>
-                        </div>
-                        <h3>AEGIS</h3>
-                        <ul class="project-points">
-                            <li>Investigating anti-money-laundering alerts is slow and noisy — most are false positives, and a single AI score is impossible to trust or audit.</li>
-                            <li>Built a 15-agent <strong>adversarial mesh</strong> where specialists run real statistics, a NetworkX graph, and retrieval while a Challenger argues the innocent case and a Verifier rejects any uncited claim — cutting false positives ~77% at ~89% recall on the IBM AML benchmark.</li>
-                            <li>Learned to orchestrate concurrent adversarial agents, manage SQLite case state under parallel execution, and keep every LLM verdict grounded in cited evidence with human-in-the-loop autonomy.</li>
-                        </ul>
-                        <div class="card-footer">
-                            <a href="https://aegis-g7vl.onrender.com/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/AEGIS.md" data-github="https://github.com/Kunsh162007/AEGIS">View Details <span>→</span></button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- NEXUS -->
-                <article class="project-card reveal" id="project-nexus" data-category="agentic">
-                    <div class="card-image">
-                        <img src="assets/nexus_cover.jpg" alt="NEXUS Enterprise Command Center" loading="lazy">
-                        <div class="hackathon-badge">
-                            <span class="hb-trophy">🏆</span>
-                            <div class="hb-text">
-                                <span class="hb-event">Transforming Enterprise through AI</span>
-                                <span class="hb-track">Parallel Executive Agent Synthesis</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">FastAPI</span>
-                            <span class="tag purple">React</span>
-                            <span class="tag">WebSockets</span>
-                        </div>
-                        <h3>Nexus Enterprise AI</h3>
-                        <ul class="project-points">
-                            <li>Enterprise crisis decisions are fragmented across teams and take weeks to coordinate, so the response often arrives too late to matter.</li>
-                            <li>Ran five specialised agents (Scout, Analyst, Strategist, Communicator, Orchestrator) in parallel behind a FastAPI backend, streaming their reasoning live over WebSockets to a React UI and synthesising one executive brief in <strong>under 60 seconds</strong>.</li>
-                            <li>Learned real-time WebSocket streaming, asyncio message-bus design, and orchestrating a tiered multi-model setup (Gemini + Featherless) with Docker deployment on Render.</li>
-                        </ul>
-                        <div class="card-footer">
-                            <a href="https://nexus-frontend-ksfn.onrender.com/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/Nexus.md" data-github="https://github.com/Kunsh162007/nexus-enterprise-ai">View Details <span>→</span></button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- NexusIntel AI -->
-                <article class="project-card reveal" id="project-nexusintel" data-category="agentic">
-                    <div class="card-image">
-                        <img src="assets/nexusintel_cover.jpg" alt="NexusIntel AI" loading="lazy">
-                        <div class="hackathon-badge">
-                            <span class="hb-trophy">🏆</span>
-                            <div class="hb-text">
-                                <span class="hb-event">Web Data UNLOCKED Hackathon</span>
-                                <span class="hb-track">Bright Data · Cognee · TriggerWare</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">Bright Data</span>
-                            <span class="tag emerald">Cognee Graph</span>
-                        </div>
-                        <h3>NexusIntel AI</h3>
-                        <ul class="project-points">
-                            <li>Teams in GTM, Finance, and Security monitor the web manually and in isolation, so they miss fast-moving signals and never share context.</li>
-                            <li>Built an Auto-Focus engine that continuously pings live web sources via Bright Data, detects <strong>semantic anomalies</strong> through embedding comparison, and autonomously dispatches LangChain agents — storing findings in a shared Cognee knowledge graph and firing TriggerWare webhooks.</li>
-                            <li>Learned embedding-based anomaly detection, autonomous agent dispatch, knowledge-graph memory, and wiring a Speechmatics voice interface.</li>
-                        </ul>
-                        <div class="card-footer">
-                            <a href="https://nexusintel-frontend.vercel.app/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/NexusIntel.md" data-github="https://github.com/Kunsh162007/NexusIntel">View Details <span>→</span></button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- DRISHTI -->
-                <article class="project-card reveal" id="project-drishti" data-category="agentic">
-                    <div class="card-image">
-                        <img src="assets/drishti_cover.jpg" alt="Drishti Analytics" loading="lazy">
-                        <div class="hackathon-badge">
-                            <span class="hb-trophy">🏆</span>
-                            <div class="hb-text">
-                                <span class="hb-event">Datathon KSP</span>
-                                <span class="hb-track">Sovereign Police Intelligence Platform</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">PostGIS</span>
-                            <span class="tag purple">Neo4j</span>
-                            <span class="tag">Qdrant RAG</span>
-                        </div>
-                        <h3>Drishti</h3>
-                        <ul class="project-points">
-                            <li>Police data is siloed across relational, spatial, and network systems, and citizen records can't be sent to third-party clouds.</li>
-                            <li>Unified PostgreSQL/PostGIS, Neo4j graphs, and Qdrant semantic search behind one FastAPI app to trace criminal linkage, geo-hotspots, and missing persons — with a <strong>grounded assistant</strong> that only answers from retrieved records and cites the source FIRs.</li>
-                            <li>Learned config-driven deployments (the same code scaling from a free SQLite demo to a Dockerised Caddy auto-TLS stack) and sovereign, grounded-by-construction RAG.</li>
-                        </ul>
-                        <div class="card-footer">
-                            <a href="https://drishti-demo.onrender.com/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/Drishti.md" data-github="https://github.com/Kunsh162007/Drishti">View Details <span>→</span></button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Agentic Research Assistant -->
-                <article class="project-card reveal" id="project-research" data-category="agentic">
-                    <div class="card-image">
-                        <img src="assets/research_cover.jpg" alt="Agentic Research Assistant" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">Self-RAG</span>
-                            <span class="tag purple">LangGraph</span>
-                            <span class="tag emerald">Claude</span>
-                        </div>
-                        <h3>Agentic Research Assistant</h3>
-                        <ul class="project-points">
-                            <li>Literature review is slow, and most AI summaries hallucinate or lean on weak, uncited sources.</li>
-                            <li>Autonomously searches the web, arXiv, and GitHub and synthesises a cited report through a <strong>Self-RAG</strong> LangGraph loop that grades retrieval relevance and answer quality (0&ndash;100) and re-retrieves until it hits a target — with crash-resumable checkpointing and a per-user monitor for new papers.</li>
-                            <li>Learned graph-based agent control flow, self-grading RAG, and stateful orchestration with Google-OAuth/JWT auth on a React + FastAPI (Claude) stack.</li>
-                        </ul>
-                        <div class="card-footer">
-                            <a href="https://research-assistant-0g24.onrender.com/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/AgenticResearch.md" data-github="https://github.com/Kunsh162007/multi-research-agent">View Details <span>→</span></button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- DevRamp AI -->
-                <article class="project-card reveal" id="project-devramp" data-category="agentic">
-                    <div class="card-image">
-                        <img src="assets/devramp_cover.jpg" alt="DevRamp AI Developer Onboarding Platform" loading="lazy">
-                        <div class="hackathon-badge">
-                            <span class="hb-trophy">🏆</span>
-                            <div class="hb-text">
-                                <span class="hb-event">IBM Bob Hackathon</span>
-                                <span class="hb-track">AI Developer Onboarding · Powered by IBM Bob</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">IBM Bob</span>
-                            <span class="tag purple">React + TS</span>
-                            <span class="tag emerald">AI Mentor</span>
-                        </div>
-                        <h3>DevRamp AI</h3>
-                        <ul class="project-points">
-                            <li>New developers take weeks to months to become productive on an unfamiliar codebase, and onboarding pulls senior engineers away from shipping.</li>
-                            <li>Built a platform that analyzes any connected repository, generates a <strong>personalized learning path</strong>, and pairs it with a 24/7 AI mentor grounded in the actual code — turning "cloned the repo" into "first commit" in days, with XP and progress tracking to keep momentum.</li>
-                            <li>Learned to integrate IBM Bob's code-understanding capabilities end-to-end across a React + TypeScript app with a Node API, and to design a gamified, fully responsive onboarding UX.</li>
-                        </ul>
-                        <div class="card-footer">
-                            <a href="https://dev-ramp-ai.vercel.app/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/DevRamp.md" data-github="https://github.com/Kunsh162007/DevRamp-AI">View Details <span>→</span></button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- RNN Forecasting -->
-                <article class="project-card reveal" id="project-rnn-forecasting" data-category="deeplearning">
-                    <div class="card-image">
-                        <img src="assets/rnn_forecasting_cover.jpg" alt="RNN Temperature Forecasting" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">Seq2Seq</span>
-                            <span class="tag">PyTorch</span>
-                            <span class="tag emerald">Time Series</span>
-                        </div>
-                        <h3>Temporal Neural Architects</h3>
-                        <ul class="project-points">
-                            <li>Which recurrent architecture actually forecasts a time series best — and at what parameter cost?</li>
-                            <li>Hand-coded and benchmarked <strong>7 architectures</strong> (Vanilla RNN, LSTM, GRU, Stacked, BiLSTM, Attention-LSTM, Seq2Seq) on Melbourne temperature data with a custom Bahdanau-attention layer and a BPTT gradient visualiser; GRU won (RMSE 2.23) using fewer parameters than LSTM.</li>
-                            <li>Learned how gates solve vanishing gradients, how attention and sequence length affect stability, and the complexity–accuracy tradeoff.</li>
-                        </ul>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/RNN_Forecasting.md" data-github="https://github.com/Kunsh162007/RNN-Seq2Seq-Temperature-Forecasting">View Details <span>→</span></button>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- CNN -->
-                <article class="project-card reveal" id="project-cnn" data-category="deeplearning">
-                    <div class="card-image">
-                        <img src="assets/cnn_cover.jpg" alt="CNN Alzheimer stages" loading="lazy">
-                    </div>
-                    <div class="card-content">
-                        <div class="card-tags">
-                            <span class="tag electric">Computer Vision</span>
-                            <span class="tag emerald">Explainable AI</span>
-                        </div>
-                        <h3>Visualizing Cognitive Decline</h3>
-                        <ul class="project-points">
-                            <li>Black-box CNNs aren't trusted in clinical settings, where every diagnosis must be explainable.</li>
-                            <li>Built and benchmarked <strong>5 CNN architectures</strong> across TensorFlow and PyTorch on 6,400 brain MRIs (ensemble 95.4% accuracy, AUC 0.993) and layered a full XAI suite — Grad-CAM, SHAP, LIME, Occlusion, Score-CAM — over every model.</li>
-                            <li>Learned transfer learning, ensembling, and how to read attribution maps that localise the ventricular and cortical regions driving each prediction.</li>
-                        </ul>
-                        <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/CNN.md" data-github="https://github.com/Kunsh162007/medical-imaging-cnn-xai" data-repo-subfolder="alzheimer-dl-showcase">View Details <span>→</span></button>
-                        </div>
-                    </div>
-                </article>
-
-            </div><!-- /projects-grid -->
-        </div>
-    </section>
-
-    <!-- ===== CONTACT ===== -->
-    <footer id="contact" class="section section-contact">
-        <span class="contact-kanji" aria-hidden="true">絆</span>
-        <div class="container contact-inner reveal">
-            <span class="section-index">04</span>
-            <h2 class="contact-title">Let&rsquo;s build<br>something real.</h2>
-            <p class="contact-lead">Got a mission worth pursuing? I'm open to internships, research, and collaboration.</p>
-            <a href="mailto:kunsh16906@gmail.com" class="contact-email">kunsh16906@gmail.com</a>
-            <div class="social-links">
-                <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener">GitHub ↗</a>
-                <a href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank" rel="noopener">LinkedIn ↗</a>
-            </div>
-            <p class="footer-credit">Kunsh Agrawal · Designed &amp; built, 2026</p>
-        </div>
-    </footer>
-
-</main>
-
-<!-- Mission Details Modal -->
+<!-- Mission Details Modal (full README) -->
 <div id="readme-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-github-link">
     <div class="modal-content">
         <button class="close-btn" aria-label="Close modal">&times;</button>
         <div class="modal-header">
-            <a id="modal-github-link" href="#" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">View on GitHub ↗</a>
+            <a id="modal-github-link" href="#" target="_blank" rel="noopener" class="btn-ghost btn-sm">View on GitHub ↗</a>
         </div>
         <div id="markdown-container" class="markdown-body"></div>
     </div>
 </div>
+
+<script>
+(function () {
+    if (location.protocol === 'file:') {
+        var w = document.getElementById('protocol-warning');
+        if (w) w.hidden = false;
+    }
+    var d = document.getElementById('protocol-warning-dismiss');
+    if (d) d.addEventListener('click', function () { document.getElementById('protocol-warning').hidden = true; });
+    setTimeout(function () {
+        var ls = document.getElementById('loading-screen');
+        if (ls && !ls.classList.contains('loaded')) ls.classList.add('loaded');
+    }, 6000);
+})();
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script type="module" src="main.js"></script>
