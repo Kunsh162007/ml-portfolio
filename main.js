@@ -253,6 +253,15 @@ const POSTERS = [
     { src: 'assets/cnn_cover.jpg', aspect: 1280 / 720, target: '#project-cnn', z: -38 },
 ];
 
+// Door thresholds sit at the midpoints between adjacent zone camera waypoints
+// (corridor/dojo, dojo/missions, missions/sendword) so each door swings open
+// exactly as the scroll-driven camera crosses that threshold.
+const DOOR_DEFS = [
+    { z: 7, target: '#dojo' },
+    { z: -8, target: '#missions' },
+    { z: -26.5, target: '#sendword' },
+];
+
 class CorridorEngine {
     constructor(canvas, loadingEls) {
         this.canvas = canvas;
@@ -392,40 +401,103 @@ class CorridorEngine {
         this._buildSwordRack();
         this._buildSkyline();
         this._buildToriiGate();
+        this._buildPier();
         this._loadCharacterArt();
         this._loadPosters();
         this._buildClouds();
     }
 
+    makeSlashTexture() {
+        const size = 128;
+        const cnv = document.createElement('canvas');
+        cnv.width = cnv.height = size;
+        const ctx = cnv.getContext('2d');
+        ctx.translate(size / 2, size / 2);
+        ctx.rotate(-Math.PI / 5);
+        ctx.translate(-size / 2, -size / 2);
+        const grad = ctx.createLinearGradient(0, size * 0.4, size, size * 0.6);
+        grad.addColorStop(0, 'rgba(239,68,68,0)');
+        grad.addColorStop(0.5, 'rgba(239,68,68,0.95)');
+        grad.addColorStop(1, 'rgba(239,68,68,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, size * 0.32, size, size * 0.36);
+        const tex = new THREE.CanvasTexture(cnv);
+        tex.needsUpdate = true;
+        return tex;
+    }
+
     _buildDoors() {
         const doorMat = this.toonMat(PALETTE.door);
-        const makeFrame = (x, target) => {
+        const trimMat = new THREE.MeshBasicMaterial({ color: PALETTE.edge });
+        const emberTex = this.makeRadialTexture('rgba(239,68,68,0.95)');
+        const slashTex = this.makeSlashTexture();
+
+        const halfW = 4.2;
+        const panelH = 3.1;
+
+        this.doors = [];
+
+        DOOR_DEFS.forEach((def) => {
+            const z = def.z;
             const group = new THREE.Group();
-            [-0.8, 0.8].forEach((dz) => {
-                const post = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.6, 0.18), doorMat);
-                post.position.set(x, 1.3, 10 + dz);
+
+            [-halfW - 0.15, halfW + 0.15].forEach((x) => {
+                const post = new THREE.Mesh(new THREE.BoxGeometry(0.22, panelH + 0.4, 0.22), doorMat);
+                post.position.set(x, (panelH + 0.4) / 2, z);
                 group.add(post);
                 this.addOutline(post);
             });
-            const lintel = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.18, 1.8), doorMat);
-            lintel.position.set(x, 2.7, 10);
+            const lintel = new THREE.Mesh(new THREE.BoxGeometry(halfW * 2 + 0.6, 0.22, 0.22), doorMat);
+            lintel.position.set(0, panelH + 0.5, z);
             group.add(lintel);
             this.addOutline(lintel);
 
-            const panel = new THREE.Mesh(
-                new THREE.PlaneGeometry(1.5, 2.4),
-                new THREE.MeshBasicMaterial({ color: PALETTE.door, transparent: true, opacity: 0.35, side: THREE.DoubleSide })
-            );
-            panel.position.set(x > 0 ? x - 0.02 : x + 0.02, 1.3, 10);
-            panel.rotation.y = Math.PI / 2;
-            group.add(panel);
+            const trim = new THREE.Mesh(new THREE.BoxGeometry(halfW * 2 + 0.5, 0.06, 0.26), trimMat);
+            trim.position.set(0, panelH + 0.38, z);
+            group.add(trim);
+
+            const leftPivot = new THREE.Group();
+            leftPivot.position.set(-halfW, panelH / 2, z);
+            const leftPanel = new THREE.Mesh(new THREE.BoxGeometry(halfW, panelH, 0.12), doorMat);
+            leftPanel.position.set(halfW / 2, 0, 0);
+            leftPivot.add(leftPanel);
+            this.addOutline(leftPanel, 1.03);
+            group.add(leftPivot);
+
+            const rightPivot = new THREE.Group();
+            rightPivot.position.set(halfW, panelH / 2, z);
+            const rightPanel = new THREE.Mesh(new THREE.BoxGeometry(halfW, panelH, 0.12), doorMat);
+            rightPanel.position.set(-halfW / 2, 0, 0);
+            rightPivot.add(rightPanel);
+            this.addOutline(rightPanel, 1.03);
+            group.add(rightPivot);
 
             this.scene.add(group);
-            this.interactive.push({ mesh: panel, target });
-            this.hoverables.push(panel);
-        };
-        makeFrame(-4.75, '#dojo');
-        makeFrame(4.75, '#missions');
+
+            const count = 60;
+            const positions = new Float32Array(count * 3);
+            for (let i = 0; i < count; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * (halfW * 2);
+                positions[i * 3 + 1] = Math.random() * panelH;
+                positions[i * 3 + 2] = z + (Math.random() - 0.5) * 0.6;
+            }
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const burstMat = new THREE.PointsMaterial({ map: emberTex, size: 0.22, transparent: true, depthWrite: false, opacity: 0 });
+            const burst = new THREE.Points(geo, burstMat);
+            this.scene.add(burst);
+
+            const slashMat = new THREE.SpriteMaterial({ map: slashTex, transparent: true, depthWrite: false, opacity: 0 });
+            const slash = new THREE.Sprite(slashMat);
+            slash.scale.set(halfW * 2.2, panelH * 1.1, 1);
+            slash.position.set(0, panelH / 2, z + 0.05);
+            this.scene.add(slash);
+
+            this.interactive.push({ mesh: lintel, target: def.target });
+            this.hoverables.push(lintel);
+
+            this.doors.push({ z, leftPivot, rightPivot, burst, burstMat, slash, slashMat });
+        });
     }
 
     _buildSwordRack() {
@@ -520,9 +592,51 @@ class CorridorEngine {
             this.scene.add(sprite);
             this.maskSprite = sprite;
         });
+
+        // Blade guardian — beside the dojo -> missions door threshold (original silhouette art)
+        this.texLoader.load('assets/art/blade_guardian.png', (tex) => {
+            if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+            const w = 3.2, h = w * (1000 / 800);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+            sprite.scale.set(w, h, 1);
+            sprite.position.set(-3.3, h / 2, -7.2);
+            this.scene.add(sprite);
+        });
+
+        // Lantern keeper — beside the missions -> sendword door threshold (original silhouette art)
+        this.texLoader.load('assets/art/lantern_keeper.png', (tex) => {
+            if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+            const w = 2.6, h = w * (1100 / 700);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+            sprite.scale.set(w, h, 1);
+            sprite.position.set(3.4, h / 2, -25.8);
+            this.scene.add(sprite);
+        });
+
+        // Message crows — drifting near the misty pier (original folklore-style messenger-crow art)
+        this.crows = [];
+        this.texLoader.load('assets/art/message_crow.png', (tex) => {
+            if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+            const crowDefs = [
+                { x: -2.6, y: 4.4, z: -33, scale: 1.5, speed: 0.0007, offset: 0 },
+                { x: 2.2, y: 5.0, z: -40, scale: 1.1, speed: 0.0009, offset: 2.1 },
+                { x: -0.6, y: 3.6, z: -47, scale: 1.3, speed: 0.0006, offset: 4.2 },
+            ];
+            crowDefs.forEach((c) => {
+                const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+                const sprite = new THREE.Sprite(mat);
+                const w = c.scale * 1.6, h = w * (600 / 900);
+                sprite.scale.set(w, h, 1);
+                sprite.position.set(c.x, c.y, c.z);
+                this.scene.add(sprite);
+                this.crows.push({ sprite, baseX: c.x, baseY: c.y, speed: c.speed, offset: c.offset });
+            });
+        });
     }
 
     _loadPosters() {
+        this.banners = [];
+        const poleMat = new THREE.MeshBasicMaterial({ color: PALETTE.edge });
         POSTERS.forEach((p, i) => {
             this.texLoader.load(p.src, (tex) => {
                 if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
@@ -540,16 +654,96 @@ class CorridorEngine {
                 );
                 poster.position.z = side * 0.01;
 
+                // hanging-banner treatment: pole along the top edge + short tassel cords
+                const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, width + 0.5, 8), poleMat);
+                pole.rotation.z = Math.PI / 2;
+                pole.position.set(0, height / 2 + 0.35, 0);
+                const cords = [-width / 2 + 0.15, width / 2 - 0.15].map((cx) => {
+                    const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.3, 6), poleMat);
+                    cord.position.set(cx, height / 2 + 0.18, 0);
+                    return cord;
+                });
+
                 const group = new THREE.Group();
-                group.add(frame, poster);
+                group.add(frame, poster, pole, ...cords);
                 group.position.set(side * 4.85, 2.1, p.z);
                 group.rotation.y = Math.PI / 2;
                 this.scene.add(group);
+                this.banners.push({ group, offset: i * 0.6 });
 
                 this.interactive.push({ mesh: poster, target: p.target });
                 this.interactive.push({ mesh: frame, target: p.target });
                 this.hoverables.push(poster, frame);
             });
+        });
+    }
+
+    /* ---------------- misty pier reskin (around the torii-gate finale) ---------------- */
+
+    _makePlankTexture() {
+        const w = 256, h = 512;
+        const cnv = document.createElement('canvas');
+        cnv.width = w; cnv.height = h;
+        const ctx = cnv.getContext('2d');
+        ctx.fillStyle = '#1c1712';
+        ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+        ctx.lineWidth = 2;
+        for (let y = 0; y < h; y += 28) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(w, y);
+            ctx.stroke();
+        }
+        ctx.strokeStyle = 'rgba(80,65,50,0.25)';
+        for (let i = 0; i < 40; i++) {
+            ctx.beginPath();
+            const x = Math.random() * w;
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x + (Math.random() - 0.5) * 10, h);
+            ctx.stroke();
+        }
+        const tex = new THREE.CanvasTexture(cnv);
+        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+        tex.repeat.set(2, 4);
+        tex.needsUpdate = true;
+        return tex;
+    }
+
+    _buildPier() {
+        const plankTex = this._makePlankTexture();
+        const plankMat = new THREE.MeshBasicMaterial({ map: plankTex });
+        const plank = new THREE.Mesh(new THREE.PlaneGeometry(9.4, 22), plankMat);
+        plank.rotation.x = -Math.PI / 2;
+        plank.position.set(0, 0.01, -40);
+        this.scene.add(plank);
+
+        const pagodaMat = this.toonMat(PALETTE.building);
+        for (let i = 0; i < 3; i++) {
+            const w = 2.2 - i * 0.4;
+            const h = 0.7;
+            const tier = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), pagodaMat);
+            tier.position.set(-5.5, 6 + i * h, -54);
+            this.scene.add(tier);
+        }
+        const spire = new THREE.Mesh(new THREE.ConeGeometry(0.15, 1.2, 6), pagodaMat);
+        spire.position.set(-5.5, 8.7, -54);
+        this.scene.add(spire);
+
+        const postMat = this.toonMat(PALETTE.gate);
+        [[-3, -36], [3, -36]].forEach(([x, z]) => {
+            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 2.2, 8), postMat);
+            post.position.set(x, 1.1, z);
+            this.scene.add(post);
+            this.addOutline(post, 1.05);
+
+            const lanternMat = new THREE.MeshStandardMaterial({ color: PALETTE.edge, emissive: PALETTE.edge, emissiveIntensity: 0.8 });
+            const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.16, 10, 10), lanternMat);
+            lantern.position.set(x, 2.35, z);
+            this.scene.add(lantern);
+            const light = new THREE.PointLight(0xff5544, 0.7, 6, 2);
+            light.position.copy(lantern.position);
+            this.scene.add(light);
         });
     }
 
@@ -677,12 +871,20 @@ class CorridorEngine {
                 };
             })
             .sort((a, b) => a.t - b.t);
+
+        // Door thresholds: midpoints between (corridor,dojo), (dojo,missions), (missions,sendword) —
+        // i.e. breakpoint pairs (1,2), (2,3), (3,4) given the 5-zone order [hero,corridor,dojo,missions,sendword].
+        this.doorThresholds = [];
+        for (let i = 1; i + 1 < this.breakpoints.length; i++) {
+            this.doorThresholds.push((this.breakpoints[i].t + this.breakpoints[i + 1].t) / 2);
+        }
     }
 
     updateCamera() {
         if (!this.breakpoints.length) return;
         const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
         const t = clamp(window.scrollY / maxScroll, 0, 1);
+        this.scrollT = t;
 
         let i = 0;
         while (i < this.breakpoints.length - 1 && this.breakpoints[i + 1].t <= t) i++;
@@ -697,6 +899,39 @@ class CorridorEngine {
         const look = a.look.clone().lerp(b.look, eased);
         this.camera.position.copy(pos);
         this.camera.lookAt(look);
+    }
+
+    /* ---------------- door swing + ember/slash burst, driven by scroll ---------------- */
+
+    _updateDoors() {
+        if (!this.doors || !this.doorThresholds || !this.doorThresholds.length) return;
+        const t = this.scrollT || 0;
+        const halfWidth = 0.05;
+        const maxAngle = (Math.PI / 2) * 0.82;
+
+        this.doors.forEach((door, i) => {
+            const dt = this.doorThresholds[i];
+            if (dt === undefined) return;
+            const edge0 = dt - halfWidth;
+            const edge1 = dt + halfWidth;
+
+            const windowT = clamp((t - edge0) / (edge1 - edge0), 0, 1);
+            const openAmt = windowT * windowT * (3 - 2 * windowT);
+            door.leftPivot.rotation.y = maxAngle * openAmt;
+            door.rightPivot.rotation.y = -maxAngle * openAmt;
+
+            const burstOpacity = Math.sin(windowT * Math.PI);
+            door.burstMat.opacity = Math.max(0, burstOpacity) * 0.9;
+            door.slashMat.opacity = Math.max(0, burstOpacity) * 0.85;
+
+            if (burstOpacity > 0.02) {
+                const posAttr = door.burst.geometry.attributes.position;
+                for (let p = 0; p < posAttr.count; p++) {
+                    posAttr.setY(p, posAttr.getY(p) + 0.012);
+                }
+                posAttr.needsUpdate = true;
+            }
+        });
     }
 
     /* ---------------- resize + render loop ---------------- */
@@ -716,6 +951,7 @@ class CorridorEngine {
         this.clock.lastTime = time;
 
         this.updateCamera();
+        this._updateDoors();
         this._updateParticles(dt, time);
 
         if (this.heroSprite) {
@@ -728,6 +964,18 @@ class CorridorEngine {
             const pulse = 0.7 + 0.4 * Math.sin(time * 0.0025);
             this.lantern.material.emissiveIntensity = pulse;
             if (this.lanternLight) this.lanternLight.intensity = 0.8 + 0.5 * pulse;
+        }
+        if (this.crows) {
+            this.crows.forEach((c) => {
+                c.sprite.position.x = c.baseX + Math.sin(time * c.speed + c.offset) * 1.1;
+                c.sprite.position.y = c.baseY + Math.cos(time * c.speed * 1.3 + c.offset) * 0.35;
+                c.sprite.material.rotation = Math.sin(time * c.speed + c.offset) * 0.18;
+            });
+        }
+        if (this.banners) {
+            this.banners.forEach((b) => {
+                b.group.rotation.z = Math.sin(time * 0.0005 + b.offset) * 0.025;
+            });
         }
 
         this.renderer.render(this.scene, this.camera);

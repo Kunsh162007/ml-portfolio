@@ -72,28 +72,37 @@
         </div>
     </header>
 
-    <!-- ===== CORRIDOR (hub) ===== -->
+    <!-- ===== CORRIDOR (sequential door walk-through) ===== -->
     <section id="corridor" class="zone zone-corridor" data-zone="corridor" data-rank="Threshold Crossed">
         <div class="container">
             <span class="eyebrow center fade-in">Beyond the Threshold</span>
-            <h2 class="section-title center fade-in delay-1">Three Doors</h2>
-            <p class="zone-subtext center fade-in delay-1">Pick a path through the dojo grounds.</p>
+            <h2 class="section-title center fade-in delay-1">Three Doors, One Corridor</h2>
+            <p class="zone-subtext center fade-in delay-1">Keep walking. Each door swings open on its own as you scroll past &mdash; watch the corridor behind this text.</p>
 
-            <div class="door-grid fade-in delay-2">
-                <a href="#dojo" class="door-card">
-                    <span class="door-glyph">壱</span>
-                    <h3>The Dojo</h3>
-                    <p>Training, languages, and the tools of the craft.</p>
+            <div class="door-walk fade-in delay-2">
+                <a href="#dojo" class="door-step">
+                    <span class="door-step-num">壱</span>
+                    <span class="door-step-body">
+                        <strong>The Dojo</strong>
+                        <span>Training, languages, and the tools of the craft.</span>
+                    </span>
+                    <span class="door-step-arrow">&rarr;</span>
                 </a>
-                <a href="#missions" class="door-card">
-                    <span class="door-glyph">弐</span>
-                    <h3>Mission Log</h3>
-                    <p>Eight systems built, tested, and shipped.</p>
+                <a href="#missions" class="door-step">
+                    <span class="door-step-num">弐</span>
+                    <span class="door-step-body">
+                        <strong>Mission Log</strong>
+                        <span>Eight systems built, tested, and shipped.</span>
+                    </span>
+                    <span class="door-step-arrow">&rarr;</span>
                 </a>
-                <a href="#sendword" class="door-card">
-                    <span class="door-glyph">参</span>
-                    <h3>Send Word</h3>
-                    <p>Reach the corps by crow.</p>
+                <a href="#sendword" class="door-step">
+                    <span class="door-step-num">参</span>
+                    <span class="door-step-body">
+                        <strong>Send Word</strong>
+                        <span>A crow waits at the pier &mdash; reach the corps.</span>
+                    </span>
+                    <span class="door-step-arrow">&rarr;</span>
                 </a>
             </div>
         </div>
@@ -429,7 +438,10 @@
             <div class="footer-content scroll-panel fade-in">
                 <span class="eyebrow center">Dispatch</span>
                 <h2 class="section-title center">Send Word</h2>
-                <p class="zone-subtext center">Got a mission worth pursuing? Send a crow.</p>
+                <div class="crow-banner">
+                    <img src="assets/art/message_crow.png" alt="" aria-hidden="true">
+                    <p class="zone-subtext center">Got a mission worth pursuing? Send a crow.</p>
+                </div>
                 <div class="social-links">
                     <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener">GitHub</a>
                     <a href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank" rel="noopener">LinkedIn</a>
