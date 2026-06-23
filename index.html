@@ -3,184 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Kunsh Agrawal — Corps Dossier. A 3D, hand-sketched portfolio of autonomous multi-agent systems, deep learning models, and AI-powered applications built through hackathons and research.">
-<title>Kunsh Agrawal | Corps Dossier</title>
+<meta name="description" content="Kunsh Agrawal — AI / ML Engineer. Autonomous multi-agent systems, retrieval-augmented pipelines, and deep-learning models, built from mathematical first principles to production.">
+<title>Kunsh Agrawal — AI / ML Engineer</title>
 <link rel="stylesheet" href="style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="theme-corps">
-
-<!-- file:// protocol warning (shown only if the inline classic script below detects file:// access) -->
-<div id="protocol-warning" hidden>
-    <p><strong>This dossier needs to run from a local server</strong> — opening the file directly blocks the 3D engine and mission files.<br>
-    From the <code>portfolio-website</code> folder, run <code>python3 -m http.server</code>, then open <code>http://localhost:8000</code> in your browser.</p>
-    <button id="protocol-warning-dismiss" aria-label="Dismiss">&times;</button>
-</div>
+<body>
 
 <!-- Loading screen -->
 <div id="loading-screen">
-    <div class="loading-emblem">
-        <div class="emblem-glyph">刃</div>
-    </div>
-    <p class="loading-text">Sharpening the blade<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+    <div class="loading-emblem"><span class="emblem-glyph">刃</span></div>
+    <p class="loading-text">Drawing the blade<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
     <div class="loading-bar"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
 </div>
-<noscript><style>#loading-screen{display:none!important}#protocol-warning{display:none!important}</style></noscript>
+<noscript><style>#loading-screen{display:none!important}</style></noscript>
 
-<!-- Fixed full-viewport 3D scene -->
-<canvas id="scene"></canvas>
-<div class="atmosphere-overlay" aria-hidden="true"></div>
+<!-- Atmospheric background stack -->
+<canvas id="atmosphere" aria-hidden="true"></canvas>
+<div class="bg-glow" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="vignette" aria-hidden="true"></div>
 
-<!-- Rank-up toast -->
-<div id="rank-toast" class="rank-toast" aria-live="polite"></div>
-
-<!-- Click-through-gates control: advance/retreat between stations -->
-<div id="gate-nav" class="gate-nav hidden">
-    <button id="gate-back" class="gate-back" aria-label="Go back a gate">&larr;</button>
-    <button id="gate-hint" class="gate-hint">Click the gate ahead to continue</button>
-</div>
-
-<nav class="corps-nav">
+<!-- Navigation -->
+<header class="nav" id="nav">
     <div class="container nav-inner">
-        <a href="#hero" class="logo">刃<span>kunsh<span class="logo-accent">agrawal</span></span></a>
-        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <a href="#hero" class="logo" data-scroll>
+            <span class="logo-mark">刃</span>
+            <span class="logo-text">Kunsh<span>Agrawal</span></span>
+        </a>
+        <nav class="nav-links" id="nav-links" aria-label="Primary">
+            <a href="#about" data-scroll>About</a>
+            <a href="#skills" data-scroll>Arsenal</a>
+            <a href="#work" data-scroll>Work</a>
+            <a href="#contact" data-scroll>Contact</a>
+            <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener" class="nav-cta">GitHub ↗</a>
+        </nav>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
             <span></span><span></span><span></span>
         </button>
-        <ul class="nav-links" id="nav-links">
-            <li><a href="#hero">Home</a></li>
-            <li><a href="#corridor">Corridor</a></li>
-            <li><a href="#dojo">Dojo</a></li>
-            <li><a href="#missions">Missions</a></li>
-            <li><a href="#sendword">Send&nbsp;Word</a></li>
-        </ul>
     </div>
-</nav>
+</header>
+
+<!-- Scroll progress rail -->
+<div class="scroll-rail" aria-hidden="true"><div class="scroll-rail-fill" id="scroll-rail-fill"></div></div>
 
 <main>
 
     <!-- ===== HERO ===== -->
-    <header id="hero" class="zone zone-hero" data-zone="hero">
-        <div class="container hero-content">
-            <p class="hero-eyebrow fade-in"><span class="status-dot"></span> AI / ML Engineer &middot; Corps Dossier</p>
-            <h1 class="mega-name fade-in delay-1">Kunsh Agrawal</h1>
-            <p class="hero-quote fade-in delay-2">&ldquo;Every model is a blade &mdash; useless until it's tested against something real.&rdquo;</p>
-            <p class="subtitle fade-in delay-2">I build autonomous multi-agent systems, retrieval-augmented pipelines, and deep-learning models &mdash; from mathematical first principles to production deployments.</p>
-            <div class="hero-cta fade-in delay-3">
-                <a href="#corridor" class="btn btn-primary">Enter the Corridor</a>
-                <a href="#missions" class="btn btn-secondary-glass">View Missions</a>
-                <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener" class="btn btn-secondary-glass">GitHub Profile</a>
+    <section id="hero" class="hero">
+        <span class="hero-kanji" aria-hidden="true">滅</span>
+        <div class="container hero-inner">
+            <p class="hero-eyebrow reveal"><span class="status-dot"></span> AI / ML Engineer · MANIT Bhopal</p>
+            <h1 class="hero-name reveal" data-reveal-delay="1">
+                <span class="line">Kunsh</span>
+                <span class="line accent">Agrawal</span>
+            </h1>
+            <p class="hero-lead reveal" data-reveal-delay="2">
+                I build autonomous multi-agent systems, retrieval-augmented pipelines, and deep-learning
+                models — from mathematical first principles to production deployments.
+            </p>
+            <p class="hero-quote reveal" data-reveal-delay="3">&ldquo;Every model is a blade — useless until it&rsquo;s tested against something real.&rdquo;</p>
+            <div class="hero-cta reveal" data-reveal-delay="4">
+                <a href="#work" class="btn btn-primary" data-scroll>View Work</a>
+                <a href="#contact" class="btn btn-ghost" data-scroll>Get in Touch</a>
             </div>
         </div>
-    </header>
+        <a href="#about" class="scroll-cue" data-scroll aria-label="Scroll down">
+            <span class="scroll-cue-line"></span>
+            <span class="scroll-cue-text">Scroll</span>
+        </a>
+    </section>
 
-    <!-- ===== CORRIDOR (sequential door walk-through) ===== -->
-    <section id="corridor" class="zone zone-corridor" data-zone="corridor" data-rank="Threshold Crossed">
+    <!-- ===== ABOUT ===== -->
+    <section id="about" class="section section-about">
         <div class="container">
-            <span class="eyebrow center fade-in">Beyond the Threshold</span>
-            <h2 class="section-title center fade-in delay-1">Three Doors, One Corridor</h2>
-            <p class="zone-subtext center fade-in delay-1">Three old gates stand ahead, lit by torchlight. Click one &mdash; or the link below &mdash; to kick it open and step through.</p>
-
-            <div class="door-walk fade-in delay-2">
-                <a href="#dojo" class="door-step">
-                    <span class="door-step-num">壱</span>
-                    <span class="door-step-body">
-                        <strong>The Dojo</strong>
-                        <span>Training, languages, and the tools of the craft.</span>
-                    </span>
-                    <span class="door-step-arrow">&rarr;</span>
-                </a>
-                <a href="#missions" class="door-step">
-                    <span class="door-step-num">弐</span>
-                    <span class="door-step-body">
-                        <strong>Mission Log</strong>
-                        <span>Eight systems built, tested, and shipped.</span>
-                    </span>
-                    <span class="door-step-arrow">&rarr;</span>
-                </a>
-                <a href="#sendword" class="door-step">
-                    <span class="door-step-num">参</span>
-                    <span class="door-step-body">
-                        <strong>Send Word</strong>
-                        <span>A crow waits at the pier &mdash; reach the corps.</span>
-                    </span>
-                    <span class="door-step-arrow">&rarr;</span>
-                </a>
+            <div class="section-head reveal">
+                <span class="section-index">01</span>
+                <h2 class="section-title">The Craft</h2>
+            </div>
+            <div class="about-grid">
+                <div class="about-copy reveal">
+                    <p class="about-lead">First-year B.Tech ECE student at MANIT Bhopal, building across the full AI stack.</p>
+                    <p>I work end-to-end — implementing ML/DL algorithms from mathematical first principles
+                    (backpropagation, SVD-PCA, LDA, KNN), then scaling them into production-grade multi-agent
+                    and retrieval-augmented systems. I'm equally comfortable in PyTorch and TensorFlow and in
+                    shipping FastAPI / React services, with hackathon projects spanning agentic AI, medical
+                    imaging, and financial intelligence.</p>
+                    <a href="#contact" class="link-arrow" data-scroll>Get in touch <span>→</span></a>
+                </div>
+                <div class="about-stats reveal" data-reveal-delay="1">
+                    <div class="stat">
+                        <span class="stat-num" data-count="15" data-suffix="+">0</span>
+                        <span class="stat-cap">Projects shipped</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-num" data-count="6">0</span>
+                        <span class="stat-cap">Hackathons</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-num" data-count="5">0</span>
+                        <span class="stat-cap">Agentic systems</span>
+                    </div>
+                    <div class="stat stat-wide">
+                        <span class="stat-text">PyTorch · TensorFlow</span>
+                        <span class="stat-cap">Dual-framework — scratch to deployment</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- ===== DOJO (About + Skills) ===== -->
-    <section id="dojo" class="zone zone-dojo" data-zone="dojo" data-rank="Rank Up — Blade Adept">
+    <!-- ===== SKILLS ===== -->
+    <section id="skills" class="section section-skills">
         <div class="container">
-            <div class="about-grid">
-                <div class="about-intro scroll-panel fade-in">
-                    <span class="eyebrow">The Dojo</span>
-                    <h2>First-year B.Tech ECE student at MANIT Bhopal, building across the full AI stack.</h2>
-                    <p>I work end-to-end &mdash; implementing ML/DL algorithms from mathematical first principles
-                    (backpropagation, SVD-PCA, LDA, KNN), then scaling them into production-grade multi-agent and
-                    retrieval-augmented systems. I'm equally comfortable in PyTorch and TensorFlow and in shipping
-                    FastAPI / React services, with hackathon projects spanning agentic AI, medical imaging, and
-                    financial intelligence.</p>
-                    <a href="#sendword" class="btn-text inline-link">Get in touch <span>&rarr;</span></a>
-                </div>
-
-                <div class="bento-stats fade-in delay-1">
-                    <div class="stat-tile">
-                        <span class="stat-num">15<span class="plus">+</span></span>
-                        <span class="stat-cap">Projects shipped</span>
-                    </div>
-                    <div class="stat-tile">
-                        <span class="stat-num">6</span>
-                        <span class="stat-cap">Hackathons</span>
-                    </div>
-                    <div class="stat-tile">
-                        <span class="stat-num">5</span>
-                        <span class="stat-cap">Agentic systems built</span>
-                    </div>
-                    <div class="stat-tile wide">
-                        <span class="stat-num">PyTorch &middot; TensorFlow</span>
-                        <span class="stat-cap">Dual-framework, from scratch to deployment</span>
-                    </div>
-                </div>
+            <div class="section-head reveal">
+                <span class="section-index">02</span>
+                <h2 class="section-title">The Arsenal</h2>
             </div>
-
-            <div class="skills-block fade-in delay-2">
-                <span class="eyebrow center">Training Scrolls</span>
-                <h2 class="section-title center">The Rack</h2>
-                <div class="skill-group">
-                    <h4><span class="skill-blade"></span>Languages</h4>
-                    <div class="skill-pills">
-                        <span>Python</span><span>C</span><span>SQL</span>
-                    </div>
+            <div class="skills-grid">
+                <div class="skill-group reveal">
+                    <h3>Languages</h3>
+                    <div class="pills"><span>Python</span><span>C</span><span>SQL</span></div>
                 </div>
-                <div class="skill-group">
-                    <h4><span class="skill-blade"></span>ML / AI</h4>
-                    <div class="skill-pills">
+                <div class="skill-group reveal" data-reveal-delay="1">
+                    <h3>Machine Learning</h3>
+                    <div class="pills">
                         <span>Regression</span><span>Random Forest</span><span>SVM</span><span>KNN</span>
                         <span>LDA</span><span>PCA (SVD)</span><span>Ensembles</span><span>Feature Engineering</span>
-                        <span>XAI &middot; Grad-CAM / SHAP / LIME</span>
+                        <span>XAI · Grad-CAM / SHAP / LIME</span>
                     </div>
                 </div>
-                <div class="skill-group">
-                    <h4><span class="skill-blade"></span>Deep Learning</h4>
-                    <div class="skill-pills">
+                <div class="skill-group reveal" data-reveal-delay="2">
+                    <h3>Deep Learning</h3>
+                    <div class="pills">
                         <span>CNN (ResNet / VGG / GoogLeNet)</span><span>RNN / LSTM / GRU</span>
                         <span>Seq2Seq</span><span>Bahdanau Attention</span><span>Transfer Learning</span>
                     </div>
                 </div>
-                <div class="skill-group">
-                    <h4><span class="skill-blade"></span>Agentic AI / LLMs</h4>
-                    <div class="skill-pills">
+                <div class="skill-group reveal" data-reveal-delay="1">
+                    <h3>Agentic AI / LLMs</h3>
+                    <div class="pills">
                         <span>Multi-Agent Systems</span><span>LangGraph</span><span>LangChain</span>
                         <span>RAG &amp; Self-RAG</span><span>Knowledge Graphs (Neo4j / Cognee)</span>
                         <span>Vector DBs (Qdrant / ChromaDB)</span><span>Gemini / Claude APIs</span>
                     </div>
                 </div>
-                <div class="skill-group">
-                    <h4><span class="skill-blade"></span>Frameworks &amp; Tools</h4>
-                    <div class="skill-pills">
+                <div class="skill-group reveal" data-reveal-delay="2">
+                    <h3>Frameworks &amp; Tools</h3>
+                    <div class="pills">
                         <span>PyTorch</span><span>TensorFlow</span><span>Scikit-Learn</span><span>NumPy / Pandas</span>
                         <span>FastAPI</span><span>WebSockets</span><span>Docker</span><span>PostgreSQL / PostGIS</span>
                         <span>React</span><span>Git</span>
@@ -190,26 +162,26 @@
         </div>
     </section>
 
-    <!-- ===== MISSIONS (Projects) ===== -->
-    <section id="missions" class="zone zone-missions" data-zone="missions" data-rank="Rank Up — Night Warden">
+    <!-- ===== WORK ===== -->
+    <section id="work" class="section section-work">
         <div class="container">
-            <span class="eyebrow center fade-in">Mission Log</span>
-            <h2 class="section-title center fade-in delay-1">Systems <span>&amp;</span> Models</h2>
+            <div class="section-head reveal">
+                <span class="section-index">03</span>
+                <h2 class="section-title">Selected Work</h2>
+            </div>
 
-            <div class="filter-bar fade-in delay-2" role="tablist" aria-label="Project categories">
-                <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All Missions</button>
+            <div class="filter-bar reveal" role="tablist" aria-label="Project categories">
+                <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All</button>
                 <button class="filter-btn" data-filter="agentic" role="tab" aria-selected="false">Agentic &amp; Hackathons</button>
                 <button class="filter-btn" data-filter="deeplearning" role="tab" aria-selected="false">Deep Learning &amp; Vision</button>
             </div>
 
             <div class="projects-grid" id="projects-grid">
 
-                <!-- ===== AGENTIC / HACKATHON PROJECTS ===== -->
-
-                <!-- AEGIS Card (FEATURED) -->
-                <div class="project-card featured" id="project-aegis" data-category="agentic">
+                <!-- AEGIS (FEATURED) -->
+                <article class="project-card featured reveal" id="project-aegis" data-category="agentic">
                     <div class="card-image">
-                        <img src="assets/aegis_cover.jpg" alt="AEGIS Financial Crime Mesh">
+                        <img src="assets/aegis_cover.jpg" alt="AEGIS Financial Crime Mesh" loading="lazy">
                         <div class="hackathon-badge">
                             <span class="hb-trophy">🏆</span>
                             <div class="hb-text">
@@ -232,15 +204,15 @@
                         </ul>
                         <div class="card-footer">
                             <a href="https://aegis-g7vl.onrender.com/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/AEGIS.md" data-github="https://github.com/Kunsh162007/AEGIS">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/AEGIS.md" data-github="https://github.com/Kunsh162007/AEGIS">View Details <span>→</span></button>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- NEXUS Card -->
-                <div class="project-card" id="project-nexus" data-category="agentic">
+                <!-- NEXUS -->
+                <article class="project-card reveal" id="project-nexus" data-category="agentic">
                     <div class="card-image">
-                        <img src="assets/nexus_cover.jpg" alt="NEXUS Enterprise Command Center">
+                        <img src="assets/nexus_cover.jpg" alt="NEXUS Enterprise Command Center" loading="lazy">
                         <div class="hackathon-badge">
                             <span class="hb-trophy">🏆</span>
                             <div class="hb-text">
@@ -263,15 +235,15 @@
                         </ul>
                         <div class="card-footer">
                             <a href="https://nexus-frontend-ksfn.onrender.com/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/Nexus.md" data-github="https://github.com/Kunsh162007/nexus-enterprise-ai">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/Nexus.md" data-github="https://github.com/Kunsh162007/nexus-enterprise-ai">View Details <span>→</span></button>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- NexusIntel AI Card -->
-                <div class="project-card" id="project-nexusintel" data-category="agentic">
+                <!-- NexusIntel AI -->
+                <article class="project-card reveal" id="project-nexusintel" data-category="agentic">
                     <div class="card-image">
-                        <img src="assets/nexusintel_cover.jpg" alt="NexusIntel AI">
+                        <img src="assets/nexusintel_cover.jpg" alt="NexusIntel AI" loading="lazy">
                         <div class="hackathon-badge">
                             <span class="hb-trophy">🏆</span>
                             <div class="hb-text">
@@ -293,15 +265,15 @@
                         </ul>
                         <div class="card-footer">
                             <a href="https://nexusintel-frontend.vercel.app/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/NexusIntel.md" data-github="https://github.com/Kunsh162007/NexusIntel">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/NexusIntel.md" data-github="https://github.com/Kunsh162007/NexusIntel">View Details <span>→</span></button>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- DRISHTI Card -->
-                <div class="project-card" id="project-drishti" data-category="agentic">
+                <!-- DRISHTI -->
+                <article class="project-card reveal" id="project-drishti" data-category="agentic">
                     <div class="card-image">
-                        <img src="assets/drishti_cover.jpg" alt="Drishti Analytics">
+                        <img src="assets/drishti_cover.jpg" alt="Drishti Analytics" loading="lazy">
                         <div class="hackathon-badge">
                             <span class="hb-trophy">🏆</span>
                             <div class="hb-text">
@@ -324,15 +296,15 @@
                         </ul>
                         <div class="card-footer">
                             <a href="https://drishti-demo.onrender.com/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/Drishti.md" data-github="https://github.com/Kunsh162007/Drishti">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/Drishti.md" data-github="https://github.com/Kunsh162007/Drishti">View Details <span>→</span></button>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- Agentic Research Assistant Card -->
-                <div class="project-card" id="project-research" data-category="agentic">
+                <!-- Agentic Research Assistant -->
+                <article class="project-card reveal" id="project-research" data-category="agentic">
                     <div class="card-image">
-                        <img src="assets/research_cover.jpg" alt="Agentic Research Assistant">
+                        <img src="assets/research_cover.jpg" alt="Agentic Research Assistant" loading="lazy">
                     </div>
                     <div class="card-content">
                         <div class="card-tags">
@@ -348,15 +320,15 @@
                         </ul>
                         <div class="card-footer">
                             <a href="https://research-assistant-0g24.onrender.com/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/AgenticResearch.md" data-github="https://github.com/Kunsh162007/multi-research-agent">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/AgenticResearch.md" data-github="https://github.com/Kunsh162007/multi-research-agent">View Details <span>→</span></button>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- DevRamp AI Card -->
-                <div class="project-card" id="project-devramp" data-category="agentic">
+                <!-- DevRamp AI -->
+                <article class="project-card reveal" id="project-devramp" data-category="agentic">
                     <div class="card-image">
-                        <img src="assets/devramp_cover.jpg" alt="DevRamp AI Developer Onboarding Platform">
+                        <img src="assets/devramp_cover.jpg" alt="DevRamp AI Developer Onboarding Platform" loading="lazy">
                         <div class="hackathon-badge">
                             <span class="hb-trophy">🏆</span>
                             <div class="hb-text">
@@ -379,17 +351,15 @@
                         </ul>
                         <div class="card-footer">
                             <a href="https://dev-ramp-ai.vercel.app/" target="_blank" rel="noopener" class="btn-live"><span class="live-dot"></span> Live Demo</a>
-                            <button class="btn-text" data-readme="assets/readmes/DevRamp.md" data-github="https://github.com/Kunsh162007/DevRamp-AI">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/DevRamp.md" data-github="https://github.com/Kunsh162007/DevRamp-AI">View Details <span>→</span></button>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- ===== DEEP LEARNING PROJECTS ===== -->
-
-                <!-- RNN Forecasting Card -->
-                <div class="project-card" id="project-rnn-forecasting" data-category="deeplearning">
+                <!-- RNN Forecasting -->
+                <article class="project-card reveal" id="project-rnn-forecasting" data-category="deeplearning">
                     <div class="card-image">
-                        <img src="assets/rnn_forecasting_cover.jpg" alt="RNN Temperature Forecasting">
+                        <img src="assets/rnn_forecasting_cover.jpg" alt="RNN Temperature Forecasting" loading="lazy">
                     </div>
                     <div class="card-content">
                         <div class="card-tags">
@@ -404,15 +374,15 @@
                             <li>Learned how gates solve vanishing gradients, how attention and sequence length affect stability, and the complexity–accuracy tradeoff.</li>
                         </ul>
                         <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/RNN_Forecasting.md" data-github="https://github.com/Kunsh162007/RNN-Seq2Seq-Temperature-Forecasting">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/RNN_Forecasting.md" data-github="https://github.com/Kunsh162007/RNN-Seq2Seq-Temperature-Forecasting">View Details <span>→</span></button>
                         </div>
                     </div>
-                </div>
+                </article>
 
-                <!-- CNN Card -->
-                <div class="project-card" id="project-cnn" data-category="deeplearning">
+                <!-- CNN -->
+                <article class="project-card reveal" id="project-cnn" data-category="deeplearning">
                     <div class="card-image">
-                        <img src="assets/cnn_cover.jpg" alt="CNN Alzheimer stages">
+                        <img src="assets/cnn_cover.jpg" alt="CNN Alzheimer stages" loading="lazy">
                     </div>
                     <div class="card-content">
                         <div class="card-tags">
@@ -426,32 +396,28 @@
                             <li>Learned transfer learning, ensembling, and how to read attribution maps that localise the ventricular and cortical regions driving each prediction.</li>
                         </ul>
                         <div class="card-footer">
-                            <button class="btn-text" data-readme="assets/readmes/CNN.md" data-github="https://github.com/Kunsh162007/medical-imaging-cnn-xai" data-repo-subfolder="alzheimer-dl-showcase">View Details <span>&rarr;</span></button>
+                            <button class="btn-text" data-readme="assets/readmes/CNN.md" data-github="https://github.com/Kunsh162007/medical-imaging-cnn-xai" data-repo-subfolder="alzheimer-dl-showcase">View Details <span>→</span></button>
                         </div>
                     </div>
-                </div>
+                </article>
 
-            </div><!-- end projects-grid -->
+            </div><!-- /projects-grid -->
         </div>
     </section>
 
-    <!-- ===== SEND WORD (Contact / Footer) ===== -->
-    <footer id="sendword" class="zone zone-sendword" data-zone="sendword" data-rank="Final Rank — Master of the Blade">
-        <div class="container">
-            <div class="footer-content scroll-panel fade-in">
-                <span class="eyebrow center">Dispatch</span>
-                <h2 class="section-title center">Send Word</h2>
-                <div class="crow-banner">
-                    <img src="assets/art/message_crow.png" alt="" aria-hidden="true">
-                    <p class="zone-subtext center">Got a mission worth pursuing? Send a crow.</p>
-                </div>
-                <div class="social-links">
-                    <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener">GitHub</a>
-                    <a href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank" rel="noopener">LinkedIn</a>
-                </div>
-                <div class="footer-logo">Kunsh<span>Agrawal</span></div>
-                <p class="footer-credit">Corps Dossier &middot; original art &amp; build, 2026</p>
+    <!-- ===== CONTACT ===== -->
+    <footer id="contact" class="section section-contact">
+        <span class="contact-kanji" aria-hidden="true">絆</span>
+        <div class="container contact-inner reveal">
+            <span class="section-index">04</span>
+            <h2 class="contact-title">Let&rsquo;s build<br>something real.</h2>
+            <p class="contact-lead">Got a mission worth pursuing? I'm open to internships, research, and collaboration.</p>
+            <a href="mailto:kunsh16906@gmail.com" class="contact-email">kunsh16906@gmail.com</a>
+            <div class="social-links">
+                <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener">GitHub ↗</a>
+                <a href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank" rel="noopener">LinkedIn ↗</a>
             </div>
+            <p class="footer-credit">Kunsh Agrawal · Designed &amp; built, 2026</p>
         </div>
     </footer>
 
@@ -462,36 +428,11 @@
     <div class="modal-content">
         <button class="close-btn" aria-label="Close modal">&times;</button>
         <div class="modal-header">
-            <a id="modal-github-link" href="#" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">View on GitHub</a>
+            <a id="modal-github-link" href="#" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">View on GitHub ↗</a>
         </div>
-        <div id="markdown-container" class="markdown-body">
-            <!-- Markdown parsed content will be injected here -->
-        </div>
+        <div id="markdown-container" class="markdown-body"></div>
     </div>
 </div>
-
-<!-- Classic (non-module) script: runs even if ES modules are blocked under file://.
-     Detects the file:// protocol and shows a warning, and guarantees the loading
-     screen never gets permanently stuck even if main.js fails to start. -->
-<script>
-(function () {
-    if (location.protocol === 'file:') {
-        var w = document.getElementById('protocol-warning');
-        if (w) w.hidden = false;
-    }
-    var dismiss = document.getElementById('protocol-warning-dismiss');
-    if (dismiss) {
-        dismiss.addEventListener('click', function () {
-            document.getElementById('protocol-warning').hidden = true;
-        });
-    }
-    // Safety net: force-hide the loading screen after 4s no matter what.
-    setTimeout(function () {
-        var ls = document.getElementById('loading-screen');
-        if (ls && !ls.classList.contains('loaded')) ls.classList.add('loaded');
-    }, 4000);
-})();
-</script>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script type="module" src="main.js"></script>
