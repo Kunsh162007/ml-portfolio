@@ -1,120 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Kunsh Agrawal — Corps Dossier. A 3D, hand-sketched portfolio of autonomous multi-agent systems, deep learning models, and AI-powered applications built through hackathons and research.">
-<title>Kunsh Agrawal | Corps Dossier</title>
-<link rel="stylesheet" href="style.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Kunsh Agrawal — Portfolio of autonomous multi-agent systems, deep learning models, and AI-powered applications built through hackathons and research.">
+    <title>Kunsh Agrawal | Projects Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
-<body class="theme-corps">
-
-<!-- file:// protocol warning (shown only if the inline classic script below detects file:// access) -->
-<div id="protocol-warning" hidden>
-    <p><strong>This dossier needs to run from a local server</strong> — opening the file directly blocks the 3D engine and mission files.<br>
-    From the <code>portfolio-website</code> folder, run <code>python3 -m http.server</code>, then open <code>http://localhost:8000</code> in your browser.</p>
-    <button id="protocol-warning-dismiss" aria-label="Dismiss">&times;</button>
-</div>
-
-<!-- Loading screen -->
-<div id="loading-screen">
-    <div class="loading-emblem">
-        <img src="assets/art/guardian_mask.png" alt="" aria-hidden="true">
+<body class="dark-theme">
+    <!-- Synthetic Void Background Layer -->
+    <div class="void-bg">
+        <div class="glow-field" id="mouse-glow"></div>
+        <div class="glow-field" id="ambient-glow"></div>
     </div>
-    <p class="loading-text">Sharpening the blade<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
-    <div class="loading-bar"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
-</div>
-<noscript><style>#loading-screen{display:none!important}#protocol-warning{display:none!important}</style></noscript>
+    
+    <nav class="glass-nav">
+        <div class="container">
+            <a href="#" class="logo">kunsh<span>agrawal</span></a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
 
-<!-- Fixed full-viewport 3D scene -->
-<canvas id="scene"></canvas>
-<div class="atmosphere-overlay" aria-hidden="true"></div>
-
-<!-- Rank-up toast -->
-<div id="rank-toast" class="rank-toast" aria-live="polite"></div>
-
-<nav class="corps-nav">
-    <div class="container nav-inner">
-        <a href="#hero" class="logo">刃<span>kunsh<span class="logo-accent">agrawal</span></span></a>
-        <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
-            <span></span><span></span><span></span>
-        </button>
-        <ul class="nav-links" id="nav-links">
-            <li><a href="#hero">Home</a></li>
-            <li><a href="#corridor">Corridor</a></li>
-            <li><a href="#dojo">Dojo</a></li>
-            <li><a href="#missions">Missions</a></li>
-            <li><a href="#sendword">Send&nbsp;Word</a></li>
-        </ul>
-    </div>
-</nav>
-
-<main>
-
-    <!-- ===== HERO ===== -->
-    <header id="hero" class="zone zone-hero" data-zone="hero">
+    <header id="home" class="hero">
+        <div class="hero-bg"></div>
         <div class="container hero-content">
-            <p class="hero-eyebrow fade-in"><span class="status-dot"></span> AI / ML Engineer &middot; Corps Dossier</p>
-            <h1 class="mega-name fade-in delay-1">Kunsh Agrawal</h1>
-            <p class="hero-quote fade-in delay-2">&ldquo;Every model is a blade &mdash; useless until it's tested against something real.&rdquo;</p>
+            <p class="hero-eyebrow fade-in"><span class="status-dot"></span> AI / ML &amp; Agentic Systems</p>
+            <h1 class="mega-name fade-in delay-1">
+                <span class="liquid-text">Kunsh Agrawal</span>
+            </h1>
             <p class="subtitle fade-in delay-2">I build autonomous multi-agent systems, retrieval-augmented pipelines, and deep-learning models &mdash; from mathematical first principles to production deployments.</p>
             <div class="hero-cta fade-in delay-3">
-                <a href="#missions" class="btn btn-primary">View Missions</a>
-                <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener" class="btn btn-secondary-glass">GitHub Profile</a>
+                <a href="#projects" class="btn btn-primary">View Projects</a>
+                <a href="https://github.com/Kunsh162007" target="_blank" class="btn btn-secondary-glass">GitHub Profile</a>
             </div>
         </div>
+
+        <!-- Scroll Indicator -->
         <div class="scroll-indicator" aria-hidden="true">
-            <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
-            <span>Descend</span>
+            <div class="scroll-mouse">
+                <div class="scroll-wheel"></div>
+            </div>
+            <span>Scroll</span>
         </div>
     </header>
 
-    <!-- ===== CORRIDOR (hub) ===== -->
-    <section id="corridor" class="zone zone-corridor" data-zone="corridor" data-rank="Threshold Crossed">
-        <div class="container">
-            <span class="eyebrow center fade-in">Beyond the Threshold</span>
-            <h2 class="section-title center fade-in delay-1">Three Doors</h2>
-            <p class="zone-subtext center fade-in delay-1">Pick a path through the dojo grounds.</p>
-
-            <div class="door-grid fade-in delay-2">
-                <a href="#dojo" class="door-card">
-                    <span class="door-glyph">壱</span>
-                    <h3>The Dojo</h3>
-                    <p>Training, languages, and the tools of the craft.</p>
-                </a>
-                <a href="#missions" class="door-card">
-                    <span class="door-glyph">弐</span>
-                    <h3>Mission Log</h3>
-                    <p>Eight systems built, tested, and shipped.</p>
-                </a>
-                <a href="#sendword" class="door-card">
-                    <span class="door-glyph">参</span>
-                    <h3>Send Word</h3>
-                    <p>Reach the corps by crow.</p>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== DOJO (About + Skills) ===== -->
-    <section id="dojo" class="zone zone-dojo" data-zone="dojo" data-rank="Rank Up — Blade Adept">
+    <!-- ===== About / Skills ===== -->
+    <section id="about" class="about-section">
         <div class="container">
             <div class="about-grid">
-                <div class="about-intro scroll-panel fade-in">
-                    <span class="eyebrow">The Dojo</span>
+                <div class="about-intro">
+                    <span class="eyebrow">About</span>
                     <h2>First-year B.Tech ECE student at MANIT Bhopal, building across the full AI stack.</h2>
                     <p>I work end-to-end &mdash; implementing ML/DL algorithms from mathematical first principles
                     (backpropagation, SVD-PCA, LDA, KNN), then scaling them into production-grade multi-agent and
                     retrieval-augmented systems. I'm equally comfortable in PyTorch and TensorFlow and in shipping
                     FastAPI / React services, with hackathon projects spanning agentic AI, medical imaging, and
                     financial intelligence.</p>
-                    <a href="#sendword" class="btn-text inline-link">Get in touch <span>&rarr;</span></a>
+                    <a href="#contact" class="btn-text inline-link">Get in touch <span>&rarr;</span></a>
                 </div>
 
-                <div class="bento-stats fade-in delay-1">
+                <div class="bento-stats">
                     <div class="stat-tile">
                         <span class="stat-num">15<span class="plus">+</span></span>
                         <span class="stat-cap">Projects shipped</span>
@@ -134,17 +92,15 @@
                 </div>
             </div>
 
-            <div class="skills-block fade-in delay-2">
-                <span class="eyebrow center">Training Scrolls</span>
-                <h2 class="section-title center">The Rack</h2>
+            <div class="skills-block">
                 <div class="skill-group">
-                    <h4><span class="skill-blade"></span>Languages</h4>
+                    <h4>Languages</h4>
                     <div class="skill-pills">
                         <span>Python</span><span>C</span><span>SQL</span>
                     </div>
                 </div>
                 <div class="skill-group">
-                    <h4><span class="skill-blade"></span>ML / AI</h4>
+                    <h4>ML / AI</h4>
                     <div class="skill-pills">
                         <span>Regression</span><span>Random Forest</span><span>SVM</span><span>KNN</span>
                         <span>LDA</span><span>PCA (SVD)</span><span>Ensembles</span><span>Feature Engineering</span>
@@ -152,14 +108,14 @@
                     </div>
                 </div>
                 <div class="skill-group">
-                    <h4><span class="skill-blade"></span>Deep Learning</h4>
+                    <h4>Deep Learning</h4>
                     <div class="skill-pills">
                         <span>CNN (ResNet / VGG / GoogLeNet)</span><span>RNN / LSTM / GRU</span>
                         <span>Seq2Seq</span><span>Bahdanau Attention</span><span>Transfer Learning</span>
                     </div>
                 </div>
                 <div class="skill-group">
-                    <h4><span class="skill-blade"></span>Agentic AI / LLMs</h4>
+                    <h4>Agentic AI / LLMs</h4>
                     <div class="skill-pills">
                         <span>Multi-Agent Systems</span><span>LangGraph</span><span>LangChain</span>
                         <span>RAG &amp; Self-RAG</span><span>Knowledge Graphs (Neo4j / Cognee)</span>
@@ -167,7 +123,7 @@
                     </div>
                 </div>
                 <div class="skill-group">
-                    <h4><span class="skill-blade"></span>Frameworks &amp; Tools</h4>
+                    <h4>Frameworks &amp; Tools</h4>
                     <div class="skill-pills">
                         <span>PyTorch</span><span>TensorFlow</span><span>Scikit-Learn</span><span>NumPy / Pandas</span>
                         <span>FastAPI</span><span>WebSockets</span><span>Docker</span><span>PostgreSQL / PostGIS</span>
@@ -178,20 +134,20 @@
         </div>
     </section>
 
-    <!-- ===== MISSIONS (Projects) ===== -->
-    <section id="missions" class="zone zone-missions" data-zone="missions" data-rank="Rank Up — Night Warden">
+    <section id="projects" class="projects-section">
         <div class="container">
-            <span class="eyebrow center fade-in">Mission Log</span>
-            <h2 class="section-title center fade-in delay-1">Systems <span>&amp;</span> Models</h2>
+            <span class="eyebrow center">Selected Work</span>
+            <h2 class="section-title">Systems <span>&amp;</span> Models</h2>
 
-            <div class="filter-bar fade-in delay-2" role="tablist" aria-label="Project categories">
-                <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All Missions</button>
+            <!-- Category Filter Bar -->
+            <div class="filter-bar" role="tablist" aria-label="Project categories">
+                <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All Projects</button>
                 <button class="filter-btn" data-filter="agentic" role="tab" aria-selected="false">Agentic &amp; Hackathons</button>
                 <button class="filter-btn" data-filter="deeplearning" role="tab" aria-selected="false">Deep Learning &amp; Vision</button>
             </div>
 
             <div class="projects-grid" id="projects-grid">
-
+                
                 <!-- ===== AGENTIC / HACKATHON PROJECTS ===== -->
 
                 <!-- AEGIS Card (FEATURED) -->
@@ -255,6 +211,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <!-- NexusIntel AI Card -->
                 <div class="project-card" id="project-nexusintel" data-category="agentic">
@@ -423,62 +380,32 @@
         </div>
     </section>
 
-    <!-- ===== SEND WORD (Contact / Footer) ===== -->
-    <footer id="sendword" class="zone zone-sendword" data-zone="sendword" data-rank="Final Rank — Master of the Blade">
+    <footer id="contact">
         <div class="container">
-            <div class="footer-content scroll-panel fade-in">
-                <span class="eyebrow center">Dispatch</span>
-                <h2 class="section-title center">Send Word</h2>
-                <p class="zone-subtext center">Got a mission worth pursuing? Send a crow.</p>
+            <div class="footer-content">
+                <div class="footer-logo">Kunsh<span>Agrawal</span></div>
                 <div class="social-links">
                     <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener">GitHub</a>
                     <a href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank" rel="noopener">LinkedIn</a>
                 </div>
-                <div class="footer-logo">Kunsh<span>Agrawal</span></div>
-                <p class="footer-credit">Corps Dossier &middot; original art &amp; build, 2026</p>
             </div>
         </div>
     </footer>
 
-</main>
-
-<!-- Mission Details Modal -->
-<div id="readme-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-github-link">
-    <div class="modal-content">
-        <button class="close-btn" aria-label="Close modal">&times;</button>
-        <div class="modal-header">
-            <a id="modal-github-link" href="#" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">View on GitHub</a>
-        </div>
-        <div id="markdown-container" class="markdown-body">
-            <!-- Markdown parsed content will be injected here -->
+    <!-- Project Details Modal -->
+    <div id="readme-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-github-link">
+        <div class="modal-content">
+            <button class="close-btn" aria-label="Close modal">&times;</button>
+            <div class="modal-header">
+                <a id="modal-github-link" href="#" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size: 0.9rem; padding: 0.5rem 1rem;">View on GitHub</a>
+            </div>
+            <div id="markdown-container" class="markdown-body">
+                <!-- Markdown parsed content will be injected here -->
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Classic (non-module) script: runs even if ES modules are blocked under file://.
-     Detects the file:// protocol and shows a warning, and guarantees the loading
-     screen never gets permanently stuck even if main.js fails to start. -->
-<script>
-(function () {
-    if (location.protocol === 'file:') {
-        var w = document.getElementById('protocol-warning');
-        if (w) w.hidden = false;
-    }
-    var dismiss = document.getElementById('protocol-warning-dismiss');
-    if (dismiss) {
-        dismiss.addEventListener('click', function () {
-            document.getElementById('protocol-warning').hidden = true;
-        });
-    }
-    // Safety net: force-hide the loading screen after 4s no matter what.
-    setTimeout(function () {
-        var ls = document.getElementById('loading-screen');
-        if (ls && !ls.classList.contains('loaded')) ls.classList.add('loaded');
-    }, 4000);
-})();
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script type="module" src="main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
