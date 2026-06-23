@@ -1,12 +1,14 @@
 /* =========================================================================
    Kunsh Agrawal — Corps Dossier
-   main.js — Three.js corridor-walkthrough engine + ported site UI logic.
+   main.js — Three.js click-through-gates corridor engine + ported site UI.
 
    Architecture: a single fixed full-viewport WebGL canvas renders ONLY the
    3D environment (corridor, doors, gallery wall, sword rack, clouds,
-   particles, original silhouette art). All real text/content stays in
-   normal 2D HTML above the canvas. Camera position is driven purely by
-   page scroll position, read every animation frame.
+   particles, original art). All real text/content stays in normal 2D HTML
+   above the canvas. The journey is broken into five fixed "stations"
+   (hero -> corridor -> dojo -> missions -> sendword). The camera holds
+   still at each station; clicking the gate ahead (or the on-screen hint)
+   flies the camera to the next station and swings that gate open.
    ========================================================================= */
 
 import * as THREE from './vendor/three.module.js';
@@ -18,17 +20,30 @@ import * as THREE from './vendor/three.module.js';
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+const smoothstep = (x) => x * x * (3 - 2 * x);
 // Overshoot ease: door swings slightly past full-open then settles, for a kicked-open feel.
 const easeOutBack = (x) => {
     const c1 = 1.7, c3 = c1 + 1;
     return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
 };
 
+const STATION_IDS = ['hero', 'corridor', 'dojo', 'missions', 'sendword'];
+
+let rankToastTimer = null;
+function showRankToast(text) {
+    const toastEl = qs('#rank-toast');
+    if (!toastEl) return;
+    toastEl.textContent = text;
+    toastEl.classList.add('show');
+    clearTimeout(rankToastTimer);
+    rankToastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
+}
+
 /* =========================================================================
-   PART 1 — Ported 2D site UI (nav, filters, fade-ins, README modal)
+   PART 1 — Ported 2D site UI (nav, filters, gate controls, README modal)
    ========================================================================= */
 
-function initUI() {
+function initUI(engine) {
     // Mobile nav toggle
     const navToggle = qs('#nav-toggle');
     const navLinksList = qs('#nav-links');
@@ -45,51 +60,29 @@ function initUI() {
         });
     }
 
-    // Sticky nav background
+    // The nav bar always sits over the 3D scene now — give it its
+    // backdrop permanently instead of toggling on page scroll.
     const navEl = qs('.corps-nav');
-    if (navEl) {
-        window.addEventListener('scroll', () => {
-            navEl.classList.toggle('scrolled', window.scrollY > 50);
-        }, { passive: true });
-    }
+    if (navEl) navEl.classList.add('scrolled');
 
-    // Scrollspy — highlight active nav link
-    const navLinkEls = qsa('.nav-links a');
-    const spy = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                const id = entry.target.getAttribute('id');
-                navLinkEls.forEach((a) => {
-                    a.classList.toggle('active', a.getAttribute('href') === `#${id}`);
-                });
-            }
+    // Any link that points at a station id (#hero, #corridor, #dojo,
+    // #missions, #sendword) drives the click-through-gates engine instead
+    // of a native anchor jump — there's no page scroll to jump to anymore.
+    if (engine) {
+        qsa('a[href^="#"]').forEach((a) => {
+            const id = a.getAttribute('href').slice(1);
+            const idx = STATION_IDS.indexOf(id);
+            if (idx === -1) return;
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                engine.goToStation(idx);
+            });
         });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    qsa('.zone[id]').forEach((s) => spy.observe(s));
 
-    // Staggered fade-in reveal
-    const fadeObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry, index) => {
-            if (entry.isIntersecting) {
-                setTimeout(() => entry.target.classList.add('fade-in-visible'), index * 100);
-                fadeObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-    qsa('.fade-in').forEach((el) => fadeObserver.observe(el));
-
-    // Scroll indicator auto-hide
-    const scrollIndicator = qs('.scroll-indicator');
-    if (scrollIndicator) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 80) {
-                scrollIndicator.style.opacity = '0';
-                scrollIndicator.style.pointerEvents = 'none';
-            } else {
-                scrollIndicator.style.opacity = '';
-                scrollIndicator.style.pointerEvents = '';
-            }
-        }, { passive: true });
+        const gateBack = qs('#gate-back');
+        const gateHint = qs('#gate-hint');
+        if (gateBack) gateBack.addEventListener('click', () => engine.goToStation(engine.currentIndex - 1));
+        if (gateHint) gateHint.addEventListener('click', () => engine.goToStation(engine.currentIndex + 1));
     }
 
     // Category filter bar
@@ -112,27 +105,6 @@ function initUI() {
             });
         });
     });
-
-    // Rank-up toast — fires once per zone the first time it enters view
-    const toastEl = qs('#rank-toast');
-    let toastTimer = null;
-    function showRankToast(text) {
-        if (!toastEl) return;
-        toastEl.textContent = text;
-        toastEl.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toastEl.classList.remove('show'), 3200);
-    }
-    const rankObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                const rank = entry.target.getAttribute('data-rank');
-                if (rank) showRankToast(rank);
-                rankObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.35 });
-    qsa('.zone[data-rank]').forEach((z) => rankObserver.observe(z));
 
     initReadmeModal();
 }
@@ -224,7 +196,7 @@ function initReadmeModal() {
 }
 
 /* =========================================================================
-   PART 2 — Three.js corridor-walkthrough engine
+   PART 2 — Three.js click-through-gates corridor engine
    ========================================================================= */
 
 const PALETTE = {
@@ -237,6 +209,8 @@ const PALETTE = {
     gate: 0x6e1414,
     building: 0x101014,
     outline: 0x0a0a0c,
+    wood: 0x2b2018,
+    flame: 0xff7a33,
 };
 
 const ZONE_WAYPOINTS = {
@@ -258,9 +232,10 @@ const POSTERS = [
     { src: 'assets/cnn_cover.jpg', aspect: 1280 / 720, target: '#project-cnn', z: -38 },
 ];
 
-// Door thresholds sit at the midpoints between adjacent zone camera waypoints
-// (corridor/dojo, dojo/missions, missions/sendword) so each door swings open
-// exactly as the scroll-driven camera crosses that threshold.
+// Each door connects station index (i+1) to (i+2) in STATION_IDS — i.e.
+// door 0 gates corridor->dojo, door 1 gates dojo->missions, door 2 gates
+// missions->sendword. Clicking a door only advances if you're already
+// standing at the station immediately before it.
 const DOOR_DEFS = [
     { z: 7, target: '#dojo' },
     { z: -8, target: '#missions' },
@@ -274,7 +249,6 @@ class CorridorEngine {
         this.loadingScreen = loadingEls.screen;
 
         this.clock = { lastTime: 0 };
-        this.breakpoints = [];
         this.interactive = [];
         this.hoverables = [];
 
@@ -290,9 +264,7 @@ class CorridorEngine {
         this._buildParticles();
         this._wireInteractivity();
         this._wireResize();
-
-        this.buildBreakpoints();
-        window.addEventListener('load', () => this.buildBreakpoints());
+        this._initStations();
 
         requestAnimationFrame((t) => this._animate(t));
     }
@@ -365,7 +337,7 @@ class CorridorEngine {
         this.texLoader = new THREE.TextureLoader(this.manager);
     }
 
-    /* ---------------- procedural sprite textures (no external assets) ---------------- */
+    /* ---------------- procedural sprite / surface textures (no external assets) ---------------- */
 
     makeRadialTexture(inner, outer = 'rgba(0,0,0,0)') {
         const size = 64;
@@ -403,6 +375,7 @@ class CorridorEngine {
         });
 
         this._buildDoors();
+        this._buildTorches();
         this._buildSwordRack();
         this._buildSkyline();
         this._buildToriiGate();
@@ -520,48 +493,131 @@ class CorridorEngine {
         return tex;
     }
 
-    makeLatticeTexture() {
+    // Aged, fire-worn gate panel: weathered plank grain, soot blotches,
+    // rusted iron cross-braces with rivets, and a faded clan-stripe accent.
+    makeOldDoorTexture() {
         const size = 256;
         const cnv = document.createElement('canvas');
         cnv.width = cnv.height = size;
         const ctx = cnv.getContext('2d');
-        ctx.fillStyle = 'rgba(233,230,223,0.92)';
+
+        ctx.fillStyle = '#2c2117';
         ctx.fillRect(0, 0, size, size);
-        ctx.strokeStyle = 'rgba(21,21,26,0.85)';
-        ctx.lineWidth = 5;
-        const cells = 4;
-        for (let i = 0; i <= cells; i++) {
-            const p = (i / cells) * size;
-            ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, size); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(size, p); ctx.stroke();
-        }
+
+        const planks = 6;
         ctx.lineWidth = 2;
-        ctx.strokeStyle = 'rgba(122,20,20,0.55)';
-        ctx.strokeRect(4, 4, size - 8, size - 8);
+        for (let i = 0; i <= planks; i++) {
+            const x = (i / planks) * size;
+            ctx.strokeStyle = 'rgba(10,8,5,0.6)';
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, size); ctx.stroke();
+        }
+        for (let i = 0; i < 220; i++) {
+            const x = Math.random() * size;
+            const y = Math.random() * size;
+            const len = 6 + Math.random() * 18;
+            const dark = Math.random() > 0.5;
+            ctx.strokeStyle = dark ? `rgba(10,8,5,${0.15 + Math.random() * 0.2})` : `rgba(60,48,34,${0.15 + Math.random() * 0.2})`;
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + (Math.random() - 0.5) * 3, y + len);
+            ctx.stroke();
+        }
+
+        for (let i = 0; i < 7; i++) {
+            const x = Math.random() * size;
+            const y = size * (0.4 + Math.random() * 0.58);
+            const r = 16 + Math.random() * 30;
+            const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+            grad.addColorStop(0, 'rgba(5,4,3,0.55)');
+            grad.addColorStop(1, 'rgba(5,4,3,0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+        }
+
+        [0.28, 0.72].forEach((frac) => {
+            const y = size * frac;
+            ctx.fillStyle = 'rgba(18,17,18,0.88)';
+            ctx.fillRect(0, y - 7, size, 14);
+            ctx.fillStyle = 'rgba(60,58,56,0.5)';
+            ctx.fillRect(0, y - 7, size, 2);
+            for (let x = 14; x < size; x += 28) {
+                ctx.beginPath();
+                ctx.fillStyle = 'rgba(80,76,70,0.7)';
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        });
+
+        const vignette = ctx.createRadialGradient(size / 2, size / 2, size * 0.3, size / 2, size / 2, size * 0.72);
+        vignette.addColorStop(0, 'rgba(0,0,0,0)');
+        vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, size, size);
+
+        ctx.strokeStyle = 'rgba(122,20,20,0.3)';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(5, 5, size - 10, size - 10);
+
         const tex = new THREE.CanvasTexture(cnv);
-        tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-        tex.repeat.set(2, 1);
+        tex.needsUpdate = true;
+        return tex;
+    }
+
+    // Stylised torch flame: layered elongated radial gradients, drawn once
+    // and billboarded — animated per-frame via scale/opacity flicker.
+    makeFlameTexture() {
+        const w = 64, h = 96;
+        const cnv = document.createElement('canvas');
+        cnv.width = w; cnv.height = h;
+        const ctx = cnv.getContext('2d');
+
+        ctx.save();
+        ctx.translate(w / 2, h * 0.62);
+        ctx.scale(1, 1.7);
+        const outer = ctx.createRadialGradient(0, 0, 0, 0, 0, w * 0.46);
+        outer.addColorStop(0, 'rgba(255,140,40,0.95)');
+        outer.addColorStop(0.6, 'rgba(255,90,20,0.55)');
+        outer.addColorStop(1, 'rgba(255,60,10,0)');
+        ctx.fillStyle = outer;
+        ctx.beginPath(); ctx.arc(0, 0, w * 0.46, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(w / 2, h * 0.48);
+        ctx.scale(0.62, 1.5);
+        const inner = ctx.createRadialGradient(0, 0, 0, 0, 0, w * 0.34);
+        inner.addColorStop(0, 'rgba(255,244,200,0.95)');
+        inner.addColorStop(0.55, 'rgba(255,200,90,0.75)');
+        inner.addColorStop(1, 'rgba(255,140,40,0)');
+        ctx.fillStyle = inner;
+        ctx.beginPath(); ctx.arc(0, 0, w * 0.34, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+
+        const tex = new THREE.CanvasTexture(cnv);
         tex.needsUpdate = true;
         return tex;
     }
 
     _buildDoors() {
         const doorMat = this.toonMat(PALETTE.door);
-        const trimMat = new THREE.MeshBasicMaterial({ color: PALETTE.edge });
+        const trimMat = new THREE.MeshBasicMaterial({ color: PALETTE.gate });
         const emberTex = this.makeRadialTexture('rgba(239,68,68,0.95)');
         const dustTex = this.makeRadialTexture('rgba(207,202,191,0.65)');
         const flashTex = this.makeRadialTexture('rgba(255,241,235,0.95)');
         const slashTex = this.makeSlashTexture();
         const speedTex = this.makeSpeedLinesTexture();
-        const latticeTex = this.makeLatticeTexture();
-        const panelMat = new THREE.MeshBasicMaterial({ map: latticeTex });
+        const oldDoorTex = this.makeOldDoorTexture();
+        // MeshStandardMaterial (not Basic) so the new torch firelight actually
+        // falls across the panels — that flicker is what reads as "old and lit".
+        const panelMat = new THREE.MeshStandardMaterial({ map: oldDoorTex, roughness: 0.88, metalness: 0.05 });
 
         const halfW = 4.2;
         const panelH = 3.1;
 
         this.doors = [];
 
-        DOOR_DEFS.forEach((def) => {
+        DOOR_DEFS.forEach((def, doorIdx) => {
             const z = def.z;
             const group = new THREE.Group();
 
@@ -580,7 +636,7 @@ class CorridorEngine {
             trim.position.set(0, panelH + 0.38, z);
             group.add(trim);
 
-            // wood-lattice sliding panels (shoji-style), hinged at the outer posts
+            // weathered double panels, hinged at the outer posts
             const leftPivot = new THREE.Group();
             leftPivot.position.set(-halfW, panelH / 2, z);
             const leftPanel = new THREE.Mesh(new THREE.BoxGeometry(halfW, panelH, 0.1), panelMat);
@@ -649,8 +705,12 @@ class CorridorEngine {
             speedSprite.position.set(0, panelH / 2, z + 0.06);
             this.scene.add(speedSprite);
 
-            this.interactive.push({ mesh: lintel, target: def.target });
-            this.hoverables.push(lintel);
+            const stationIndex = STATION_IDS.indexOf(def.target.slice(1));
+            const doorEntry = { type: 'door', doorIndex: doorIdx, stationIndex };
+            [lintel, leftPanel, rightPanel].forEach((mesh) => {
+                this.interactive.push({ mesh, ...doorEntry });
+                this.hoverables.push(mesh);
+            });
 
             this.doors.push({
                 z, leftPivot, rightPivot,
@@ -658,6 +718,46 @@ class CorridorEngine {
                 flash, flashMat, speedSprite, speedMat, speedBaseScale,
             });
         });
+    }
+
+    // Wall- and post-mounted torches: flank every gate, plus a few along the
+    // bare corridor stretches, for a fire-lit, lived-in old-corridor feel.
+    _buildTorches() {
+        const flameTex = this.makeFlameTexture();
+        const postMat = this.toonMat(PALETTE.wood);
+        const bowlMat = this.toonMat(PALETTE.gate);
+        this.torches = [];
+
+        const place = (x, z, scale = 1) => {
+            const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06 * scale, 0.08 * scale, 1.5 * scale, 8), postMat);
+            post.position.set(x, 0.75 * scale, z);
+            this.scene.add(post);
+            this.addOutline(post, 1.05);
+
+            const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.16 * scale, 0.1 * scale, 0.18 * scale, 8), bowlMat);
+            bowl.position.set(x, 1.5 * scale, z);
+            this.scene.add(bowl);
+
+            const flameMat = new THREE.SpriteMaterial({ map: flameTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+            const flame = new THREE.Sprite(flameMat);
+            const fw = 0.7 * scale, fh = 1.05 * scale;
+            flame.scale.set(fw, fh, 1);
+            flame.position.set(x, 1.5 * scale + fh * 0.32, z);
+            this.scene.add(flame);
+
+            const light = new THREE.PointLight(PALETTE.flame, 1.0, 7, 2);
+            light.position.set(x, 1.7 * scale, z);
+            this.scene.add(light);
+
+            this.torches.push({ flame, light, baseScaleX: fw, baseScaleY: fh, offset: Math.random() * Math.PI * 2 });
+        };
+
+        DOOR_DEFS.forEach((def) => {
+            place(-4.6, def.z + 0.4);
+            place(4.6, def.z + 0.4);
+        });
+        // extra wall torches along the bare corridor stretches between gates
+        [[-4.7, 18], [4.7, -1], [-4.7, -17]].forEach(([x, z]) => place(x, z, 0.85));
     }
 
     _buildSwordRack() {
@@ -751,58 +851,6 @@ class CorridorEngine {
     }
 
     _loadCharacterArt() {
-        // Seated hunter — hero cloud platform (original silhouette art, not copyrighted character art)
-        this.texLoader.load('assets/art/hunter_sitting.png', (tex) => {
-            if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-            const w = 4.0, h = 4.0;
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-            sprite.scale.set(w, h, 1);
-            sprite.position.set(0, h / 2, 24);
-            this.scene.add(sprite);
-            this.heroSprite = sprite;
-            this._heroBaseY = h / 2;
-        });
-
-        // Standing guardian — corridor, beside the left door
-        this.texLoader.load('assets/art/hunter_stance.png', (tex) => {
-            if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-            const w = 3.0, h = 3.0 * (1200 / 760);
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-            sprite.scale.set(w, h, 1);
-            sprite.position.set(-3.6, h / 2, 12.5);
-            this.scene.add(sprite);
-        });
-
-        // Guardian mask — hung on the corridor wall
-        this.texLoader.load('assets/art/guardian_mask.png', (tex) => {
-            if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-            sprite.scale.set(1.8, 1.8, 1);
-            sprite.position.set(4.5, 3.6, 14);
-            this.scene.add(sprite);
-            this.maskSprite = sprite;
-        });
-
-        // Blade guardian — beside the dojo -> missions door threshold (original silhouette art)
-        this.texLoader.load('assets/art/blade_guardian.png', (tex) => {
-            if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-            const w = 3.2, h = w * (1000 / 800);
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-            sprite.scale.set(w, h, 1);
-            sprite.position.set(-3.3, h / 2, -7.2);
-            this.scene.add(sprite);
-        });
-
-        // Lantern keeper — beside the missions -> sendword door threshold (original silhouette art)
-        this.texLoader.load('assets/art/lantern_keeper.png', (tex) => {
-            if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
-            const w = 2.6, h = w * (1100 / 700);
-            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
-            sprite.scale.set(w, h, 1);
-            sprite.position.set(3.4, h / 2, -25.8);
-            this.scene.add(sprite);
-        });
-
         // Message crows — drifting near the misty pier (original folklore-style messenger-crow art)
         this.crows = [];
         this.texLoader.load('assets/art/message_crow.png', (tex) => {
@@ -861,8 +909,8 @@ class CorridorEngine {
                 this.scene.add(group);
                 this.banners.push({ group, offset: i * 0.6 });
 
-                this.interactive.push({ mesh: poster, target: p.target });
-                this.interactive.push({ mesh: frame, target: p.target });
+                this.interactive.push({ mesh: poster, type: 'poster', target: p.target });
+                this.interactive.push({ mesh: frame, type: 'poster', target: p.target });
                 this.hoverables.push(poster, frame);
             });
         });
@@ -1035,91 +1083,170 @@ class CorridorEngine {
             document.body.style.cursor = hits.length ? 'pointer' : '';
             return;
         }
-        if (hits.length) {
-            const entry = this.interactive.find((i) => i.mesh === hits[0].object);
-            if (entry) {
-                const el = document.querySelector(entry.target);
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (!hits.length) return;
+        const entry = this.interactive.find((i) => i.mesh === hits[0].object);
+        if (!entry) return;
+
+        if (entry.type === 'door') {
+            if (this.currentIndex === entry.stationIndex - 1) this.goToStation(entry.stationIndex);
+        } else if (entry.type === 'poster') {
+            this._goToMissionsAndScroll(entry.target);
+        }
+    }
+
+    _goToMissionsAndScroll(target) {
+        const missionsIndex = STATION_IDS.indexOf('missions');
+        if (this.currentIndex === missionsIndex) {
+            const el = document.querySelector(target);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            this.pendingScrollTarget = target;
+            this.goToStation(missionsIndex);
+        }
+    }
+
+    /* ---------------- click-through-gates station navigation ---------------- */
+
+    _initStations() {
+        this.stations = STATION_IDS.map((id) => ({ id, el: document.getElementById(id), wp: ZONE_WAYPOINTS[id] }));
+        this.currentIndex = 0;
+        this.doorOpen = new Array(this.doors ? this.doors.length : 0).fill(0);
+        this.tween = null;
+        this._activeDoorIndices = [];
+        this._tweenProgress = 0;
+        this.pendingScrollTarget = null;
+
+        const hero = this.stations[0].wp;
+        this.camera.position.set(...hero.pos);
+        this.camera.lookAt(new THREE.Vector3(...hero.look));
+        this._activateStationPanel(0);
+    }
+
+    goToStation(targetIndex) {
+        if (!this.stations) return;
+        targetIndex = clamp(targetIndex, 0, this.stations.length - 1);
+        if (this.tween || targetIndex === this.currentIndex) return;
+
+        const fromIdx = this.currentIndex;
+        const dir = targetIndex > fromIdx ? 1 : -1;
+        const lo = Math.min(fromIdx, targetIndex), hi = Math.max(fromIdx, targetIndex);
+        const doorIndices = [];
+        for (let s = lo; s < hi; s++) {
+            const di = s - 1;
+            if (di >= 0 && di < this.doors.length) {
+                if (dir === 1 && this.doorOpen[di] !== 1) doorIndices.push(di);
+                this.doorOpen[di] = 1;
             }
         }
+
+        qsa('.zone').forEach((z) => z.classList.remove('station-active'));
+
+        const fromWp = this.stations[fromIdx].wp;
+        const toWp = this.stations[targetIndex].wp;
+        this.tween = {
+            start: performance.now(),
+            duration: 1300,
+            fromPos: new THREE.Vector3(...fromWp.pos),
+            toPos: new THREE.Vector3(...toWp.pos),
+            fromLook: new THREE.Vector3(...fromWp.look),
+            toLook: new THREE.Vector3(...toWp.look),
+            targetIndex,
+        };
+        this._activeDoorIndices = doorIndices;
     }
 
-    /* ---------------- scroll-driven camera path ---------------- */
+    _activateStationPanel(idx) {
+        const station = this.stations[idx];
+        if (!station) return;
+        qsa('.zone').forEach((z) => z.classList.remove('station-active'));
+        if (station.el) {
+            station.el.classList.add('station-active');
+            qsa('.fade-in', station.el).forEach((el, i) => {
+                el.classList.remove('fade-in-visible');
+                setTimeout(() => el.classList.add('fade-in-visible'), i * 90);
+            });
+            const rank = station.el.getAttribute('data-rank');
+            if (rank) showRankToast(rank);
+        }
+        qsa('.nav-links a').forEach((a) => {
+            a.classList.toggle('active', a.getAttribute('href') === `#${station.id}`);
+        });
 
-    buildBreakpoints() {
-        const zones = qsa('.zone[data-zone]');
-        if (!zones.length) return;
-        const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-        this.breakpoints = zones
-            .map((z) => {
-                const key = z.getAttribute('data-zone');
-                const wp = ZONE_WAYPOINTS[key] || ZONE_WAYPOINTS.hero;
-                return {
-                    t: clamp(z.offsetTop / maxScroll, 0, 1),
-                    pos: new THREE.Vector3(...wp.pos),
-                    look: new THREE.Vector3(...wp.look),
-                };
-            })
-            .sort((a, b) => a.t - b.t);
+        const gateNav = qs('#gate-nav');
+        const backBtn = qs('#gate-back');
+        const hintBtn = qs('#gate-hint');
+        if (gateNav) gateNav.classList.toggle('hidden', idx === 0);
+        if (backBtn) backBtn.disabled = idx === 0;
+        if (hintBtn) {
+            const atEnd = idx === this.stations.length - 1;
+            hintBtn.disabled = atEnd;
+            hintBtn.textContent = atEnd ? "Journey's end — Send Word" : 'Click the gate ahead to continue';
+        }
 
-        // Door thresholds: midpoints between (corridor,dojo), (dojo,missions), (missions,sendword) —
-        // i.e. breakpoint pairs (1,2), (2,3), (3,4) given the 5-zone order [hero,corridor,dojo,missions,sendword].
-        this.doorThresholds = [];
-        for (let i = 1; i + 1 < this.breakpoints.length; i++) {
-            this.doorThresholds.push((this.breakpoints[i].t + this.breakpoints[i + 1].t) / 2);
+        if (this.pendingScrollTarget) {
+            const target = this.pendingScrollTarget;
+            this.pendingScrollTarget = null;
+            requestAnimationFrame(() => {
+                const el = document.querySelector(target);
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         }
     }
 
-    updateCamera() {
-        if (!this.breakpoints.length) return;
-        const maxScroll = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
-        const t = clamp(window.scrollY / maxScroll, 0, 1);
-        this.scrollT = t;
+    _updateCameraTween(time) {
+        if (!this.tween) return;
+        const elapsed = time - this.tween.start;
+        const raw = clamp(elapsed / this.tween.duration, 0, 1);
+        const eased = smoothstep(raw);
+        this._tweenProgress = eased;
 
-        let i = 0;
-        while (i < this.breakpoints.length - 1 && this.breakpoints[i + 1].t <= t) i++;
-        const a = this.breakpoints[i];
-        const b = this.breakpoints[Math.min(i + 1, this.breakpoints.length - 1)];
-
-        let localT = 0;
-        if (b.t > a.t) localT = clamp((t - a.t) / (b.t - a.t), 0, 1);
-        const eased = localT * localT * (3 - 2 * localT);
-
-        const pos = a.pos.clone().lerp(b.pos, eased);
-        const look = a.look.clone().lerp(b.look, eased);
+        const pos = this.tween.fromPos.clone().lerp(this.tween.toPos, eased);
+        const look = this.tween.fromLook.clone().lerp(this.tween.toLook, eased);
         this.camera.position.copy(pos);
         this.camera.lookAt(look);
+
+        if (raw >= 1) {
+            const targetIndex = this.tween.targetIndex;
+            this.tween = null;
+            this._activeDoorIndices = [];
+            this._tweenProgress = 0;
+            this.currentIndex = targetIndex;
+            this._activateStationPanel(targetIndex);
+        }
     }
 
-    /* ---------------- door swing + ember/slash burst, driven by scroll ---------------- */
+    /* ---------------- door swing + ember/slash burst, driven by camera-tween progress ---------------- */
 
-    _updateDoors() {
+    _updateDoorEffects() {
         this.doorShake = 0;
-        if (!this.doors || !this.doorThresholds || !this.doorThresholds.length) return;
-        const t = this.scrollT || 0;
-        const halfWidth = 0.05;
+        if (!this.doors) return;
         const maxAngle = (Math.PI / 2) * 0.86;
+        const activeSet = this._activeDoorIndices || [];
+        const t = this._tweenProgress || 0;
 
-        this.doors.forEach((door) => {
-            const idx = this.doors.indexOf(door);
-            const dt = this.doorThresholds[idx];
-            if (dt === undefined) return;
-            const edge0 = dt - halfWidth;
-            const edge1 = dt + halfWidth;
-
-            const windowT = clamp((t - edge0) / (edge1 - edge0), 0, 1);
-            // Overshoot ease: panels swing slightly past full-open then settle, like they were kicked open.
-            const openAmt = clamp(easeOutBack(windowT), -0.18, 1.18);
+        this.doors.forEach((door, idx) => {
+            const isOpen = this.doorOpen[idx] === 1;
+            const isAnimating = activeSet.includes(idx);
+            const windowT = isAnimating ? t : (isOpen ? 1 : 0);
+            const openAmt = isAnimating ? clamp(easeOutBack(windowT), -0.18, 1.18) : (isOpen ? 1 : 0);
             door.leftPivot.rotation.y = maxAngle * openAmt;
             door.rightPivot.rotation.y = -maxAngle * openAmt;
 
-            const burstShape = Math.pow(Math.sin(windowT * Math.PI), 1.6);
-            door.burstMat.opacity = Math.max(0, burstShape) * 0.9;
-            door.slashMat.opacity = Math.max(0, burstShape) * 0.9;
-            if (door.dustMat) door.dustMat.opacity = Math.max(0, burstShape) * 0.5;
+            if (!isAnimating) {
+                door.burstMat.opacity = 0;
+                door.slashMat.opacity = 0;
+                if (door.dustMat) door.dustMat.opacity = 0;
+                if (door.flashMat) door.flashMat.opacity = 0;
+                if (door.speedMat) door.speedMat.opacity = 0;
+                return;
+            }
 
-            // Impact flash + speed-line burst: a sharp spike right at the threshold, not a slow fade.
-            const flashShape = Math.pow(Math.max(0, 1 - Math.abs(windowT - 0.5) * 2.6), 5);
+            const burstShape = Math.pow(Math.max(0, Math.sin(windowT * Math.PI)), 1.6);
+            door.burstMat.opacity = burstShape * 0.9;
+            door.slashMat.opacity = burstShape * 0.9;
+            if (door.dustMat) door.dustMat.opacity = burstShape * 0.5;
+
+            const flashShape = Math.pow(Math.max(0, 1 - Math.abs(windowT - 0.55) * 2.4), 5);
             if (door.flashMat) door.flashMat.opacity = flashShape * 0.85;
             if (door.speedSprite) {
                 const speedScale = 1 + flashShape * 2.6 + burstShape * 0.6;
@@ -1130,9 +1257,7 @@ class CorridorEngine {
 
             if (burstShape > 0.02) {
                 const posAttr = door.burst.geometry.attributes.position;
-                for (let p = 0; p < posAttr.count; p++) {
-                    posAttr.setY(p, posAttr.getY(p) + 0.012);
-                }
+                for (let p = 0; p < posAttr.count; p++) posAttr.setY(p, posAttr.getY(p) + 0.012);
                 posAttr.needsUpdate = true;
             }
             if (door.dust && burstShape > 0.02) {
@@ -1153,7 +1278,6 @@ class CorridorEngine {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
-            this.buildBreakpoints();
         });
     }
 
@@ -1162,8 +1286,8 @@ class CorridorEngine {
         const dt = Math.min((time - this.clock.lastTime) / 1000, 0.1) || 0;
         this.clock.lastTime = time;
 
-        this.updateCamera();
-        this._updateDoors();
+        this._updateCameraTween(time);
+        this._updateDoorEffects();
         if (this.doorShake > 0.015) {
             const shakeAmt = this.doorShake * 0.16;
             this.camera.position.x += (Math.random() - 0.5) * shakeAmt;
@@ -1176,16 +1300,18 @@ class CorridorEngine {
         }
         this._updateParticles(dt, time);
 
-        if (this.heroSprite) {
-            this.heroSprite.position.y = this._heroBaseY + Math.sin(time * 0.0006) * 0.08;
-        }
-        if (this.maskSprite) {
-            this.maskSprite.material.rotation = Math.sin(time * 0.0004) * 0.05;
-        }
         if (this.lantern) {
             const pulse = 0.7 + 0.4 * Math.sin(time * 0.0025);
             this.lantern.material.emissiveIntensity = pulse;
             if (this.lanternLight) this.lanternLight.intensity = 0.8 + 0.5 * pulse;
+        }
+        if (this.torches) {
+            this.torches.forEach((tch) => {
+                const flicker = 0.85 + 0.25 * Math.sin(time * 0.01 + tch.offset) + 0.1 * Math.sin(time * 0.037 + tch.offset * 2);
+                const bob = 0.9 + 0.15 * Math.sin(time * 0.018 + tch.offset);
+                tch.flame.scale.set(tch.baseScaleX * flicker, tch.baseScaleY * bob, 1);
+                tch.light.intensity = 0.85 * flicker;
+            });
         }
         if (this.crows) {
             this.crows.forEach((c) => {
@@ -1209,17 +1335,18 @@ class CorridorEngine {
    ========================================================================= */
 
 function boot() {
-    initUI();
-
     const canvas = qs('#scene');
     const loadingScreen = qs('#loading-screen');
     const loadingBar = qs('#loading-bar-fill');
 
+    let engine = null;
     if (canvas) {
-        new CorridorEngine(canvas, { screen: loadingScreen, bar: loadingBar });
+        engine = new CorridorEngine(canvas, { screen: loadingScreen, bar: loadingBar });
     } else if (loadingScreen) {
         loadingScreen.classList.add('loaded');
     }
+
+    initUI(engine);
 }
 
 boot();

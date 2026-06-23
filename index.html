@@ -22,7 +22,7 @@
 <!-- Loading screen -->
 <div id="loading-screen">
     <div class="loading-emblem">
-        <img src="assets/art/guardian_mask.png" alt="" aria-hidden="true">
+        <div class="emblem-glyph">刃</div>
     </div>
     <p class="loading-text">Sharpening the blade<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
     <div class="loading-bar"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
@@ -35,6 +35,12 @@
 
 <!-- Rank-up toast -->
 <div id="rank-toast" class="rank-toast" aria-live="polite"></div>
+
+<!-- Click-through-gates control: advance/retreat between stations -->
+<div id="gate-nav" class="gate-nav hidden">
+    <button id="gate-back" class="gate-back" aria-label="Go back a gate">&larr;</button>
+    <button id="gate-hint" class="gate-hint">Click the gate ahead to continue</button>
+</div>
 
 <nav class="corps-nav">
     <div class="container nav-inner">
@@ -62,13 +68,10 @@
             <p class="hero-quote fade-in delay-2">&ldquo;Every model is a blade &mdash; useless until it's tested against something real.&rdquo;</p>
             <p class="subtitle fade-in delay-2">I build autonomous multi-agent systems, retrieval-augmented pipelines, and deep-learning models &mdash; from mathematical first principles to production deployments.</p>
             <div class="hero-cta fade-in delay-3">
-                <a href="#missions" class="btn btn-primary">View Missions</a>
+                <a href="#corridor" class="btn btn-primary">Enter the Corridor</a>
+                <a href="#missions" class="btn btn-secondary-glass">View Missions</a>
                 <a href="https://github.com/Kunsh162007" target="_blank" rel="noopener" class="btn btn-secondary-glass">GitHub Profile</a>
             </div>
-        </div>
-        <div class="scroll-indicator" aria-hidden="true">
-            <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
-            <span>Descend</span>
         </div>
     </header>
 
@@ -77,7 +80,7 @@
         <div class="container">
             <span class="eyebrow center fade-in">Beyond the Threshold</span>
             <h2 class="section-title center fade-in delay-1">Three Doors, One Corridor</h2>
-            <p class="zone-subtext center fade-in delay-1">Keep walking. Each door swings open on its own as you scroll past &mdash; watch the corridor behind this text.</p>
+            <p class="zone-subtext center fade-in delay-1">Three old gates stand ahead, lit by torchlight. Click one &mdash; or the link below &mdash; to kick it open and step through.</p>
 
             <div class="door-walk fade-in delay-2">
                 <a href="#dojo" class="door-step">
