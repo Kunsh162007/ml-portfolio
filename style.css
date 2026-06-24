@@ -71,9 +71,29 @@ button { font-family: inherit; cursor: pointer; }
     transition: opacity 0.3s var(--ease), color 0.3s var(--ease);
     will-change: transform, opacity;
 }
-.body-label .tick { display: block; width: 1px; height: 14px; margin: 4px auto 0; background: linear-gradient(180deg, currentColor, transparent); opacity: 0.5; }
+.body-label { text-align: center; }
+.body-label .lbl-name { display: block; }
+.body-label .lbl-sub {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--font-body);
+    font-size: 0.56rem;
+    letter-spacing: 0.06em;
+    text-transform: none;
+    color: rgba(220, 228, 245, 0.55);
+    font-weight: 400;
+    max-width: 180px;
+    margin-left: auto; margin-right: auto;
+    white-space: normal;
+    line-height: 1.25;
+    opacity: 0.5;
+    transition: opacity 0.3s var(--ease);
+}
+.body-label .tick { display: block; width: 1px; height: 14px; margin: 6px auto 0; background: linear-gradient(180deg, currentColor, transparent); opacity: 0.5; }
 .body-label.is-star { color: var(--gold); font-size: 0.78rem; opacity: 0.85; }
+.body-label.is-star .lbl-sub { color: rgba(255, 220, 160, 0.7); }
 .body-label.is-hover { opacity: 1; color: var(--cyan-soft); }
+.body-label.is-hover .lbl-sub { opacity: 1; }
 
 /* =========================================================================
    Loading screen

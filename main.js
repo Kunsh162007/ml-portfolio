@@ -9,6 +9,10 @@
    ========================================================================= */
 
 import * as THREE from './vendor/three.module.js';
+import { EffectComposer } from './vendor/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from './vendor/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from './vendor/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from './vendor/jsm/postprocessing/OutputPass.js';
 
 const qs = (s, r = document) => r.querySelector(s);
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -266,10 +270,14 @@ class System {
         this._initRenderer();
         this._initScene();
         this._buildStarfield();
+        this._buildDustBand();
         this._buildNebulae();
+        this._buildMeteors();
+        this._buildTrails();
         this._buildSun();
         this._buildWorlds();
         this._initCamera();
+        this._initPostFX();
         this._wireInput();
         window.addEventListener('resize', () => this._resize());
 
@@ -304,39 +312,245 @@ class System {
     }
 
     _buildStarfield() {
-        const count = 4200, pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
-        const tint = [[1, 1, 1], [0.75, 0.85, 1], [1, 0.9, 0.75], [0.9, 0.8, 1]];
+        const count = 6800;
+        const pos = new Float32Array(count * 3);
+        const col = new Float32Array(count * 3);
+        const siz = new Float32Array(count);
+        const pha = new Float32Array(count);
+        // a richer spread of stellar colours — white, blue, gold, rose, teal
+        const tint = [[1, 1, 1], [0.68, 0.82, 1], [1, 0.88, 0.66], [0.95, 0.78, 1], [0.72, 1, 0.92], [1, 0.74, 0.7]];
         for (let i = 0; i < count; i++) {
-            const r = 350 + Math.random() * 1400;
+            const r = 320 + Math.random() * 1500;
             const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1);
             pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
             pos[i * 3 + 1] = r * Math.cos(ph);
             pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
-            const c = tint[(Math.random() * tint.length) | 0], b = 0.5 + Math.random() * 0.5;
+            const c = tint[(Math.random() * tint.length) | 0], b = 0.45 + Math.random() * 0.55;
+            col[i * 3] = c[0] * b; col[i * 3 + 1] = c[1] * b; col[i * 3 + 2] = c[2] * b;
+            // ~5% are bright "hero" stars that read as foreground beacons
+            const hero = Math.random() < 0.05;
+            siz[i] = hero ? 4.0 + Math.random() * 4.5 : 1.0 + Math.random() * 2.0;
+            pha[i] = Math.random() * Math.PI * 2;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        geo.setAttribute('aColor', new THREE.BufferAttribute(col, 3));
+        geo.setAttribute('aSize', new THREE.BufferAttribute(siz, 1));
+        geo.setAttribute('aPhase', new THREE.BufferAttribute(pha, 1));
+
+        this.starUniforms = {
+            uTime: { value: 0 },
+            uTex: { value: this._radialTexture([[0, 'rgba(255,255,255,1)'], [0.35, 'rgba(255,255,255,0.55)'], [1, 'rgba(255,255,255,0)']]) },
+        };
+        const mat = new THREE.ShaderMaterial({
+            uniforms: this.starUniforms,
+            vertexShader: `
+                uniform float uTime;
+                attribute vec3 aColor; attribute float aSize; attribute float aPhase;
+                varying vec3 vColor; varying float vTw;
+                void main(){
+                    vColor = aColor;
+                    float tw = 0.55 + 0.45 * sin(uTime * 2.2 + aPhase);
+                    vTw = tw;
+                    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+                    gl_PointSize = aSize * (0.7 + 0.6 * tw);
+                    gl_Position = projectionMatrix * mv;
+                }`,
+            fragmentShader: `
+                uniform sampler2D uTex;
+                varying vec3 vColor; varying float vTw;
+                void main(){
+                    vec4 t = texture2D(uTex, gl_PointCoord);
+                    gl_FragColor = vec4(vColor * (0.6 + 0.7 * vTw), t.a);
+                }`,
+            transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+        });
+        this.starfield = new THREE.Points(geo, mat);
+        this.scene.add(this.starfield);
+    }
+
+    /* A faint, flattened band of dust across the system plane — adds depth. */
+    _buildDustBand() {
+        const count = 2200, pos = new Float32Array(count * 3), col = new Float32Array(count * 3);
+        const tint = [[0.5, 0.6, 1], [0.8, 0.6, 1], [0.5, 0.85, 1], [1, 0.8, 0.7]];
+        for (let i = 0; i < count; i++) {
+            const r = 60 + Math.random() * 900;
+            const th = Math.random() * Math.PI * 2;
+            const flat = (Math.random() - 0.5) * 90 * (0.4 + 0.6 * Math.random());
+            pos[i * 3] = r * Math.cos(th);
+            pos[i * 3 + 1] = flat;
+            pos[i * 3 + 2] = r * Math.sin(th);
+            const c = tint[(Math.random() * tint.length) | 0], b = 0.12 + Math.random() * 0.3;
             col[i * 3] = c[0] * b; col[i * 3 + 1] = c[1] * b; col[i * 3 + 2] = c[2] * b;
         }
         const geo = new THREE.BufferGeometry();
         geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
         geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
         const mat = new THREE.PointsMaterial({
-            size: 2.4, map: this._radialTexture([[0, 'rgba(255,255,255,1)'], [1, 'rgba(255,255,255,0)']]),
-            vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: false,
+            size: 2.0, map: this._radialTexture([[0, 'rgba(255,255,255,0.8)'], [1, 'rgba(255,255,255,0)']]),
+            vertexColors: true, transparent: true, opacity: 0.55, depthWrite: false,
+            blending: THREE.AdditiveBlending, sizeAttenuation: true,
         });
-        this.starfield = new THREE.Points(geo, mat);
-        this.scene.add(this.starfield);
+        this.dustBand = new THREE.Points(geo, mat);
+        this.scene.add(this.dustBand);
+    }
+
+    /* Pooled shooting stars / meteors that streak across the backdrop. */
+    _buildMeteors() {
+        this.meteorTex = this._streakTexture();
+        this.meteorPool = [];
+        const N = 16;
+        for (let i = 0; i < N; i++) {
+            const mat = new THREE.SpriteMaterial({
+                map: this.meteorTex, color: 0xffffff, transparent: true,
+                opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending,
+            });
+            const sp = new THREE.Sprite(mat);
+            sp.visible = false;
+            this.scene.add(sp);
+            this.meteorPool.push({ sp, alive: false, pos: new THREE.Vector3(), vel: new THREE.Vector3() });
+        }
+        this.nextMeteor = 0.8;
+        this._mTmpA = new THREE.Vector3();
+        this._mTmpB = new THREE.Vector3();
+    }
+
+    /* A shared ring-buffer of glowing particles meteors deposit as comet tails. */
+    _buildTrails() {
+        const N = 900;
+        this.trailN = N;
+        this.trailPos = new Float32Array(N * 3);
+        this.trailCol = new Float32Array(N * 3);
+        this.trailBase = new Float32Array(N * 3);   // original colour per particle
+        this.trailLife = new Float32Array(N);
+        this.trailMax = new Float32Array(N);
+        for (let i = 0; i < N; i++) this.trailPos[i * 3 + 1] = 1e6;  // park offscreen
+        this.trailHead = 0;
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(this.trailPos, 3));
+        geo.setAttribute('color', new THREE.BufferAttribute(this.trailCol, 3));
+        const mat = new THREE.PointsMaterial({
+            size: 2.6, map: this._radialTexture([[0, 'rgba(255,255,255,1)'], [1, 'rgba(255,255,255,0)']]),
+            vertexColors: true, transparent: true, depthWrite: false,
+            blending: THREE.AdditiveBlending, sizeAttenuation: true,
+        });
+        this.trails = new THREE.Points(geo, mat);
+        this.trails.frustumCulled = false;
+        this.scene.add(this.trails);
+    }
+
+    _emitTrail(pos, color, maxLife) {
+        const i = this.trailHead;
+        this.trailHead = (i + 1) % this.trailN;
+        this.trailPos[i * 3] = pos.x; this.trailPos[i * 3 + 1] = pos.y; this.trailPos[i * 3 + 2] = pos.z;
+        this.trailBase[i * 3] = color.r; this.trailBase[i * 3 + 1] = color.g; this.trailBase[i * 3 + 2] = color.b;
+        this.trailLife[i] = maxLife; this.trailMax[i] = maxLife;
+    }
+
+    _updateTrails(dt) {
+        let dirty = false;
+        for (let i = 0; i < this.trailN; i++) {
+            if (this.trailLife[i] <= 0) continue;
+            this.trailLife[i] -= dt;
+            const f = Math.max(this.trailLife[i] / this.trailMax[i], 0);
+            this.trailCol[i * 3] = this.trailBase[i * 3] * f;
+            this.trailCol[i * 3 + 1] = this.trailBase[i * 3 + 1] * f;
+            this.trailCol[i * 3 + 2] = this.trailBase[i * 3 + 2] * f;
+            if (this.trailLife[i] <= 0) this.trailPos[i * 3 + 1] = 1e6;  // retire offscreen
+            dirty = true;
+        }
+        if (dirty) {
+            this.trails.geometry.attributes.position.needsUpdate = true;
+            this.trails.geometry.attributes.color.needsUpdate = true;
+        }
+    }
+
+    _streakTexture() {
+        const w = 160, h = 24, c = document.createElement('canvas'); c.width = w; c.height = h;
+        const x = c.getContext('2d');
+        const g = x.createLinearGradient(0, 0, w, 0);
+        g.addColorStop(0.0, 'rgba(255,255,255,0)');
+        g.addColorStop(0.75, 'rgba(255,255,255,0.18)');
+        g.addColorStop(0.95, 'rgba(255,255,255,1)');
+        g.addColorStop(1.0, 'rgba(255,255,255,0)');
+        x.fillStyle = g; x.fillRect(0, 0, w, h);
+        // taper the streak vertically so the head reads as a point of light
+        x.globalCompositeOperation = 'destination-in';
+        const v = x.createLinearGradient(0, 0, 0, h);
+        v.addColorStop(0, 'rgba(0,0,0,0)');
+        v.addColorStop(0.5, 'rgba(0,0,0,1)');
+        v.addColorStop(1, 'rgba(0,0,0,0)');
+        x.fillStyle = v; x.fillRect(0, 0, w, h);
+        const t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t;
+    }
+
+    _spawnMeteor() {
+        const m = this.meteorPool.find((x) => !x.alive);
+        if (!m) return;
+        const R = 220 + Math.random() * 420;
+        const th = Math.random() * Math.PI * 2;
+        const ph = 0.35 + Math.random() * 2.45;
+        m.pos.set(R * Math.sin(ph) * Math.cos(th), R * Math.cos(ph) * 0.7, R * Math.sin(ph) * Math.sin(th));
+        m.great = Math.random() < 0.18;             // rare slow, fat comet
+        const speed = m.great ? 70 + Math.random() * 60 : 150 + Math.random() * 200;
+        m.vel.set(Math.random() * 2 - 1, (Math.random() * 2 - 1) * 0.5, Math.random() * 2 - 1).normalize().multiplyScalar(speed);
+        m.dur = m.great ? 3.0 + Math.random() * 2.0 : 1.0 + Math.random() * 1.4;
+        m.t = 0;
+        m.alive = true;
+        m.len = m.great ? 40 + Math.random() * 30 : 18 + Math.random() * 30;
+        m.wid = m.great ? 3.4 + Math.random() * 2.0 : 2.0 + Math.random() * 1.8;
+        m.bright = (m.great ? 1.1 : 0.8) + Math.random() * 0.5;
+        m.emit = 0;
+        const tints = [0xffffff, 0xbfe3ff, 0xffe6bf, 0xd9c6ff, 0xc9ffe8, 0xffc9d6];
+        m.sp.material.color.setHex(tints[(Math.random() * tints.length) | 0]);
+        m.sp.visible = true;
+    }
+
+    _updateMeteors(dt) {
+        this.nextMeteor -= dt;
+        if (this.nextMeteor <= 0) {
+            this.nextMeteor = 0.7 + Math.random() * 2.0;
+            this._spawnMeteor();
+            if (Math.random() < 0.35) this._spawnMeteor();   // frequent twin streaks
+            if (Math.random() < 0.12) this._spawnMeteor();   // occasional shower burst
+        }
+        for (const m of this.meteorPool) {
+            if (!m.alive) continue;
+            m.t += dt;
+            const life = m.t / m.dur;
+            if (life >= 1) { m.alive = false; m.sp.visible = false; m.sp.material.opacity = 0; continue; }
+            m.pos.addScaledVector(m.vel, dt);
+            m.sp.position.copy(m.pos);
+            const fade = Math.sin(life * Math.PI);
+            m.sp.material.opacity = fade * m.bright;
+            // orient the streak along its screen-space velocity
+            this._mTmpA.copy(m.pos).project(this.camera);
+            this._mTmpB.copy(m.pos).add(m.vel).project(this.camera);
+            m.sp.material.rotation = Math.atan2(this._mTmpB.y - this._mTmpA.y, this._mTmpB.x - this._mTmpA.x);
+            m.sp.scale.set(m.len, m.wid, 1);
+            // sprinkle glowing comet-tail particles behind the head
+            m.emit -= dt;
+            if (m.emit <= 0) {
+                m.emit = m.great ? 0.018 : 0.03;
+                this._emitTrail(m.pos, m.sp.material.color, (m.great ? 1.6 : 0.9) * fade + 0.15);
+            }
+        }
     }
 
     _buildNebulae() {
         const tex = this._radialTexture([[0, 'rgba(255,255,255,0.9)'], [0.5, 'rgba(255,255,255,0.25)'], [1, 'rgba(255,255,255,0)']]);
         const clouds = [
-            { c: 0x3a2a6a, x: -260, y: 120, z: -420, s: 620 },
-            { c: 0x123a5a, x: 320, y: -160, z: -380, s: 560 },
-            { c: 0x5a1f3a, x: -120, y: -220, z: 360, s: 520 },
-            { c: 0x1f4a4a, x: 280, y: 200, z: 300, s: 480 },
+            { c: 0x4a2f8a, x: -260, y: 120, z: -420, s: 720, o: 0.26 },
+            { c: 0x123a6a, x: 320, y: -160, z: -380, s: 640, o: 0.24 },
+            { c: 0x7a1f4a, x: -120, y: -220, z: 360, s: 600, o: 0.22 },
+            { c: 0x1f5a5a, x: 280, y: 200, z: 300, s: 520, o: 0.22 },
+            { c: 0x2a3aaa, x: -420, y: -60, z: 120, s: 560, o: 0.16 },
+            { c: 0x8a3a6a, x: 120, y: 300, z: -260, s: 480, o: 0.16 },
         ];
         clouds.forEach((n) => {
-            const m = new THREE.SpriteMaterial({ map: tex, color: n.c, transparent: true, opacity: 0.22, depthWrite: false, blending: THREE.AdditiveBlending });
+            const m = new THREE.SpriteMaterial({ map: tex, color: n.c, transparent: true, opacity: n.o, depthWrite: false, blending: THREE.AdditiveBlending });
             const sp = new THREE.Sprite(m); sp.scale.set(n.s, n.s, 1); sp.position.set(n.x, n.y, n.z);
+            sp.material.rotation = Math.random() * Math.PI;
             this.scene.add(sp);
         });
     }
@@ -369,7 +583,7 @@ class System {
 
         this.sunMesh = sun;
         // star is clickable too
-        const label = this._makeLabel(STAR.name, '#ffd27a', true);
+        const label = this._makeLabel(STAR.name, '#ffd27a', true, 'Kunsh Agrawal');
         this.bodies.push({ def: { ...STAR, isStar: true, glow: '#ffd27a' }, group: sun, mesh: sun, label, worldPos: new THREE.Vector3(0, 0, 0), radius: R });
     }
 
@@ -415,7 +629,7 @@ class System {
             this.scene.add(orbitLine);
 
             this.scene.add(group);
-            const label = this._makeLabel(def.name, def.glow, false);
+            const label = this._makeLabel(def.name, def.glow, false, def.real);
             this.bodies.push({ def, group, holder, mesh, mat, label, orbitAngle: Math.random() * Math.PI * 2, worldPos: new THREE.Vector3(), radius: def.size });
         });
     }
@@ -431,16 +645,34 @@ class System {
         const t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t;
     }
 
-    _makeLabel(text, color, isStar) {
+    _makeLabel(text, color, isStar, sub = '') {
         const el = document.createElement('div');
         el.className = 'body-label' + (isStar ? ' is-star' : '');
-        el.innerHTML = `${text}<span class="tick"></span>`;
+        el.innerHTML = `<span class="lbl-name">${text}</span>${sub ? `<span class="lbl-sub">${sub}</span>` : ''}<span class="tick"></span>`;
         el.style.color = color;
         qs('#labels').appendChild(el);
         return el;
     }
 
     /* ----------------- free-roam camera (orbit + zoom + pan) ----------------- */
+
+    /* HDR-style bloom so suns, lava cracks, hero stars and meteors truly glow. */
+    _initPostFX() {
+        try {
+            const size = new THREE.Vector2(window.innerWidth, window.innerHeight);
+            this.composer = new EffectComposer(this.renderer);
+            this.composer.addPass(new RenderPass(this.scene, this.camera));
+            this.bloomPass = new UnrealBloomPass(size, 1.1, 0.8, 0.2);
+            this.bloomPass.strength = prefersReduced ? 0.6 : 1.15;
+            this.bloomPass.radius = 0.8;
+            this.bloomPass.threshold = 0.2;
+            this.composer.addPass(this.bloomPass);
+            this.composer.addPass(new OutputPass());
+        } catch (err) {
+            console.warn('[postfx] bloom unavailable, rendering without it', err);
+            this.composer = null;
+        }
+    }
 
     _initCamera() {
         this.target = new THREE.Vector3(0, 0, 0);
@@ -587,6 +819,7 @@ class System {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        if (this.composer) this.composer.setSize(window.innerWidth, window.innerHeight);
     }
 
     _projectLabel(body) {
@@ -626,7 +859,11 @@ class System {
 
         this._applyCamera(false);
         this.starfield.rotation.y += dt * 0.003;
-        this.renderer.render(this.scene, this.camera);
+        if (this.starUniforms) this.starUniforms.uTime.value = time;
+        if (this.dustBand) this.dustBand.rotation.y -= dt * 0.006;
+        if (!prefersReduced) { this._updateMeteors(dt); this._updateTrails(dt); }
+        if (this.composer) this.composer.render(dt);
+        else this.renderer.render(this.scene, this.camera);
     }
 }
 
