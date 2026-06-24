@@ -36,24 +36,36 @@ const STAR = {
     linkedin: 'https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/',
 };
 
-// type: 0 terran · 1 gas giant · 2 lava · 3 ice
+// Each project is mapped onto a real solar-system planet, in solar order.
+// planet shader type: 0 Mercury · 1 Venus · 2 Earth · 3 Mars · 4 Jupiter · 5 Saturn · 6 Uranus · 7 Neptune
 const WORLDS = [
     {
-        id: 'aegis', name: 'AEGIS', real: 'AEGIS — Financial-Crime Mesh',
-        cat: 'Gas Giant · Featured System', type: 1, featured: true,
-        size: 3.1, orbit: 28, speed: 0.10, tilt: 0.18, rings: true,
-        colA: [0.55, 0.10, 0.10], colB: [0.95, 0.45, 0.20], colC: [1.0, 0.78, 0.35],
-        atmo: [1.0, 0.5, 0.3], glow: '#ff6a4d',
-        tags: ['15-Agent Mesh', 'Band Protocol', 'AML'],
-        desc: `A 15-agent adversarial mesh where specialists run real statistics, a NetworkX graph and retrieval, while a Challenger argues innocence and a Verifier rejects any uncited claim — cutting false positives ~77% at ~89% recall on the IBM AML benchmark.`,
-        stats: [['~77%', 'fewer false positives'], ['~89%', 'recall']],
-        live: 'https://aegis-g7vl.onrender.com/', readme: 'assets/readmes/AEGIS.md', github: 'https://github.com/Kunsh162007/AEGIS',
+        id: 'devramp', name: 'DevRamp AI', planet: 'Mercury', real: 'DevRamp AI',
+        cat: 'Developer Onboarding · AI Mentor', type: 0,
+        size: 1.0, orbit: 26, speed: 0.110, tilt: 0.03,
+        colA: [0.18, 0.17, 0.16], colB: [0.46, 0.43, 0.40], colC: [0.66, 0.62, 0.57],
+        atmo: [0.6, 0.58, 0.55], glow: '#c2b8a8',
+        tags: ['IBM Bob', 'React + TS', 'AI Mentor'],
+        desc: `Analyses any connected repository, generates a personalised learning path, and pairs it with a 24/7 AI mentor grounded in the actual code — turning "cloned the repo" into "first commit" in days, with XP and progress tracking.`,
+        stats: [['days', 'to first commit'], ['24/7', 'AI mentor']],
+        live: 'https://dev-ramp-ai.vercel.app/', readme: 'assets/readmes/DevRamp.md', github: 'https://github.com/Kunsh162007/DevRamp-AI',
     },
     {
-        id: 'nexus', name: 'NEXARA', real: 'Nexus Enterprise AI',
-        cat: 'Terran World', type: 0,
-        size: 1.7, orbit: 39, speed: 0.085, tilt: 0.32,
-        colA: [0.03, 0.18, 0.42], colB: [0.10, 0.42, 0.22], colC: [0.55, 0.45, 0.28],
+        id: 'cnn', name: 'Cognitive Decline', planet: 'Venus', real: 'Visualizing Cognitive Decline',
+        cat: 'Medical Imaging · Explainable AI', type: 1,
+        size: 1.7, orbit: 39, speed: 0.090, tilt: 0.05,
+        colA: [0.72, 0.55, 0.25], colB: [0.92, 0.82, 0.55], colC: [1.0, 0.95, 0.78],
+        atmo: [1.0, 0.85, 0.55], glow: '#f5d79a',
+        tags: ['Computer Vision', 'Grad-CAM · SHAP', 'XAI'],
+        desc: `Five CNN architectures benchmarked across TensorFlow and PyTorch on 6,400 brain MRIs (ensemble 95.4% accuracy, AUC 0.993), with a full XAI suite — Grad-CAM, SHAP, LIME, Occlusion, Score-CAM — layered over every model.`,
+        stats: [['95.4%', 'ensemble accuracy'], ['0.993', 'AUC']],
+        readme: 'assets/readmes/CNN.md', github: 'https://github.com/Kunsh162007/medical-imaging-cnn-xai', sub: 'alzheimer-dl-showcase',
+    },
+    {
+        id: 'nexus', name: 'Nexus Enterprise AI', planet: 'Earth', real: 'Nexus Enterprise AI',
+        cat: 'Enterprise Intelligence · Multi-Agent', type: 2,
+        size: 1.8, orbit: 53, speed: 0.075, tilt: 0.41,
+        colA: [0.03, 0.18, 0.45], colB: [0.12, 0.42, 0.20], colC: [0.55, 0.45, 0.28],
         atmo: [0.4, 0.7, 1.0], glow: '#5ad7ff',
         tags: ['FastAPI', 'React', 'WebSockets'],
         desc: `Five specialised agents (Scout, Analyst, Strategist, Communicator, Orchestrator) run in parallel behind a FastAPI backend, streaming their reasoning live over WebSockets to a React UI and synthesising one executive brief in under 60 seconds.`,
@@ -61,70 +73,59 @@ const WORLDS = [
         live: 'https://nexus-frontend-ksfn.onrender.com/', readme: 'assets/readmes/Nexus.md', github: 'https://github.com/Kunsh162007/nexus-enterprise-ai',
     },
     {
-        id: 'nexusintel', name: 'VANTA', real: 'NexusIntel AI',
-        cat: 'Ice World', type: 3,
-        size: 1.5, orbit: 49, speed: 0.07, tilt: 0.1,
-        colA: [0.18, 0.46, 0.62], colB: [0.78, 0.92, 1.0], colC: [0.35, 0.62, 0.78],
-        atmo: [0.5, 0.85, 1.0], glow: '#8fe3ff',
-        tags: ['Bright Data', 'Cognee Graph'],
-        desc: `An Auto-Focus engine that continuously pings live web sources via Bright Data, detects semantic anomalies through embedding comparison, and autonomously dispatches LangChain agents — storing findings in a shared Cognee knowledge graph and firing TriggerWare webhooks.`,
-        stats: [['24/7', 'web monitoring'], ['∞', 'auto-dispatch']],
-        live: 'https://nexusintel-frontend.vercel.app/', readme: 'assets/readmes/NexusIntel.md', github: 'https://github.com/Kunsh162007/NexusIntel',
-    },
-    {
-        id: 'drishti', name: 'NETRA', real: 'Drishti — Police Intelligence',
-        cat: 'Rocky World', type: 0,
-        size: 1.6, orbit: 60, speed: 0.06, tilt: 0.42,
-        colA: [0.10, 0.06, 0.04], colB: [0.45, 0.26, 0.14], colC: [0.78, 0.55, 0.32],
-        atmo: [1.0, 0.7, 0.4], glow: '#ffb259',
+        id: 'drishti', name: 'Drishti', planet: 'Mars', real: 'Drishti — Police Intelligence',
+        cat: 'Police Intelligence · Geo-AI', type: 3,
+        size: 1.35, orbit: 68, speed: 0.060, tilt: 0.44,
+        colA: [0.34, 0.12, 0.06], colB: [0.72, 0.32, 0.16], colC: [0.90, 0.56, 0.34],
+        atmo: [1.0, 0.6, 0.4], glow: '#ff7a4d',
         tags: ['PostGIS', 'Neo4j', 'Qdrant RAG'],
         desc: `PostgreSQL/PostGIS, Neo4j graphs and Qdrant semantic search unified behind one FastAPI app to trace criminal linkage, geo-hotspots and missing persons — with a grounded assistant that only answers from retrieved records and cites the source FIRs.`,
         stats: [['3', 'data engines unified'], ['100%', 'grounded answers']],
         live: 'https://drishti-demo.onrender.com/', readme: 'assets/readmes/Drishti.md', github: 'https://github.com/Kunsh162007/Drishti',
     },
     {
-        id: 'research', name: 'ARXIA', real: 'Agentic Research Assistant',
-        cat: 'Gas Giant', type: 1,
-        size: 2.1, orbit: 72, speed: 0.052, tilt: 0.22,
-        colA: [0.10, 0.30, 0.34], colB: [0.30, 0.66, 0.62], colC: [0.7, 0.92, 0.85],
-        atmo: [0.4, 0.95, 0.85], glow: '#5ff0d0',
+        id: 'aegis', name: 'AEGIS', planet: 'Jupiter', real: 'AEGIS — Financial-Crime Mesh',
+        cat: 'Financial-Crime · 15-Agent Mesh', type: 4, featured: true,
+        size: 3.6, orbit: 90, speed: 0.040, tilt: 0.05,
+        colA: [0.45, 0.32, 0.20], colB: [0.88, 0.74, 0.54], colC: [0.80, 0.30, 0.18],
+        atmo: [1.0, 0.82, 0.55], glow: '#e8b87a',
+        tags: ['15-Agent Mesh', 'Band Protocol', 'AML'],
+        desc: `A 15-agent adversarial mesh where specialists run real statistics, a NetworkX graph and retrieval, while a Challenger argues innocence and a Verifier rejects any uncited claim — cutting false positives ~77% at ~89% recall on the IBM AML benchmark.`,
+        stats: [['~77%', 'fewer false positives'], ['~89%', 'recall']],
+        live: 'https://aegis-g7vl.onrender.com/', readme: 'assets/readmes/AEGIS.md', github: 'https://github.com/Kunsh162007/AEGIS',
+    },
+    {
+        id: 'research', name: 'Agentic Research', planet: 'Saturn', real: 'Agentic Research Assistant',
+        cat: 'Autonomous Research · Self-RAG', type: 5, rings: true,
+        size: 3.0, orbit: 118, speed: 0.030, tilt: 0.47,
+        colA: [0.55, 0.46, 0.28], colB: [0.93, 0.85, 0.63], colC: [0.82, 0.72, 0.47],
+        atmo: [1.0, 0.9, 0.65], glow: '#f0d79a',
         tags: ['Self-RAG', 'LangGraph', 'Claude'],
         desc: `Autonomously searches the web, arXiv and GitHub, then synthesises a cited report through a Self-RAG LangGraph loop that grades retrieval relevance and answer quality (0–100) and re-retrieves until it hits target — with crash-resumable checkpointing.`,
         stats: [['0–100', 'self-graded quality'], ['Self-RAG', 'control loop']],
         live: 'https://research-assistant-0g24.onrender.com/', readme: 'assets/readmes/AgenticResearch.md', github: 'https://github.com/Kunsh162007/multi-research-agent',
     },
     {
-        id: 'devramp', name: 'FORGE', real: 'DevRamp AI',
-        cat: 'Lava World', type: 2,
-        size: 1.7, orbit: 85, speed: 0.045, tilt: 0.15,
-        colA: [0.18, 0.06, 0.03], colB: [1.0, 0.55, 0.12], colC: [0.9, 0.2, 0.05],
-        atmo: [1.0, 0.45, 0.2], glow: '#ff7a2d',
-        tags: ['IBM Bob', 'React + TS', 'AI Mentor'],
-        desc: `Analyses any connected repository, generates a personalised learning path, and pairs it with a 24/7 AI mentor grounded in the actual code — turning "cloned the repo" into "first commit" in days, with XP and progress tracking.`,
-        stats: [['days', 'to first commit'], ['24/7', 'AI mentor']],
-        live: 'https://dev-ramp-ai.vercel.app/', readme: 'assets/readmes/DevRamp.md', github: 'https://github.com/Kunsh162007/DevRamp-AI',
+        id: 'nexusintel', name: 'NexusIntel AI', planet: 'Uranus', real: 'NexusIntel AI',
+        cat: 'Web Monitoring · Knowledge Graph', type: 6,
+        size: 2.3, orbit: 144, speed: 0.022, tilt: 1.62,
+        colA: [0.40, 0.72, 0.74], colB: [0.64, 0.88, 0.88], colC: [0.80, 0.96, 0.96],
+        atmo: [0.6, 0.95, 0.95], glow: '#aef0ee',
+        tags: ['Bright Data', 'Cognee Graph'],
+        desc: `An Auto-Focus engine that continuously pings live web sources via Bright Data, detects semantic anomalies through embedding comparison, and autonomously dispatches LangChain agents — storing findings in a shared Cognee knowledge graph and firing TriggerWare webhooks.`,
+        stats: [['24/7', 'web monitoring'], ['∞', 'auto-dispatch']],
+        live: 'https://nexusintel-frontend.vercel.app/', readme: 'assets/readmes/NexusIntel.md', github: 'https://github.com/Kunsh162007/NexusIntel',
     },
     {
-        id: 'rnn', name: 'CHRONOS', real: 'Temporal Neural Architects',
-        cat: 'Ringed Ice World', type: 3, rings: true,
-        size: 1.5, orbit: 98, speed: 0.038, tilt: 0.46,
-        colA: [0.22, 0.4, 0.7], colB: [0.85, 0.9, 1.0], colC: [0.5, 0.55, 0.85],
-        atmo: [0.6, 0.7, 1.0], glow: '#9fb6ff',
+        id: 'rnn', name: 'Temporal Forecasting', planet: 'Neptune', real: 'Temporal Neural Architects',
+        cat: 'Time-Series · Deep Learning', type: 7,
+        size: 2.2, orbit: 168, speed: 0.018, tilt: 0.49,
+        colA: [0.10, 0.22, 0.62], colB: [0.24, 0.42, 0.84], colC: [0.60, 0.74, 1.0],
+        atmo: [0.4, 0.6, 1.0], glow: '#6f8cff',
         tags: ['Seq2Seq', 'PyTorch', 'Time Series'],
         desc: `Seven recurrent architectures (Vanilla RNN, LSTM, GRU, Stacked, BiLSTM, Attention-LSTM, Seq2Seq) hand-coded and benchmarked on Melbourne temperature data with a custom Bahdanau-attention layer and a BPTT gradient visualiser; GRU won (RMSE 2.23).`,
         stats: [['7', 'architectures'], ['2.23', 'best RMSE (GRU)']],
         readme: 'assets/readmes/RNN_Forecasting.md', github: 'https://github.com/Kunsh162007/RNN-Seq2Seq-Temperature-Forecasting',
-    },
-    {
-        id: 'cnn', name: 'CORTEX', real: 'Visualizing Cognitive Decline',
-        cat: 'Gas Giant', type: 1,
-        size: 1.9, orbit: 112, speed: 0.03, tilt: 0.28,
-        colA: [0.22, 0.10, 0.36], colB: [0.55, 0.30, 0.78], colC: [0.85, 0.6, 1.0],
-        atmo: [0.8, 0.5, 1.0], glow: '#c89bff',
-        tags: ['Computer Vision', 'Explainable AI'],
-        desc: `Five CNN architectures benchmarked across TensorFlow and PyTorch on 6,400 brain MRIs (ensemble 95.4% accuracy, AUC 0.993), with a full XAI suite — Grad-CAM, SHAP, LIME, Occlusion, Score-CAM — layered over every model.`,
-        stats: [['95.4%', 'ensemble accuracy'], ['0.993', 'AUC']],
-        readme: 'assets/readmes/CNN.md', github: 'https://github.com/Kunsh162007/medical-imaging-cnn-xai', sub: 'alzheimer-dl-showcase',
     },
 ];
 
@@ -188,39 +189,74 @@ void main(){
   float fres = pow(1.0 - max(dot(N, V), 0.0), 2.4);
   vec3 col;
 
-  if(uType < 0.5){                 // terran / rocky
-    float e = fbm(p * 1.7);
-    vec3 land = mix(uColB, uColC, smoothstep(0.0, 0.75, e));
-    col = e < 0.0 ? uColA : land;
+  if(uType < 0.5){                 // ── Mercury: cratered grey rock
+    float e = fbm(p * 2.6);
+    col = mix(uColB, uColC, smoothstep(-0.35, 0.45, e));
+    float craters = smoothstep(0.42, 0.52, fbm(p * 4.2));
+    col = mix(col, uColA, craters * 0.65);
+    col *= (ambient + light);
+    col += uAtmo * fres * 0.10 * light;
+  } else if(uType < 1.5){          // ── Venus: thick swirling sulphur clouds
+    float n = fbm(p * 1.4 + vec3(uTime * 0.03, 0.0, 0.0));
+    float swirl = fbm(p * 2.7 + n * 1.6);
+    col = mix(uColA, uColC, smoothstep(-0.4, 0.55, n));
+    col = mix(col, uColB, 0.35 + 0.35 * sin(sp.y * 6.0 + swirl * 3.0));
+    col *= (ambient + light);
+    col += uAtmo * fres * (0.5 + 0.6 * light);
+  } else if(uType < 2.5){          // ── Earth: oceans, continents, ice caps, clouds
+    float e = fbm(p * 1.8);
+    vec3 ocean = mix(uColA * 0.6, uColA, smoothstep(-0.7, 0.02, e));
+    vec3 ground = mix(uColB, uColC, smoothstep(0.0, 0.6, e));
+    col = mix(ocean, ground, step(0.02, e));
     float lat = abs(sp.y);
-    col = mix(col, vec3(0.92), smoothstep(0.80, 0.96, lat) * step(0.0, e + 0.15));
-    float cl = smoothstep(0.18, 0.62, fbm(p * 1.15 + vec3(uTime * 0.02, 0.0, 0.0)));
-    col = mix(col, vec3(1.0), cl * 0.45);
+    col = mix(col, vec3(0.94), smoothstep(0.78, 0.95, lat));
+    float cl = smoothstep(0.22, 0.6, fbm(p * 1.3 + vec3(uTime * 0.02, 0.0, 0.0)));
+    col = mix(col, vec3(1.0), cl * 0.5);
     col *= (ambient + light);
-    col += uAtmo * fres * (0.35 + 0.75 * light);
-  } else if(uType < 1.5){          // gas giant
-    float n = fbm(p * 1.1);
-    float bands = sin(sp.y * 9.0 + n * 2.6 + uSeed);
+    col += uAtmo * fres * (0.4 + 0.85 * light);
+  } else if(uType < 3.5){          // ── Mars: rusty deserts + polar caps
+    float e = fbm(p * 2.2);
+    col = mix(uColA, uColB, smoothstep(-0.3, 0.3, e));
+    col = mix(col, uColC, smoothstep(0.3, 0.75, e));
+    float lat = abs(sp.y);
+    col = mix(col, vec3(0.92, 0.94, 0.97), smoothstep(0.86, 0.97, lat));
+    col *= (ambient + light);
+    col += uAtmo * fres * 0.3 * light;
+  } else if(uType < 4.5){          // ── Jupiter: turbulent bands + great red spot
+    float n = fbm(p * 1.2);
+    float bands = sin(sp.y * 12.0 + n * 3.0);
     col = mix(uColA, uColB, 0.5 + 0.5 * bands);
-    vec2 sc = sp.xz; sc.y *= 0.55;
-    float spot = smoothstep(0.34, 0.0, length(sc - vec2(0.42, 0.12)));
-    col = mix(col, uColC, spot * 0.7);
+    col = mix(col, uColB, 0.18 * fbm(p * 3.2));
+    vec2 sc = sp.xz; sc.y *= 0.6;
+    float spot = smoothstep(0.30, 0.0, length(sc - vec2(0.5, 0.18)));
+    col = mix(col, uColC, spot * 0.85);
     col *= (ambient + light);
-    col += uAtmo * fres * (0.45 + 0.6 * light);
-  } else if(uType < 2.5){          // lava
-    float e = fbm(p * 2.3);
-    float crust = smoothstep(0.0, 0.5, abs(e));
-    col = mix(uColC, uColA * 0.25, crust) * (ambient + light);
-    float glow = pow(max(0.0, 0.4 - abs(e)), 1.4) * 3.2;
-    col += uColB * glow;          // self-emissive cracks
-    col += uAtmo * fres * 0.7;
-  } else {                         // ice
-    float e = fbm(p * 2.0);
-    col = mix(uColA, uColB, smoothstep(-0.25, 0.45, e));
-    float cr = smoothstep(0.30, 0.33, fract(e * 5.0));
-    col = mix(col, uColC, 0.18 * cr);
+    col += uAtmo * fres * (0.4 + 0.6 * light);
+  } else if(uType < 5.5){          // ── Saturn: soft pale gold bands
+    float n = fbm(p * 1.0);
+    float bands = sin(sp.y * 10.0 + n * 2.0);
+    col = mix(uColA, uColB, 0.5 + 0.5 * bands);
+    col = mix(col, uColC, 0.2 * smoothstep(0.0, 1.0, n));
     col *= (ambient + light);
-    col += uAtmo * fres * (0.4 + 0.7 * light);
+    col += uAtmo * fres * (0.4 + 0.6 * light);
+  } else if(uType < 6.5){          // ── Uranus: near-featureless pale cyan
+    float n = fbm(p * 1.6);
+    float bands = sin(sp.y * 8.0) * 0.5 + 0.5;
+    col = mix(uColA, uColB, bands * 0.6 + 0.2);
+    col = mix(col, uColC, 0.15 * n);
+    col *= (ambient + light);
+    col += uAtmo * fres * (0.5 + 0.6 * light);
+  } else {                         // ── Neptune: deep blue, cloud streaks, dark storm
+    float n = fbm(p * 1.7 + vec3(uTime * 0.02, 0.0, 0.0));
+    float bands = sin(sp.y * 7.0 + n * 1.5) * 0.5 + 0.5;
+    col = mix(uColA, uColB, bands * 0.7 + 0.15);
+    float streak = smoothstep(0.55, 0.82, fbm(p * 2.4));
+    col = mix(col, uColC, streak * 0.5);
+    vec2 sc = sp.xz; sc.y *= 0.7;
+    float storm = smoothstep(0.22, 0.0, length(sc - vec2(-0.4, 0.2)));
+    col = mix(col, uColA * 0.4, storm * 0.7);
+    col *= (ambient + light);
+    col += uAtmo * fres * (0.5 + 0.7 * light);
   }
   gl_FragColor = vec4(col, 1.0);
 }`;
@@ -294,7 +330,7 @@ class System {
 
     _initScene() {
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.FogExp2(0x02030a, 0.0011);
+        this.scene.fog = new THREE.FogExp2(0x02030a, 0.0006);
         this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 4000);
 
         this.scene.add(new THREE.AmbientLight(0x223355, 0.5));
@@ -608,38 +644,55 @@ class System {
             holder.add(mesh);
 
             if (def.rings) {
-                const ring = new THREE.Mesh(
-                    new THREE.RingGeometry(def.size * 1.5, def.size * 2.5, 64),
-                    new THREE.MeshBasicMaterial({
-                        map: this._ringTexture(def.glow), transparent: true, side: THREE.DoubleSide,
-                        opacity: 0.85, depthWrite: false,
-                    })
-                );
-                ring.rotation.x = Math.PI / 2 - 0.35;
-                ring.rotation.y = 0.2;
-                holder.add(ring);
+                // ring sits in the planet's equatorial plane and inherits its axial tilt
+                const rInner = def.size * 1.3, rOuter = def.size * 2.35;
+                const ringGeo = new THREE.RingGeometry(rInner, rOuter, 128);
+                // remap UVs so the band texture runs radially (inner→outer)
+                const pos = ringGeo.attributes.position, uv = ringGeo.attributes.uv;
+                for (let i = 0; i < pos.count; i++) {
+                    const d = Math.hypot(pos.getX(i), pos.getY(i));
+                    uv.setXY(i, (d - rInner) / (rOuter - rInner), 0.5);
+                }
+                uv.needsUpdate = true;
+                const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({
+                    map: this._ringTexture(def.glow), transparent: true, side: THREE.DoubleSide,
+                    opacity: 0.92, depthWrite: false,
+                }));
+                ring.rotation.x = Math.PI / 2;
+                mesh.add(ring);
             }
 
-            // faint orbit path
+            // faint orbit path, tinted to the planet
             const orbitLine = new THREE.Mesh(
-                new THREE.RingGeometry(def.orbit - 0.04, def.orbit + 0.04, 160),
-                new THREE.MeshBasicMaterial({ color: 0x3a5a8a, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false })
+                new THREE.RingGeometry(def.orbit - 0.05, def.orbit + 0.05, 220),
+                new THREE.MeshBasicMaterial({ color: new THREE.Color(def.glow), transparent: true, opacity: 0.10, side: THREE.DoubleSide, depthWrite: false })
             );
             orbitLine.rotation.x = Math.PI / 2;
             this.scene.add(orbitLine);
 
             this.scene.add(group);
-            const label = this._makeLabel(def.name, def.glow, false, def.real);
+            const label = this._makeLabel(def.name, def.glow, false, def.planet);
             this.bodies.push({ def, group, holder, mesh, mat, label, orbitAngle: Math.random() * Math.PI * 2, worldPos: new THREE.Vector3(), radius: def.size });
         });
     }
 
     _ringTexture(glow) {
-        const w = 256, h = 16, c = document.createElement('canvas'); c.width = w; c.height = h;
+        // texture runs inner→outer along its width; alpha encodes ring bands + gaps
+        const w = 512, h = 8, c = document.createElement('canvas'); c.width = w; c.height = h;
         const x = c.getContext('2d');
+        const tint = new THREE.Color(glow);
+        const r = (tint.r * 255) | 0, g = (tint.g * 255) | 0, b = (tint.b * 255) | 0;
         for (let i = 0; i < w; i++) {
-            const a = (0.15 + 0.6 * Math.abs(Math.sin(i * 0.35)) * Math.random());
-            x.fillStyle = `rgba(220,210,190,${a.toFixed(3)})`;
+            const u = i / w;
+            // layered sine bands for the fine ringlet structure
+            let a = 0.35 + 0.4 * Math.abs(Math.sin(u * 46.0)) + 0.2 * Math.abs(Math.sin(u * 130.0));
+            a *= 0.7 + 0.3 * Math.random();
+            // Cassini division — a dark gap about two-thirds out
+            if (u > 0.60 && u < 0.67) a *= 0.10;
+            if (u > 0.97 || u < 0.03) a *= 0.4;   // soft fade at edges
+            // blend ring particles between icy white and the planet tint
+            const cr = (220 + r) >> 1, cg = (212 + g) >> 1, cb = (196 + b) >> 1;
+            x.fillStyle = `rgba(${cr},${cg},${cb},${Math.min(a, 1).toFixed(3)})`;
             x.fillRect(i, 0, 1, h);
         }
         const t = new THREE.CanvasTexture(c); t.needsUpdate = true; return t;
@@ -677,9 +730,9 @@ class System {
     _initCamera() {
         this.target = new THREE.Vector3(0, 0, 0);
         this.targetGoal = this.target.clone();
-        this.sph = { r: 200, theta: 0.9, phi: 1.08 };       // current
+        this.sph = { r: 320, theta: 0.9, phi: 1.0 };        // current
         this.sphGoal = { ...this.sph };                      // eased toward
-        this.minR = 9; this.maxR = 1100;
+        this.minR = 9; this.maxR = 1300;
         this._applyCamera(true);
     }
 
@@ -709,7 +762,7 @@ class System {
 
     resetView() {
         this.targetGoal.set(0, 0, 0);
-        this.sphGoal = { r: 200, theta: 0.9, phi: 1.08 };
+        this.sphGoal = { r: 320, theta: 0.9, phi: 1.0 };
     }
 
     /* ----------------- input ----------------- */
@@ -829,7 +882,7 @@ class System {
         const x = (v.x * 0.5 + 0.5) * window.innerWidth;
         const y = (-v.y * 0.5 + 0.5) * window.innerHeight;
         const dist = this.camera.position.distanceTo(body.worldPos);
-        const op = clamp(1 - (dist - body.radius * 4) / 260, 0.12, 1);
+        const op = clamp(1 - (dist - body.radius * 6) / 520, 0.2, 1);
         el.style.display = 'block';
         el.style.left = x + 'px';
         el.style.top = y + 'px';
@@ -895,11 +948,24 @@ function openPopup(def) {
         const actions = [];
         if (def.live) actions.push(`<a class="btn-live" href="${def.live}" target="_blank" rel="noopener"><span class="live-dot"></span> Live Demo</a>`);
         if (def.readme) actions.push(`<button class="btn-line" data-readme="${def.readme}" data-github="${def.github}" ${def.sub ? `data-sub="${def.sub}"` : ''}>Full Dossier →</button>`);
-        else if (def.github) actions.push(`<a class="btn-line" href="${def.github}" target="_blank" rel="noopener">GitHub ↗</a>`);
+        if (def.github) actions.push(`<a class="btn-ghost-sm" href="${def.github}" target="_blank" rel="noopener">GitHub ↗</a>`);
+        // a small rendered "planet disc" themed to this body, with its tilt + ring
+        const planetDisc = `
+            <div class="planet-disc" style="--p:${def.glow}">
+                <span class="pd-orb"></span>
+                ${def.rings ? '<span class="pd-ring"></span>' : ''}
+                <span class="pd-shadow"></span>
+            </div>`;
         body.innerHTML = `
+            <div class="popup-hero">
+                ${planetDisc}
+                <div class="popup-hero-text">
+                    <span class="popup-planet">${def.featured ? '★ ' : ''}${def.planet}</span>
+                    <h2 class="popup-name">${def.name}</h2>
+                    <span class="popup-real">${def.real}</span>
+                </div>
+            </div>
             <span class="popup-kicker"><span class="dot"></span>${def.cat}</span>
-            <h2 class="popup-name">${def.name}</h2>
-            <span class="popup-real">${def.real}</span>
             <div class="popup-tags">${(def.tags || []).map((t) => `<span>${t}</span>`).join('')}</div>
             <p class="popup-desc">${def.desc}</p>
             ${stats ? `<div class="popup-stats">${stats}</div>` : ''}
@@ -963,12 +1029,14 @@ function initModal() {
    ========================================================================= */
 
 function initHUD(system) {
-    // world chips
+    // project dock — every project one click away
     const nav = qs('#hud-worlds');
     WORLDS.forEach((w) => {
         const chip = document.createElement('button');
-        chip.className = 'world-chip';
-        chip.innerHTML = `<span class="dot" style="background:${w.glow};color:${w.glow}"></span><span class="nm">${w.name}</span>`;
+        chip.className = 'world-chip' + (w.featured ? ' is-featured' : '');
+        chip.title = `${w.real} — ${w.planet}`;
+        chip.innerHTML = `<span class="dot" style="background:${w.glow};color:${w.glow}"></span>` +
+            `<span class="chip-text"><span class="nm">${w.name}</span><span class="pl">${w.planet}</span></span>`;
         chip.addEventListener('click', () => {
             const body = system.bodies.find((b) => b.def.id === w.id);
             if (body) { system.goTo(body); openPopup(body.def); }
