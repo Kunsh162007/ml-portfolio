@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="pre-enter">
 
 <!-- file:// warning -->
 <div id="protocol-warning" hidden>
@@ -26,6 +26,18 @@
     <div class="loading-bar"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
 </div>
 <noscript><style>#loading-screen{display:none!important}</style></noscript>
+
+<!-- Intro gate — shown before entering the solar system -->
+<div id="intro-gate">
+    <div class="gate-inner">
+        <span class="gate-mark">✦</span>
+        <span class="gate-kicker">AI / ML Engineer · MANIT Bhopal</span>
+        <h1 class="gate-name">KUNSH AGRAWAL</h1>
+        <p class="gate-tagline">A portfolio built as an explorable solar system. Eight projects, eight worlds — drift through the system and open any planet to read its story.</p>
+        <button id="enter-btn" class="gate-btn">Enter the System <span aria-hidden="true">→</span></button>
+        <span class="gate-meta">8 projects · drag to roam · scroll to zoom · click a planet</span>
+    </div>
+</div>
 
 <!-- WebGL canvas -->
 <canvas id="galaxy"></canvas>

@@ -124,6 +124,60 @@ button { font-family: inherit; cursor: pointer; }
 .loading-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--amber), var(--cyan)); transition: width 0.3s ease; }
 
 /* =========================================================================
+   Intro gate (entry window before the solar system)
+   ========================================================================= */
+
+#intro-gate {
+    position: fixed; inset: 0; z-index: 180;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.5rem; text-align: center;
+    background:
+        radial-gradient(ellipse at 50% 38%, rgba(12,18,44,0.55) 0%, rgba(2,3,10,0.82) 70%);
+    backdrop-filter: blur(7px);
+    opacity: 1; transition: opacity 0.9s var(--ease), visibility 0.9s var(--ease);
+}
+body:not(.pre-enter) #intro-gate { opacity: 0; visibility: hidden; pointer-events: none; }
+
+.gate-inner {
+    max-width: 620px; display: flex; flex-direction: column; align-items: center;
+    animation: gateRise 1s var(--ease) both;
+}
+@keyframes gateRise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.gate-mark { font-size: 1.6rem; color: var(--gold); text-shadow: 0 0 24px rgba(255,210,122,0.6); margin-bottom: 1.1rem; animation: gateSpin 14s linear infinite; }
+@keyframes gateSpin { to { transform: rotate(360deg); } }
+.gate-kicker {
+    font-family: var(--font-display); font-size: 0.66rem; letter-spacing: 0.34em;
+    text-transform: uppercase; color: var(--cyan-soft); margin-bottom: 1rem;
+}
+.gate-name {
+    font-family: var(--font-display); font-weight: 900;
+    font-size: clamp(2.4rem, 8vw, 4.6rem); line-height: 1; margin: 0 0 1.2rem;
+    letter-spacing: 0.04em;
+    background: linear-gradient(180deg, #ffffff 0%, #bcd4ff 60%, #6f9fd8 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    text-shadow: 0 0 50px rgba(120,180,255,0.25);
+}
+.gate-tagline { color: var(--text-soft); font-size: clamp(0.9rem, 2.4vw, 1.06rem); line-height: 1.7; margin: 0 0 2rem; max-width: 46ch; }
+.gate-btn {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #02030a; background: linear-gradient(120deg, var(--cyan), var(--cyan-soft));
+    border: none; border-radius: 40px; padding: 0.95rem 2.1rem;
+    box-shadow: 0 12px 40px rgba(90,215,255,0.32), inset 0 1px 0 rgba(255,255,255,0.4);
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+.gate-btn span { transition: transform 0.3s var(--ease); }
+.gate-btn:hover { transform: translateY(-2px); box-shadow: 0 18px 52px rgba(90,215,255,0.45); }
+.gate-btn:hover span { transform: translateX(5px); }
+.gate-meta { margin-top: 1.4rem; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); }
+
+/* HUD stays hidden until the visitor enters */
+body.pre-enter .hud-top,
+body.pre-enter .hud-worlds,
+body.pre-enter .hud-bottom { opacity: 0; pointer-events: none; }
+.hud-top, .hud-worlds, .hud-bottom { transition: opacity 0.9s var(--ease); }
+
+/* =========================================================================
    file:// warning
    ========================================================================= */
 

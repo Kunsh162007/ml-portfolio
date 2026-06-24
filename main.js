@@ -274,8 +274,8 @@ void main(){
   vec3 c = mix(vec3(0.65, 0.13, 0.02), vec3(1.0, 0.55, 0.12), smoothstep(-0.2, 0.5, h));
   c = mix(c, vec3(1.0, 0.92, 0.6), smoothstep(0.45, 0.85, h));
   float fres = pow(1.0 - max(dot(normalize(vNormalW), normalize(vViewDir)), 0.0), 1.6);
-  c += vec3(1.0, 0.5, 0.16) * fres * 1.8;
-  gl_FragColor = vec4(c * 1.65, 1.0);
+  c += vec3(1.0, 0.5, 0.16) * fres * 1.5;
+  gl_FragColor = vec4(c * 1.28, 1.0);
 }`;
 
 const CORONA_FRAG = `
@@ -325,6 +325,9 @@ class System {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         if ('outputColorSpace' in this.renderer && THREE.SRGBColorSpace) this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+        // filmic tone mapping tames blown-out highlights for a softer, richer image
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 0.82;
         this.renderer.setClearColor(0x02030a, 1);
     }
 
@@ -333,8 +336,8 @@ class System {
         this.scene.fog = new THREE.FogExp2(0x02030a, 0.0006);
         this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 4000);
 
-        this.scene.add(new THREE.AmbientLight(0x223355, 0.5));
-        this.sunLight = new THREE.PointLight(0xffd9a0, 3.4, 0, 1.4);
+        this.scene.add(new THREE.AmbientLight(0x223355, 0.4));
+        this.sunLight = new THREE.PointLight(0xffd9a0, 2.6, 0, 1.4);
         this.scene.add(this.sunLight);
     }
 
@@ -397,7 +400,7 @@ class System {
                 varying vec3 vColor; varying float vTw;
                 void main(){
                     vec4 t = texture2D(uTex, gl_PointCoord);
-                    gl_FragColor = vec4(vColor * (0.6 + 0.7 * vTw), t.a);
+                    gl_FragColor = vec4(vColor * (0.5 + 0.55 * vTw), t.a);
                 }`,
             transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
         });
@@ -576,12 +579,12 @@ class System {
     _buildNebulae() {
         const tex = this._radialTexture([[0, 'rgba(255,255,255,0.9)'], [0.5, 'rgba(255,255,255,0.25)'], [1, 'rgba(255,255,255,0)']]);
         const clouds = [
-            { c: 0x4a2f8a, x: -260, y: 120, z: -420, s: 720, o: 0.26 },
-            { c: 0x123a6a, x: 320, y: -160, z: -380, s: 640, o: 0.24 },
-            { c: 0x7a1f4a, x: -120, y: -220, z: 360, s: 600, o: 0.22 },
-            { c: 0x1f5a5a, x: 280, y: 200, z: 300, s: 520, o: 0.22 },
-            { c: 0x2a3aaa, x: -420, y: -60, z: 120, s: 560, o: 0.16 },
-            { c: 0x8a3a6a, x: 120, y: 300, z: -260, s: 480, o: 0.16 },
+            { c: 0x4a2f8a, x: -260, y: 120, z: -420, s: 720, o: 0.18 },
+            { c: 0x123a6a, x: 320, y: -160, z: -380, s: 640, o: 0.17 },
+            { c: 0x7a1f4a, x: -120, y: -220, z: 360, s: 600, o: 0.15 },
+            { c: 0x1f5a5a, x: 280, y: 200, z: 300, s: 520, o: 0.15 },
+            { c: 0x2a3aaa, x: -420, y: -60, z: 120, s: 560, o: 0.11 },
+            { c: 0x8a3a6a, x: 120, y: 300, z: -260, s: 480, o: 0.11 },
         ];
         clouds.forEach((n) => {
             const m = new THREE.SpriteMaterial({ map: tex, color: n.c, transparent: true, opacity: n.o, depthWrite: false, blending: THREE.AdditiveBlending });
@@ -715,10 +718,10 @@ class System {
             const size = new THREE.Vector2(window.innerWidth, window.innerHeight);
             this.composer = new EffectComposer(this.renderer);
             this.composer.addPass(new RenderPass(this.scene, this.camera));
-            this.bloomPass = new UnrealBloomPass(size, 1.1, 0.8, 0.2);
-            this.bloomPass.strength = prefersReduced ? 0.6 : 1.15;
-            this.bloomPass.radius = 0.8;
-            this.bloomPass.threshold = 0.2;
+            this.bloomPass = new UnrealBloomPass(size, 0.55, 0.6, 0.45);
+            this.bloomPass.strength = prefersReduced ? 0.35 : 0.55;
+            this.bloomPass.radius = 0.6;
+            this.bloomPass.threshold = 0.45;
             this.composer.addPass(this.bloomPass);
             this.composer.addPass(new OutputPass());
         } catch (err) {
@@ -840,14 +843,31 @@ class System {
         this.pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
     }
 
-    _pickMeshes() { return this.bodies.map((b) => b.mesh); }
+    _focalPx() { return (window.innerHeight * 0.5) / Math.tan((this.camera.fov * Math.PI / 180) / 2); }
 
-    _hoverTest(e) {
-        this._ndc(e);
-        this.raycaster.setFromCamera(this.pointer, this.camera);
-        const hit = this.raycaster.intersectObjects(this._pickMeshes(), false)[0];
-        this._setHover(hit ? this.bodies.find((b) => b.mesh === hit.object) : null);
+    /* Forgiving screen-space picker: the nearest body within a generous halo,
+       so a click *near* a planet still selects it. */
+    _pickNearest(e) {
+        const focal = this._focalPx();
+        const v = new THREE.Vector3();
+        let best = null, bestScore = Infinity;
+        for (const b of this.bodies) {
+            v.copy(b.worldPos).project(this.camera);
+            if (v.z > 1 || v.z < -1) continue;             // behind / clipped
+            const sx = (v.x * 0.5 + 0.5) * window.innerWidth;
+            const sy = (-v.y * 0.5 + 0.5) * window.innerHeight;
+            const dist = this.camera.position.distanceTo(b.worldPos);
+            const screenR = (b.radius * focal) / Math.max(dist, 0.001);
+            const pixDist = Math.hypot(e.clientX - sx, e.clientY - sy);
+            const pad = Math.max(38, screenR * 1.5);        // generous click halo
+            if (pixDist > screenR + pad) continue;
+            const score = pixDist - screenR;                // prefer the closer planet
+            if (score < bestScore) { bestScore = score; best = b; }
+        }
+        return best;
     }
+
+    _hoverTest(e) { this._setHover(this._pickNearest(e)); }
 
     _setHover(body) {
         if (this.hovered === body) return;
@@ -858,11 +878,7 @@ class System {
     }
 
     _clickTest(e) {
-        this._ndc(e);
-        this.raycaster.setFromCamera(this.pointer, this.camera);
-        const hit = this.raycaster.intersectObjects(this._pickMeshes(), false)[0];
-        if (!hit) return;
-        const body = this.bodies.find((b) => b.mesh === hit.object);
+        const body = this._pickNearest(e);
         if (body) { this.goTo(body); openPopup(body.def); }
     }
 
@@ -1056,6 +1072,20 @@ function initHUD(system) {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closePopup(); });
 }
 
+function initIntro(system) {
+    const enter = qs('#enter-btn');
+    const go = () => {
+        if (!document.body.classList.contains('pre-enter')) return;
+        document.body.classList.remove('pre-enter');
+        // cinematic fly-in: snap the camera out, then ease back to the overview
+        if (system) { system.sph.r = 660; system.sphGoal.r = 320; }
+    };
+    if (enter) enter.addEventListener('click', go);
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && document.body.classList.contains('pre-enter')) go();
+    });
+}
+
 function boot() {
     const canvas = qs('#galaxy');
     const ls = qs('#loading-screen');
@@ -1073,6 +1103,7 @@ function boot() {
 
     initModal();
     initHUD(system);
+    initIntro(system);
 
     if (bar) bar.style.width = '100%';
     const reveal = () => ls && ls.classList.add('loaded');
