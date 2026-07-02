@@ -5,6 +5,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="The Kunsh System — an explorable star map of Kunsh Agrawal's work. Each project is a world; the home star holds the bio and contact. AI / ML Engineer.">
 <title>Kunsh Agrawal — The Kunsh System</title>
+
+<!-- Branded favicon + mobile browser chrome -->
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#02030a">
+
+<!-- Social sharing (Open Graph + Twitter card) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Kunsh Agrawal — The Kunsh System">
+<meta property="og:description" content="An explorable star map of my work — each project is a world, the home star holds the bio. AI / ML Engineer building multi-agent systems, RAG pipelines, and deep-learning models.">
+<meta property="og:image" content="assets/og-cover.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kunsh Agrawal — The Kunsh System">
+<meta name="twitter:description" content="An explorable star map of my work — each project is a world, the home star holds the bio. AI / ML Engineer.">
+<meta name="twitter:image" content="assets/og-cover.jpg">
+
 <link rel="stylesheet" href="style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -99,6 +116,8 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<!-- GSAP (vendored locally) — powers the cinematic camera + UI motion in main.js -->
+<script src="./vendor/gsap.min.js"></script>
 <script type="importmap">
 { "imports": { "three": "./vendor/three.module.js" } }
 </script>

@@ -17,6 +17,8 @@ import { OutputPass } from './vendor/jsm/postprocessing/OutputPass.js';
 const qs = (s, r = document) => r.querySelector(s);
 const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+// Vendored GSAP (loaded in index.html) drives the cinematic camera + planet motion.
+const gsap = window.gsap || null;
 
 /* =========================================================================
    System data — the star + the worlds (projects)
@@ -302,6 +304,7 @@ class System {
         this.pointers = new Map();
         this.dragging = false;
         this.downInfo = null;
+        this.lastInteract = performance.now();   // for idle auto-drift
 
         this._initRenderer();
         this._initScene();
@@ -757,15 +760,56 @@ class System {
 
     goTo(body) {
         const wp = body.worldPos;
-        this.targetGoal.copy(wp);
-        this.sphGoal.r = clamp(body.radius * 6 + 6, this.minR, this.maxR);
-        // face the body from a pleasant angle
-        this.sphGoal.phi = 1.18;
+        const destR = clamp(body.radius * 6 + 6, this.minR, this.maxR);
+        // Reduced-motion or no GSAP → keep the original eased-lerp approach.
+        if (!gsap || prefersReduced) {
+            this.targetGoal.copy(wp);
+            this.sphGoal.r = destR;
+            this.sphGoal.phi = 1.18;
+            return;
+        }
+        // Cinematic fly-to: pan the focus onto the world while the camera dollies
+        // back into a brief "warp", then eases in to frame the planet. GSAP drives
+        // the current + goal values in lock-step so the per-frame lerp is a no-op
+        // during flight and manual drag resumes seamlessly afterwards.
+        this._camTween?.kill();
+        this._flying = true;
+        const s = this;
+        const startR = this.sph.r;
+        const warpR = clamp(Math.max(startR, destR) * 1.28, this.minR, this.maxR);
+        const p = { r: startR, phi: this.sph.phi, tx: this.target.x, ty: this.target.y, tz: this.target.z };
+        const sync = () => {
+            s.sph.r = p.r; s.sphGoal.r = p.r;
+            s.sph.phi = p.phi; s.sphGoal.phi = p.phi;
+            s.target.set(p.tx, p.ty, p.tz); s.targetGoal.copy(s.target);
+        };
+        this._camTween = gsap.timeline({ defaults: { ease: 'power3.inOut' }, onUpdate: sync, onComplete: () => { s._flying = false; } });
+        this._camTween
+            .to(p, { tx: wp.x, ty: wp.y, tz: wp.z, phi: 1.18, duration: 1.5 }, 0)
+            .to(p, { r: warpR, duration: 0.55, ease: 'power2.out' }, 0)
+            .to(p, { r: destR, duration: 0.95, ease: 'power3.inOut' }, 0.55);
     }
 
     resetView() {
-        this.targetGoal.set(0, 0, 0);
-        this.sphGoal = { r: 320, theta: 0.9, phi: 1.0 };
+        if (!gsap || prefersReduced) {
+            this.targetGoal.set(0, 0, 0);
+            this.sphGoal = { r: 320, theta: 0.9, phi: 1.0 };
+            return;
+        }
+        this._camTween?.kill();
+        this._flying = true;
+        const s = this;
+        const p = { r: this.sph.r, theta: this.sph.theta, phi: this.sph.phi, tx: this.target.x, ty: this.target.y, tz: this.target.z };
+        this._camTween = gsap.to(p, {
+            r: 320, theta: 0.9, phi: 1.0, tx: 0, ty: 0, tz: 0,
+            duration: 1.6, ease: 'power3.inOut',
+            onUpdate() {
+                s.sph.r = p.r; s.sph.theta = p.theta; s.sph.phi = p.phi;
+                s.sphGoal.r = p.r; s.sphGoal.theta = p.theta; s.sphGoal.phi = p.phi;
+                s.target.set(p.tx, p.ty, p.tz); s.targetGoal.copy(s.target);
+            },
+            onComplete() { s._flying = false; },
+        });
     }
 
     /* ----------------- input ----------------- */
@@ -780,6 +824,9 @@ class System {
     }
 
     _onDown(e) {
+        this.lastInteract = performance.now();
+        // Grabbing hands control back from any in-flight camera tween.
+        if (this._camTween) { this._camTween.kill(); this._camTween = null; this._flying = false; }
         this.canvas.setPointerCapture?.(e.pointerId);
         this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
         this.dragging = true;
@@ -793,6 +840,7 @@ class System {
 
     _onMove(e) {
         if (this.pointers.has(e.pointerId)) {
+            this.lastInteract = performance.now();
             const prev = this.pointers.get(e.pointerId);
             const dx = e.clientX - prev.x, dy = e.clientY - prev.y;
             this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -827,6 +875,7 @@ class System {
 
     _onWheel(e) {
         e.preventDefault();
+        this.lastInteract = performance.now();
         this.sphGoal.r = clamp(this.sphGoal.r * (1 + Math.sign(e.deltaY) * 0.12), this.minR, this.maxR);
     }
 
@@ -871,15 +920,30 @@ class System {
 
     _setHover(body) {
         if (this.hovered === body) return;
-        if (this.hovered) this.hovered.label.classList.remove('is-hover');
+        if (this.hovered) { this.hovered.label.classList.remove('is-hover'); this._scaleBody(this.hovered, 1); }
         this.hovered = body;
-        if (body) body.label.classList.add('is-hover');
+        if (body) { body.label.classList.add('is-hover'); this._scaleBody(body, 1.16); }
         this.canvas.classList.toggle('hovering', !!body);
+    }
+
+    /* Springy scale on the hovered world for tactile feedback (planets only). */
+    _scaleBody(body, to) {
+        if (!body || !body.mesh || (body.def && body.def.isStar)) return;
+        if (!gsap || prefersReduced) { body.mesh.scale.setScalar(to); return; }
+        gsap.to(body.mesh.scale, { x: to, y: to, z: to, duration: 0.4, ease: 'back.out(2)', overwrite: true });
+    }
+
+    /* A quick elastic "punch" when a world is clicked. */
+    _punch(body) {
+        if (!body || !body.mesh || (body.def && body.def.isStar) || !gsap || prefersReduced) return;
+        gsap.fromTo(body.mesh.scale,
+            { x: 1.32, y: 1.32, z: 1.32 },
+            { x: 1.16, y: 1.16, z: 1.16, duration: 0.55, ease: 'elastic.out(1, 0.5)', overwrite: true });
     }
 
     _clickTest(e) {
         const body = this._pickNearest(e);
-        if (body) { this.goTo(body); openPopup(body.def); }
+        if (body) { this._punch(body); this.goTo(body); openPopup(body.def); }
     }
 
     /* ----------------- resize + loop ----------------- */
@@ -924,6 +988,13 @@ class System {
             b.mat.uniforms.uTime.value = time;
             b.mat.uniforms.uSunDir.value.copy(sunWorld).sub(b.worldPos).normalize();
             this._projectLabel(b);
+        }
+
+        // Idle auto-drift: once the visitor has been still for a few seconds and
+        // the camera isn't flying, slowly orbit the system so the scene feels alive.
+        if (!this.dragging && !this._camTween && !prefersReduced &&
+            (performance.now() - this.lastInteract) > 4000) {
+            this.sphGoal.theta += dt * 0.03;
         }
 
         this._applyCamera(false);
@@ -1077,8 +1148,24 @@ function initIntro(system) {
     const go = () => {
         if (!document.body.classList.contains('pre-enter')) return;
         document.body.classList.remove('pre-enter');
-        // cinematic fly-in: snap the camera out, then ease back to the overview
-        if (system) { system.sph.r = 660; system.sphGoal.r = 320; }
+        if (!system) return;
+        // Reduced-motion or no GSAP → the original snap-and-lerp fly-in.
+        if (!gsap || prefersReduced) { system.sph.r = 660; system.sphGoal.r = 320; return; }
+        // Cinematic warp-in: dive from far out with a slow rotational drift,
+        // then settle into the system overview.
+        system._camTween?.kill();
+        system._flying = true;
+        const theta0 = system.sph.theta;
+        system.sph.r = 900; system.sphGoal.r = 900;
+        system.sph.theta = theta0 - 0.5; system.sphGoal.theta = theta0 - 0.5;
+        const p = { r: 900, theta: theta0 - 0.5 };
+        gsap.to(p, {
+            r: 320, theta: theta0, duration: 2.4, ease: 'power3.inOut',
+            onUpdate() { system.sph.r = p.r; system.sphGoal.r = p.r; system.sph.theta = p.theta; system.sphGoal.theta = p.theta; },
+            onComplete() { system._flying = false; },
+        });
+        // The project dock drifts in, one chip at a time, once the warp is underway.
+        gsap.from('.world-chip', { autoAlpha: 0, duration: 0.5, stagger: 0.05, delay: 0.9, ease: 'power2.out' });
     };
     if (enter) enter.addEventListener('click', go);
     window.addEventListener('keydown', (e) => {
