@@ -2,125 +2,439 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="The Kunsh System — an explorable star map of Kunsh Agrawal's work. Each project is a world; the home star holds the bio and contact. AI / ML Engineer.">
-<title>Kunsh Agrawal — The Kunsh System</title>
-
-<!-- Branded favicon + mobile browser chrome -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kunsh Agrawal, AI and ML engineer</title>
+<meta name="description" content="Kunsh Agrawal builds machine-learning tools and measures whether they work: an offline study assistant, a crime-analytics platform for Karnataka State Police, a self-grading research agent and deep-learning studies.">
+<meta name="theme-color" content="#0E0918">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-<meta name="theme-color" content="#02030a">
 
-<!-- Social sharing (Open Graph + Twitter card) -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Kunsh Agrawal — The Kunsh System">
-<meta property="og:description" content="An explorable star map of my work — each project is a world, the home star holds the bio. AI / ML Engineer building multi-agent systems, RAG pipelines, and deep-learning models.">
+<meta property="og:title" content="Kunsh Agrawal, AI and ML engineer">
+<meta property="og:description" content="My work as a neural network: the skills I use on one side, six projects on the other. Pick a project to open it.">
 <meta property="og:image" content="assets/og-cover.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Kunsh Agrawal — The Kunsh System">
-<meta name="twitter:description" content="An explorable star map of my work — each project is a world, the home star holds the bio. AI / ML Engineer.">
-<meta name="twitter:image" content="assets/og-cover.jpg">
 
-<link rel="stylesheet" href="style.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=0aa9ee736f">
+<script defer src="app.js?v=0aa9ee736f"></script>
 </head>
-<body class="pre-enter">
+<body>
+<a class="skip" href="#projects">Skip to projects</a>
+<div class="progress" aria-hidden="true"><span></span></div>
 
-<!-- file:// warning -->
-<div id="protocol-warning" hidden>
-    <p><strong>This star map needs a local server</strong> — opening the file directly blocks the WebGL engine.<br>
-    From the <code>portfolio-website</code> folder run <code>python -m http.server</code>, then open <code>http://localhost:8000</code>.</p>
-    <button id="protocol-warning-dismiss" aria-label="Dismiss">&times;</button>
-</div>
-
-<!-- Loading screen -->
-<div id="loading-screen">
-    <div class="loader-ring"></div>
-    <p class="loading-text">Charting the system<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
-    <div class="loading-bar"><div class="loading-bar-fill" id="loading-bar-fill"></div></div>
-</div>
-<noscript><style>#loading-screen{display:none!important}</style></noscript>
-
-<!-- Intro gate — shown before entering the solar system -->
-<div id="intro-gate">
-    <div class="gate-inner">
-        <span class="gate-mark">✦</span>
-        <span class="gate-kicker">AI / ML Engineer · MANIT Bhopal</span>
-        <h1 class="gate-name">KUNSH AGRAWAL</h1>
-        <p class="gate-tagline">A portfolio built as an explorable solar system. Eight projects, eight worlds — drift through the system and open any planet to read its story.</p>
-        <button id="enter-btn" class="gate-btn">Enter the System <span aria-hidden="true">→</span></button>
-        <span class="gate-meta">8 projects · drag to roam · scroll to zoom · click a planet</span>
-    </div>
-</div>
-
-<!-- WebGL canvas -->
-<canvas id="galaxy"></canvas>
-
-<!-- DOM labels for each body are injected here, positioned over the canvas -->
-<div id="labels" aria-hidden="true"></div>
-
-<!-- HUD -->
-<header class="hud-top">
-    <div class="hud-brand">
-        <span class="hud-mark">✦</span>
-        <span class="hud-title">THE KUNSH SYSTEM</span>
-    </div>
-    <button class="hud-btn" id="btn-star">◉ Home Star</button>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="#top">Kunsh<span>.</span></a>
+    <nav aria-label="Sections">
+      <ul class="nav">
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#journey">Journey</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
 </header>
 
-<nav class="hud-worlds" id="hud-worlds" aria-label="Jump to a world">
-    <span class="hud-worlds-label">Projects</span>
-    <!-- world chips injected by JS -->
-</nav>
-
-<div class="hud-bottom">
-    <p class="hud-hint" id="hud-hint">Drag to roam · Scroll to zoom · Click a planet</p>
-    <button class="hud-btn ghost" id="btn-reset">⤢ Reset view</button>
-</div>
-
-<!-- Body info pop-up -->
-<div id="popup" class="popup" role="dialog" aria-modal="true">
-    <div class="popup-card">
-        <button class="popup-close" id="popup-close" aria-label="Close">&times;</button>
-        <div class="popup-body" id="popup-body"><!-- filled by JS --></div>
-    </div>
-</div>
-
-<!-- Mission Details Modal (full README) -->
-<div id="readme-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-github-link">
-    <div class="modal-content">
-        <button class="close-btn" aria-label="Close modal">&times;</button>
-        <div class="modal-header">
-            <a id="modal-github-link" href="#" target="_blank" rel="noopener" class="btn-ghost btn-sm">View on GitHub ↗</a>
+<main id="top">
+  <section class="hero" aria-labelledby="hero-name">
+    <div class="wrap hero-grid">
+      <div class="intro">
+        <p class="hello fade-in" style="--d:.1s">Hi, I'm an <b>AI and ML engineer</b> at MANIT Bhopal</p>
+        <h1 class="name" id="hero-name" aria-label="Kunsh Agrawal">
+          <span class="line" aria-hidden="true"><span class="ch" style="--i:0">K</span><span class="ch" style="--i:1">u</span><span class="ch" style="--i:2">n</span><span class="ch" style="--i:3">s</span><span class="ch" style="--i:4">h</span></span>
+          <span class="line grad" aria-hidden="true" style="--n:7"><span class="ch" style="--i:5;--k:0">A</span><span class="ch" style="--i:6;--k:1">g</span><span class="ch" style="--i:7;--k:2">r</span><span class="ch" style="--i:8;--k:3">a</span><span class="ch" style="--i:9;--k:4">w</span><span class="ch" style="--i:10;--k:5">a</span><span class="ch" style="--i:11;--k:6">l</span></span>
+        </h1>
+        <p class="tagline fade-in" style="--d:.6s">I build machine-learning tools, then <em>measure whether they work.</em></p>
+        <p class="intro-text fade-in" style="--d:.8s">Local language models, retrieval, agents, computer vision and sequence models. The network shows which of these went into each project.</p>
+        <div class="hero-actions fade-in" style="--d:1s">
+          <a class="btn solid" href="mailto:kunsh16906@gmail.com">Email me</a>
+          <a class="btn" href="https://github.com/Kunsh162007" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn" href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank" rel="noopener">LinkedIn</a>
         </div>
-        <div id="markdown-container" class="markdown-body"></div>
+        <a class="scroll-cue fade-in" style="--d:2.2s" href="#projects"><span aria-hidden="true"></span>Scroll for all projects, my journey and more</a>
+      </div>
+
+      <div class="net-wrap" id="work">
+        <div class="net-head fade-in" style="--d:.3s">
+          <h2>My work, as a network</h2>
+          <p>Hover a skill to trace it. Pick a project to open it.</p>
+        </div>
+        <div class="net">
+          <canvas id="wires" aria-hidden="true"></canvas>
+          <div class="layer inputs" role="group" aria-label="Skills">
+            <span class="layer-label">What I work with</span>
+          <button class="skill" type="button" data-skill="llm" style="--l:0;--j:0">Language models<span class="dot" aria-hidden="true"></span></button>
+          <button class="skill" type="button" data-skill="rag" style="--l:0;--j:1">Retrieval and RAG<span class="dot" aria-hidden="true"></span></button>
+          <button class="skill" type="button" data-skill="agents" style="--l:0;--j:2">Agents and tool use<span class="dot" aria-hidden="true"></span></button>
+          <button class="skill" type="button" data-skill="vision" style="--l:0;--j:3">Computer vision<span class="dot" aria-hidden="true"></span></button>
+          <button class="skill" type="button" data-skill="xai" style="--l:0;--j:4">Explainable AI<span class="dot" aria-hidden="true"></span></button>
+          <button class="skill" type="button" data-skill="seq" style="--l:0;--j:5">Sequence models<span class="dot" aria-hidden="true"></span></button>
+          <button class="skill" type="button" data-skill="graph" style="--l:0;--j:6">Graph analytics<span class="dot" aria-hidden="true"></span></button>
+          <button class="skill" type="button" data-skill="eval" style="--l:0;--j:7">Evaluation<span class="dot" aria-hidden="true"></span></button>
+          </div>
+          <div class="layer hidden-layer one" aria-hidden="true"><span class="hn" style="--l:1;--j:0"></span><span class="hn" style="--l:1;--j:1"></span><span class="hn" style="--l:1;--j:2"></span><span class="hn" style="--l:1;--j:3"></span><span class="hn" style="--l:1;--j:4"></span><span class="hn" style="--l:1;--j:5"></span></div>
+          <div class="layer hidden-layer two" aria-hidden="true"><span class="hn" style="--l:2;--j:0"></span><span class="hn" style="--l:2;--j:1"></span><span class="hn" style="--l:2;--j:2"></span><span class="hn" style="--l:2;--j:3"></span><span class="hn" style="--l:2;--j:4"></span><span class="hn" style="--l:2;--j:5"></span></div>
+          <div class="layer outputs" role="group" aria-label="Projects">
+            <span class="layer-label">Projects</span>
+          <button class="pnode" type="button" data-open="margin" data-skills="llm rag agents vision eval" style="--accent:#FCA50A;--l:3;--j:0" aria-haspopup="dialog"><span class="orb"><img src="assets/work/thumbs/margin.webp" width="160" height="160" alt=""></span><span class="txt"><b>Margin</b><small>Offline study assistant</small></span><span class="open" aria-hidden="true">Open</span></button>
+          <button class="pnode" type="button" data-open="drishti" data-skills="rag graph" style="--accent:#F2663A;--l:3;--j:1" aria-haspopup="dialog"><span class="orb"><img src="assets/work/thumbs/drishti.webp" width="160" height="160" alt=""></span><span class="txt"><b>DRISHTI</b><small>Crime analytics for KSP</small></span><span class="open" aria-hidden="true">Open</span></button>
+          <button class="pnode" type="button" data-open="research" data-skills="llm rag agents" style="--accent:#EE5E90;--l:3;--j:2" aria-haspopup="dialog"><span class="orb"><img src="assets/work/thumbs/research.webp" width="160" height="160" alt=""></span><span class="txt"><b>Agentic Research</b><small>Self-grading research agent</small></span><span class="open" aria-hidden="true">Open</span></button>
+          <button class="pnode" type="button" data-open="alzheimers" data-skills="vision xai eval" style="--accent:#FCD86A;--l:3;--j:3" aria-haspopup="dialog"><span class="orb"><img src="assets/work/thumbs/alzheimers.webp" width="160" height="160" alt=""></span><span class="txt"><b>Alzheimer&#x27;s MRI</b><small>CNNs with explainable AI</small></span><span class="open" aria-hidden="true">Open</span></button>
+          <button class="pnode" type="button" data-open="forecasting" data-skills="seq eval" style="--accent:#B97BF0;--l:3;--j:4" aria-haspopup="dialog"><span class="orb"><img src="assets/work/thumbs/forecasting.webp" width="160" height="160" alt=""></span><span class="txt"><b>Forecasting</b><small>Seven RNNs compared</small></span><span class="open" aria-hidden="true">Open</span></button>
+          <button class="pnode" type="button" data-open="text" data-skills="seq eval" style="--accent:#F58B5A;--l:3;--j:5" aria-haspopup="dialog"><span class="orb"><span class="mini-bars"><i style="height:90%"></i><i style="height:70%"></i><i style="height:84%"></i></span></span><span class="txt"><b>Text classification</b><small>Baseline beats Bi-LSTM</small></span><span class="open" aria-hidden="true">Open</span></button>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </section>
 
-<script>
-(function () {
-    if (location.protocol === 'file:') {
-        var w = document.getElementById('protocol-warning');
-        if (w) w.hidden = false;
-    }
-    var d = document.getElementById('protocol-warning-dismiss');
-    if (d) d.addEventListener('click', function () { document.getElementById('protocol-warning').hidden = true; });
-    setTimeout(function () {
-        var ls = document.getElementById('loading-screen');
-        if (ls && !ls.classList.contains('loaded')) ls.classList.add('loaded');
-    }, 6000);
-})();
-</script>
+  <section class="section" id="projects" aria-labelledby="projects-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2 id="projects-title">Projects</h2>
+        <p>Six projects, newest first. Open any of them for the full story, results and code.</p>
+      </div>
+      <div class="bento">
+        <article class="pcard reveal featured" style="--accent:#FCA50A">
+          <div class="card-media"><img src="assets/work/margin.webp" width="1400" height="871" loading="lazy" decoding="async" alt=""></div>
+          <div class="card-body">
+            <div class="meta"><span class="tag">Open source</span><span>September 2026</span></div>
+            <h3><button type="button" class="card-open" data-open="margin" aria-haspopup="dialog">Margin</button></h3>
+            <p>Reads your books and past papers, finds what the exam asks, and writes checked notes and practice questions. Fully offline.</p>
+            <div class="card-nums"><div><b>93%</b><span>of favoured chapters found on generated papers</span></div><div><b>105/105</b><span>diagrams render, output from nine models</span></div></div>
+            <ul class="card-tags"><li>Python</li><li>llama.cpp</li><li>Gemma 4</li><li>ONNX Runtime</li></ul>
+            <span class="card-cta" aria-hidden="true">Open project <span class="arrow">&#8594;</span></span>
+          </div>
+        </article>
+        <article class="pcard reveal" style="--accent:#F2663A">
+          <div class="card-media"><img src="assets/work/drishti.webp" width="1100" height="688" loading="lazy" decoding="async" alt=""></div>
+          <div class="card-body">
+            <div class="meta"><span class="tag">KSP Datathon 2026, team lead</span><span>July 2026</span></div>
+            <h3><button type="button" class="card-open" data-open="drishti" aria-haspopup="dialog">DRISHTI</button></h3>
+            <p>Crime hotspots, suspect networks and a cited assistant over FIR records, built for Karnataka State Police.</p>
+            <div class="card-nums"><div><b>25,000</b><span>synthetic FIR records</span></div><div><b>19</b><span>live API endpoints</span></div></div>
+            <ul class="card-tags"><li>FastAPI</li><li>SQLite</li><li>JavaScript</li><li>Docker</li></ul>
+            <span class="card-cta" aria-hidden="true">Open project <span class="arrow">&#8594;</span></span>
+          </div>
+        </article>
+        <article class="pcard reveal" style="--accent:#EE5E90">
+          <div class="card-media"><img src="assets/work/research.webp" width="1400" height="666" loading="lazy" decoding="async" alt=""></div>
+          <div class="card-body">
+            <div class="meta"><span class="tag">Live demo</span><span>June 2026</span></div>
+            <h3><button type="button" class="card-open" data-open="research" aria-haspopup="dialog">Agentic Research</button></h3>
+            <p>Searches the web, arXiv and GitHub, grades its own answer and keeps going until it is good enough.</p>
+            <div class="card-nums"><div><b>3</b><span>sources searched per question</span></div><div><b>0–100</b><span>answer score it grades itself on</span></div></div>
+            <ul class="card-tags"><li>LangGraph</li><li>FastAPI</li><li>React</li><li>Groq</li></ul>
+            <span class="card-cta" aria-hidden="true">Open project <span class="arrow">&#8594;</span></span>
+          </div>
+        </article>
+        <article class="pcard reveal" style="--accent:#FCD86A">
+          <div class="card-media"><img src="assets/work/alzheimers.webp" width="1400" height="528" loading="lazy" decoding="async" alt=""></div>
+          <div class="card-body">
+            <div class="meta"><span class="tag">Medical imaging</span><span>March 2026</span></div>
+            <h3><button type="button" class="card-open" data-open="alzheimers" aria-haspopup="dialog">Alzheimer&#x27;s MRI</button></h3>
+            <p>Five CNNs grade Alzheimer&#x27;s from MRI scans; six explainability methods show where they looked.</p>
+            <div class="card-nums"><div><b>95.4%</b><span>ensemble accuracy on held-out scans</span></div><div><b>0.993</b><span>AUC</span></div></div>
+            <ul class="card-tags"><li>TensorFlow</li><li>PyTorch</li><li>Grad-CAM</li><li>SHAP</li></ul>
+            <span class="card-cta" aria-hidden="true">Open project <span class="arrow">&#8594;</span></span>
+          </div>
+        </article>
+        <article class="pcard reveal" style="--accent:#B97BF0">
+          <div class="card-media"><img src="assets/work/forecasting.webp" width="1400" height="727" loading="lazy" decoding="async" alt=""></div>
+          <div class="card-body">
+            <div class="meta"><span class="tag">Time series</span><span>April 2026</span></div>
+            <h3><button type="button" class="card-open" data-open="forecasting" aria-haspopup="dialog">Forecasting</button></h3>
+            <p>Seven recurrent networks, one dataset, one test split: a fair fight from plain RNN to Seq2Seq.</p>
+            <div class="card-nums"><div><b>7</b><span>architectures, same test split</span></div><div><b>2.23</b><span>best RMSE in °C, from the GRU</span></div></div>
+            <ul class="card-tags"><li>TensorFlow</li><li>Keras</li><li>NumPy</li><li>Pandas</li></ul>
+            <span class="card-cta" aria-hidden="true">Open project <span class="arrow">&#8594;</span></span>
+          </div>
+        </article>
+        <article class="pcard reveal wide" style="--accent:#F58B5A">
+          <div class="card-media bars-media" aria-hidden="true"><div class="mb"><span>Bag-of-words</span><i style="--w:87.3%"></i><b>87.3%</b></div><div class="mb alt"><span>Bi-LSTM</span><i style="--w:84.9%"></i><b>84.9%</b></div><small>IMDB accuracy</small></div>
+          <div class="card-body">
+            <div class="meta"><span class="tag">NLP</span><span>April 2026</span></div>
+            <h3><button type="button" class="card-open" data-open="text" aria-haspopup="dialog">Text classification</button></h3>
+            <p>A bag-of-words baseline beat a Bi-LSTM on two datasets and trained over a thousand times faster on IMDB.</p>
+            <div class="card-nums"><div><b>87.3%</b><span>IMDB accuracy, bag-of-words</span></div><div><b>1,168×</b><span>faster to train on IMDB (0.8 s vs 15 min)</span></div></div>
+            <ul class="card-tags"><li>PyTorch</li><li>scikit-learn</li><li>NLTK</li><li>Hugging Face Datasets</li></ul>
+            <span class="card-cta" aria-hidden="true">Open project <span class="arrow">&#8594;</span></span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<!-- GSAP (vendored locally) — powers the cinematic camera + UI motion in main.js -->
-<script src="./vendor/gsap.min.js"></script>
-<script type="importmap">
-{ "imports": { "three": "./vendor/three.module.js" } }
-</script>
-<script type="module" src="main.js"></script>
+  <section class="section" id="journey" aria-labelledby="journey-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2 id="journey-title">Journey so far</h2>
+        <p>From my first course to leading a datathon team, in about a year.</p>
+      </div>
+      <ol class="timeline"><li class="reveal" style="--j:0"><span class="when">2025</span><h3>Started B.Tech, Electronics and Communication</h3><p>MANIT Bhopal. Finished the Machine Learning Specialization, CS50P and CS50x.</p></li><li class="reveal" style="--j:1"><span class="when">Mar 2026</span><h3>Alzheimer&#x27;s MRI classification</h3><p>First deep-learning project: five CNNs and six explainability methods.</p></li><li class="reveal" style="--j:2"><span class="when">Apr 2026</span><h3>Sequence models and NLP</h3><p>Seven RNNs for forecasting, and a text-classification study. Completed IISc&#x27;s Foundations of Deep Learning.</p></li><li class="reveal" style="--j:3"><span class="when">Jun 2026</span><h3>Agentic Research Assistant</h3><p>First agent: a self-grading Self-RAG loop, deployed with sign-in and a live demo.</p></li><li class="reveal" style="--j:4"><span class="when">Jul 2026</span><h3>Led the team at the KSP Datathon</h3><p>Built DRISHTI with three teammates for Karnataka State Police.</p></li><li class="reveal" style="--j:5"><span class="when">Sep 2026</span><h3>Released Margin as open source</h3><p>An offline study assistant with 207 tests and every claim backed by an evaluation.</p></li></ol>
+    </div>
+  </section>
+
+  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <h2 id="about-title">About</h2>
+        <p>First-year Electronics and Communication student who learns a model by building it, then testing it until the numbers are honest.</p>
+      </div>
+      <div class="about-grid">
+        <div class="card edu reveal">
+          <h3>Education</h3>
+          <p class="big-num"><span>8.93</span> <small>CGPA out of 10</small></p>
+          <p class="school">B.Tech, Electronics and Communication <span>at MANIT Bhopal, 2025–2029</span></p>
+          <ul class="list">
+            <li><span>Class XII, Campion School, Bhopal</span><span>92.6%</span></li>
+            <li><span>Class X, Campion School, Bhopal</span><span>90.0%</span></li>
+          </ul>
+        </div>
+        <div class="card certs reveal">
+          <h3>Certifications</h3>
+          <ul class="list">
+            <li><span>Machine Learning Specialization<small>DeepLearning.AI and Stanford, Coursera</small></span><span>2025</span></li>
+            <li><span>CS50P and CS50x<small>Harvard University</small></span><span>2025</span></li>
+            <li><span>Foundations of Deep Learning<small>IISc Bangalore</small></span><span>2026</span></li>
+          </ul>
+        </div>
+        <div class="card skills reveal">
+          <h3>Skills</h3>
+          <div class="skill-groups">
+            <div><h4>Language models</h4><ul><li>Local LLMs</li><li>llama.cpp</li><li>Self-RAG</li><li>LangGraph</li><li>Hybrid search</li><li>Tool calling</li><li>Evaluation</li></ul></div>
+            <div><h4>Deep learning</h4><ul><li>CNNs</li><li>RNN, LSTM, GRU</li><li>Seq2Seq</li><li>Attention</li><li>Transfer learning</li><li>Grad-CAM, SHAP</li></ul></div>
+            <div><h4>Frameworks</h4><ul><li>PyTorch</li><li>TensorFlow</li><li>scikit-learn</li><li>NumPy</li><li>Pandas</li><li>ONNX Runtime</li></ul></div>
+            <div><h4>Building and shipping</h4><ul><li>Python</li><li>C</li><li>SQL</li><li>FastAPI</li><li>React</li><li>Docker</li><li>pytest</li><li>GitHub Actions</li></ul></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contact" aria-labelledby="contact-title">
+    <div class="wrap">
+      <h2 id="contact-title" class="reveal">Let's build something that works.</h2>
+      <p class="reveal">I'm looking for internships and research projects in machine learning. The fastest way to reach me is email.</p>
+      <div class="email-row reveal">
+        <a class="email-link" href="mailto:kunsh16906@gmail.com">kunsh16906@gmail.com</a>
+        <button class="btn copy" type="button" data-copy="kunsh16906@gmail.com">Copy email</button>
+        <span class="copied" role="status" aria-live="polite"></span>
+      </div>
+      <div class="hero-actions reveal">
+        <a class="btn" href="https://github.com/Kunsh162007" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn" href="https://www.linkedin.com/in/kunsh-agrawal-b1aa19351/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <div class="foot">
+        <span>Kunsh Agrawal, Bhopal</span>
+        <a href="#top">Back to top</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog class="detail" id="margin" aria-labelledby="margin-title" style="--accent:#FCA50A">
+  <div class="detail-scroll">
+    <div class="detail-top">
+      <span class="crumb">Project 1 of 6 <b>Open source</b></span>
+      <button class="icon-btn" type="button" data-close aria-label="Close project">&times;</button>
+    </div>
+    <figure class="detail-shot"><img src="assets/work/margin.webp" width="1400" height="871" loading="lazy" decoding="async" alt="Margin&#x27;s Notes screen: checked notes on friction with key terms, and buttons to export as HTML, Markdown or an Anki deck."></figure>
+    <div class="detail-body">
+      <div class="body">
+        <div class="meta"><span class="tag">Open source</span><span>September 2026</span></div>
+        <h2 id="margin-title">Margin</h2>
+        <p class="lead">An offline study assistant that reads your textbooks and past papers, finds what the exam actually asks, and turns it into notes and practice questions.</p>
+            <p>It reads PDFs, Word files, slides and photos of pages, including equations drawn as images. It ranks chapters by how many marks past papers give them, then spends its effort there.</p>
+            <p>Every sentence in its notes is checked against the book and removed if the book does not support it. Practice answers are marked point by point, and questions you miss come back on a spaced schedule.</p>
+            <p>It all runs on your own computer with a small local model, with no account or internet after setup. I chose the model by benchmarking nine open models on CPU and GPU.</p>
+      </div>
+      <div class="side">
+        <h3>Results</h3>
+        <dl class="stats"><div><dt>of favoured chapters found on generated papers</dt><dd data-count="93" data-suffix="%">93%</dd></div><div><dt>diagrams render, output from nine models</dt><dd data-count="105" data-suffix="/105">105/105</dd></div><div><dt>false formula matches on 937 altered answers</dt><dd data-count="0" data-suffix="">0</dd></div><div><dt>tests on Windows, macOS and Linux</dt><dd data-count="207" data-suffix="">207</dd></div></dl>
+        <h3>Built with</h3>
+        <ul class="stack"><li>Python</li><li>llama.cpp</li><li>Gemma 4</li><li>ONNX Runtime</li><li>SQLite</li><li>Textual</li></ul>
+        <div class="links"><a class="btn solid" href="https://github.com/Kunsh162007/margin" target="_blank" rel="noopener">View on GitHub</a></div>
+        <p class="note">Known limit: the sentence check compares words, not meaning, so it misses about two in five unsupported sentences on human-labelled answers.</p>
+      </div>
+    </div>
+    <nav class="detail-nav" aria-label="More projects">
+      <button type="button" data-prev><small>Previous</small>Text classification</button>
+      <button type="button" data-next><small>Next</small>DRISHTI</button>
+    </nav>
+  </div>
+</dialog>
+
+<dialog class="detail" id="drishti" aria-labelledby="drishti-title" style="--accent:#F2663A">
+  <div class="detail-scroll">
+    <div class="detail-top">
+      <span class="crumb">Project 2 of 6 <b>KSP Datathon 2026, team lead</b></span>
+      <button class="icon-btn" type="button" data-close aria-label="Close project">&times;</button>
+    </div>
+    <figure class="detail-shot"><img src="assets/work/drishti.webp" width="1100" height="688" loading="lazy" decoding="async" alt="DRISHTI&#x27;s network view: a circular graph linking people, FIRs, vehicles and police stations."></figure>
+    <div class="detail-body">
+      <div class="body">
+        <div class="meta"><span class="tag">KSP Datathon 2026, team lead</span><span>July 2026</span></div>
+        <h2 id="drishti-title">DRISHTI</h2>
+        <p class="lead">A crime-analytics platform that turns police FIR records into decision support for Karnataka State Police.</p>
+            <p>It finds statistical crime hotspots and emerging trends, maps suspect and call-record networks, and traces money through cybercrime cases.</p>
+            <p>Its assistant answers only from records it retrieved, cites the FIRs it used, and refuses when nothing matches. I led a team of four; the live build runs on synthetic data, and we designed the architecture for a real pilot on PostGIS, Neo4j and Qdrant.</p>
+      </div>
+      <div class="side">
+        <h3>Results</h3>
+        <dl class="stats"><div><dt>synthetic FIR records</dt><dd data-count="25000" data-suffix="">25,000</dd></div><div><dt>live API endpoints</dt><dd data-count="19" data-suffix="">19</dd></div><div><dt>nodes in the network view</dt><dd data-count="1306" data-suffix="">1,306</dd></div></dl>
+        <h3>Built with</h3>
+        <ul class="stack"><li>FastAPI</li><li>SQLite</li><li>JavaScript</li><li>Docker</li><li>Catalyst AppSail</li></ul>
+        <div class="links"><a class="btn solid" href="https://drishti-demo.onrender.com/" target="_blank" rel="noopener"><span class="live" aria-hidden="true"></span>Open live demo</a><a class="btn" href="https://github.com/Kunsh162007/Drishti" target="_blank" rel="noopener">View code</a></div>
+        <p class="note">Demo sign-in details are filled in for you on the login page.</p>
+      </div>
+    </div>
+    <nav class="detail-nav" aria-label="More projects">
+      <button type="button" data-prev><small>Previous</small>Margin</button>
+      <button type="button" data-next><small>Next</small>Agentic Research</button>
+    </nav>
+  </div>
+</dialog>
+
+<dialog class="detail" id="research" aria-labelledby="research-title" style="--accent:#EE5E90">
+  <div class="detail-scroll">
+    <div class="detail-top">
+      <span class="crumb">Project 3 of 6 <b>Live demo</b></span>
+      <button class="icon-btn" type="button" data-close aria-label="Close project">&times;</button>
+    </div>
+    <figure class="detail-shot"><img src="assets/work/research.webp" width="1400" height="666" loading="lazy" decoding="async" alt="The research assistant&#x27;s home screen asking what you would like to explore, with options to validate an idea, find tools, learn a concept or run deep research."></figure>
+    <div class="detail-body">
+      <div class="body">
+        <div class="meta"><span class="tag">Live demo</span><span>June 2026</span></div>
+        <h2 id="research-title">Agentic Research</h2>
+        <p class="lead">A research agent that searches the web, arXiv and GitHub, grades its own sources and draft, and keeps going until the answer is good enough.</p>
+            <p>It follows the Self-RAG pattern. Each round it decides whether it needs more information, keeps only relevant results, drafts an answer and scores it from 0 to 100. When the score reaches the target it writes a cited report.</p>
+            <p>Every step is saved, so a crashed run picks up where it stopped. A daily monitor tracks the topics you follow and surfaces new papers.</p>
+      </div>
+      <div class="side">
+        <h3>Results</h3>
+        <dl class="stats"><div><dt>sources searched per question</dt><dd data-count="3" data-suffix="">3</dd></div><div><dt>answer score it grades itself on</dt><dd>0–100</dd></div><div><dt>kinds of upload: text, images, audio, data</dt><dd data-count="4" data-suffix="">4</dd></div></dl>
+        <h3>Built with</h3>
+        <ul class="stack"><li>LangGraph</li><li>FastAPI</li><li>React</li><li>Groq</li><li>Gemini</li><li>Google sign-in</li></ul>
+        <div class="links"><a class="btn solid" href="https://research-assistant-0g24.onrender.com/" target="_blank" rel="noopener"><span class="live" aria-hidden="true"></span>Open live demo</a><a class="btn" href="https://github.com/Kunsh162007/multi-research-agent" target="_blank" rel="noopener">View code</a></div>
+        <p class="note">Runs on a free server that sleeps when idle, so the first load can take a minute.</p>
+      </div>
+    </div>
+    <nav class="detail-nav" aria-label="More projects">
+      <button type="button" data-prev><small>Previous</small>DRISHTI</button>
+      <button type="button" data-next><small>Next</small>Alzheimer&#x27;s MRI</button>
+    </nav>
+  </div>
+</dialog>
+
+<dialog class="detail" id="alzheimers" aria-labelledby="alzheimers-title" style="--accent:#FCD86A">
+  <div class="detail-scroll">
+    <div class="detail-top">
+      <span class="crumb">Project 4 of 6 <b>Medical imaging</b></span>
+      <button class="icon-btn" type="button" data-close aria-label="Close project">&times;</button>
+    </div>
+    <figure class="detail-shot"><img src="assets/work/alzheimers.webp" width="1400" height="528" loading="lazy" decoding="async" alt="A brain MRI slice beside two heatmaps from ResNet50 showing which regions drove its prediction."></figure>
+    <div class="detail-body">
+      <div class="body">
+        <div class="meta"><span class="tag">Medical imaging</span><span>March 2026</span></div>
+        <h2 id="alzheimers-title">Alzheimer&#x27;s MRI</h2>
+        <p class="lead">Five convolutional networks that grade Alzheimer&#x27;s disease from brain scans, and six ways of showing where each one looked.</p>
+            <p>I trained a custom CNN, AlexNet, VGG16, GoogLeNet and ResNet50, rebuilt two of them in PyTorch to compare frameworks, and combined them into an ensemble.</p>
+            <p>Grad-CAM, Guided Backprop, SHAP, LIME, Occlusion and Score-CAM check that the models focus on the ventricles and cortex, where the disease shows up.</p>
+      </div>
+      <div class="side">
+        <h3>Results</h3>
+        <dl class="stats"><div><dt>ensemble accuracy on held-out scans</dt><dd data-count="95.4" data-suffix="%">95.4%</dd></div><div><dt>AUC</dt><dd data-count="0.993" data-suffix="">0.993</dd></div><div><dt>MRI slices in four classes</dt><dd data-count="6400" data-suffix="">6,400</dd></div></dl>
+        <h3>Built with</h3>
+        <ul class="stack"><li>TensorFlow</li><li>PyTorch</li><li>Grad-CAM</li><li>SHAP</li><li>LIME</li></ul>
+        <div class="links"><a class="btn solid" href="https://github.com/Kunsh162007/medical-imaging-cnn-xai" target="_blank" rel="noopener">View on GitHub</a></div>
+        
+      </div>
+    </div>
+    <nav class="detail-nav" aria-label="More projects">
+      <button type="button" data-prev><small>Previous</small>Agentic Research</button>
+      <button type="button" data-next><small>Next</small>Forecasting</button>
+    </nav>
+  </div>
+</dialog>
+
+<dialog class="detail" id="forecasting" aria-labelledby="forecasting-title" style="--accent:#B97BF0">
+  <div class="detail-scroll">
+    <div class="detail-top">
+      <span class="crumb">Project 5 of 6 <b>Time series</b></span>
+      <button class="icon-btn" type="button" data-close aria-label="Close project">&times;</button>
+    </div>
+    <figure class="detail-shot"><img src="assets/work/forecasting.webp" width="1400" height="727" loading="lazy" decoding="async" alt="Dashboard comparing seven recurrent networks: RMSE bars, training-loss curves, a radar chart and the GRU&#x27;s predictions against real temperatures."></figure>
+    <div class="detail-body">
+      <div class="body">
+        <div class="meta"><span class="tag">Time series</span><span>April 2026</span></div>
+        <h2 id="forecasting-title">Forecasting</h2>
+        <p class="lead">Seven recurrent networks trained on the same Melbourne temperature data, from a plain RNN up to an encoder–decoder with attention.</p>
+            <p>Given 30 days of history, each model predicts the days ahead. Every model uses the same data and the same test split, so the comparison is fair.</p>
+            <p>I wrote a Bahdanau attention layer and a tool that shows gradients fading through time, which is why plain RNNs struggle on long sequences.</p>
+      </div>
+      <div class="side">
+        <h3>Results</h3>
+        <dl class="stats"><div><dt>architectures, same test split</dt><dd data-count="7" data-suffix="">7</dd></div><div><dt>best RMSE in °C, from the GRU</dt><dd data-count="2.23" data-suffix="">2.23</dd></div><div><dt>days of history per prediction</dt><dd data-count="30" data-suffix="">30</dd></div></dl>
+        <h3>Built with</h3>
+        <ul class="stack"><li>TensorFlow</li><li>Keras</li><li>NumPy</li><li>Pandas</li></ul>
+        <div class="links"><a class="btn solid" href="https://github.com/Kunsh162007/RNN-Seq2Seq-Temperature-Forecasting" target="_blank" rel="noopener">View on GitHub</a></div>
+        
+      </div>
+    </div>
+    <nav class="detail-nav" aria-label="More projects">
+      <button type="button" data-prev><small>Previous</small>Alzheimer&#x27;s MRI</button>
+      <button type="button" data-next><small>Next</small>Text classification</button>
+    </nav>
+  </div>
+</dialog>
+
+<dialog class="detail" id="text" aria-labelledby="text-title" style="--accent:#F58B5A">
+  <div class="detail-scroll">
+    <div class="detail-top">
+      <span class="crumb">Project 6 of 6 <b>NLP</b></span>
+      <button class="icon-btn" type="button" data-close aria-label="Close project">&times;</button>
+    </div>
+    <div class="detail-shot"><div class="bars">
+            <h4>Accuracy on the test set</h4>
+            <p class="sub">Simple bag-of-words against a Bi-LSTM</p>
+            <div class="bar-group">
+              <p>IMDB movie reviews</p>
+              <div class="bar-row"><span>Bag-of-words<small class="time">0.8 s to train</small></span><div class="track"><div class="fill" style="--w:87.3%"></div></div><b>87.3%</b></div>
+              <div class="bar-row alt"><span>Bi-LSTM<small class="time">15 min to train</small></span><div class="track"><div class="fill" style="--w:84.9%"></div></div><b>84.9%</b></div>
+            </div>
+            <div class="bar-group">
+              <p>AG News topics</p>
+              <div class="bar-row"><span>Bag-of-words<small class="time">2.8 s to train</small></span><div class="track"><div class="fill" style="--w:84.9%"></div></div><b>84.9%</b></div>
+              <div class="bar-row alt"><span>Bi-LSTM<small class="time">23 min to train</small></span><div class="track"><div class="fill" style="--w:83.7%"></div></div><b>83.7%</b></div>
+            </div>
+          </div></div>
+    <div class="detail-body">
+      <div class="body">
+        <div class="meta"><span class="tag">NLP</span><span>April 2026</span></div>
+        <h2 id="text-title">Text classification</h2>
+        <p class="lead">A bag-of-words model against a bidirectional LSTM, on movie-review sentiment and news topics.</p>
+            <p>The simple model won on both datasets and trained hundreds of times faster. A good reminder to try a strong baseline before reaching for a deeper network.</p>
+      </div>
+      <div class="side">
+        <h3>Results</h3>
+        <dl class="stats"><div><dt>IMDB accuracy, bag-of-words</dt><dd data-count="87.3" data-suffix="%">87.3%</dd></div><div><dt>faster to train on IMDB (0.8 s vs 15 min)</dt><dd data-count="1168" data-suffix="×">1,168×</dd></div></dl>
+        <h3>Built with</h3>
+        <ul class="stack"><li>PyTorch</li><li>scikit-learn</li><li>NLTK</li><li>Hugging Face Datasets</li></ul>
+        <div class="links"><a class="btn solid" href="https://github.com/Kunsh162007/nlp-embeddings-rnn" target="_blank" rel="noopener">View on GitHub</a></div>
+        
+      </div>
+    </div>
+    <nav class="detail-nav" aria-label="More projects">
+      <button type="button" data-prev><small>Previous</small>Forecasting</button>
+      <button type="button" data-next><small>Next</small>Margin</button>
+    </nav>
+  </div>
+</dialog>
 </body>
 </html>
